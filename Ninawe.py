@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#                 Version: Very RAW1
+#                 Version: Very RAW2
 # And remember guys: Ninawe is not a windows explorer
 
 import tkinter as tk
@@ -17,13 +17,55 @@ import neofetch_win
 import time
 import configparser
 
-class Config:
+class Effects:
+    def __init__(self):
+        self.AnimationSteps = 0
+        self.AnimationDelay = 0
+        self.HalfSteps = 0
+        self.HalfDelay = 0
+
+    def Update(self):
+        self.AnimationSteps = round(Config.AnimationDuration * Config.AnimationFrames)
+        self.AnimationDelay = round((1000 * Config.AnimationDuration) / self.AnimationSteps)
+        self.HalfSteps = round(self.AnimationSteps / 2)
+        self.HalfDelay = round(self.AnimationDelay / 2)
+    
+    def Hide(self, ObjectsPreferences, Action, half = False, step = None):
+        steps = self.HalfSteps if half else self.AnimationSteps
+        delay = self.HalfDelay if half else self.AnimationDelay
+        if step is None:
+            step = steps
+
+        Alpha = step / steps
+        for ObjectPreference in ObjectsPreferences:
+            for Object, AlphaMultiplier in ObjectPreference:
+                Object.root.attributes('-alpha', Alpha * AlphaMultiplier)
+        if step > 0:
+            UserDesktop.root.after(delay, lambda: self.Hide(ObjectsPreferences, Action, half, step - 1))
+        else:
+            Action()
+
+    def Show(self, ObjectsPreferences, Action, half = False, step = 0):
+        steps = self.HalfSteps if half else self.AnimationSteps
+        delay = self.HalfDelay if half else self.AnimationDelay
+
+        Alpha = step / steps
+        for ObjectPreference in ObjectsPreferences:
+            for Object, AlphaMultiplier in ObjectPreference:
+                Object.root.attributes('-alpha', Alpha * AlphaMultiplier)
+        if step < steps:
+            UserDesktop.root.after(delay, lambda: self.Show(ObjectsPreferences, Action, half, step + 1))
+        else:
+            Action()
+
+class Configs:
     def __init__(self):
         self.Resolution = None
         self.PanelBGColor = None
         self.PanelTextColor = None
         self.PanelMargin = None
         self.PanelDimensions = None
+        self.WindowDefaultBGImagePath = None
         self.WindowBGImage = None
         self.PanelRoundingRadius = None
         self.PanelAlpha = None
@@ -31,8 +73,6 @@ class Config:
         self.OnThemeCount = 0
         self.AnimationFrames = 0
         self.AnimationDuration = 0
-        self.AnimationDelay = 0
-        self.AnimationSteps = 0
 
     def Parse(self):
         config = configparser.ConfigParser()
@@ -41,6 +81,7 @@ class Config:
         self.Resolution = self.GetResolution()
 
         # Window
+        self.WindowDefaultBGImagePath = config['Window']['BackgroundImage']
         self.WindowBGImage = self.WindowBackgroundImageConfigure()
         
         # Panel
@@ -49,17 +90,17 @@ class Config:
         self.PanelDimensions = self.PanelMarginConfigure()
         self.PanelRoundingRadius = config.getint('Panel', 'RoundingRadius')
         self.PanelAlpha = config.getfloat('Panel', 'Alpha')
+        self.PanelTextColor = config['Panel']['TextColor']
         
         # Preferences
         self.AnimationDuration = config.getfloat('Preferences', 'AnimationDuration')
         self.AnimationFrames = config.getint('Preferences', 'AnimationFrames')
-        self.AnimationSteps = round(self.AnimationDuration * self.AnimationFrames)
-        self.AnimationDelay = round((1000 * self.AnimationDuration) / self.AnimationSteps)
         
         # Themes
         self.ThemeParse(config)
 
     def ThemeParse(self, config):
+        self.Themes.clear()
         for key, value in config['Themes'].items():
             color, text, image = [s.strip() for s in value.split(',')]
             self.Themes.append((color, text, image))
@@ -81,7 +122,7 @@ class Config:
         if CustomDirectory:
             file = glob.glob(CustomDirectory)
         else:
-            file = glob.glob("background\\background.*")
+            file = glob.glob(self.WindowDefaultBGImagePath)
 
         img = Image.open(file[0])
         img = self.ResizeAndCrop(img, self.Resolution)
@@ -107,8 +148,20 @@ class Config:
 
         return img.crop((left, top, right, bottom))
 
+    def SetDefaultTheme(self, color, text, image):
+        config = configparser.ConfigParser()
+        config.read('Configuration.ini')
+
+        config.set('Window', 'BackgroundImage', image)
+        config.set('Panel', 'BGColor', color)
+        config.set('Panel', 'TextColor', text)
+
+        with open('Configuration.ini', 'w') as EditedDefaultTheme:
+            config.write(EditedDefaultTheme)
+
     def ApplyTheme(self, index):
         color, text, Image = self.Themes[index % len(self.Themes)]
+        self.SetDefaultTheme(color, text, Image)
         self.PanelBGColor = color
         self.PanelTextColor = text
         self.WindowBGImage = self.WindowBackgroundImageConfigure(Image)
@@ -119,27 +172,24 @@ class Config:
         self.OnThemeCount += 1
 
     def UpdateAllWindows(self):
-        halfsteps = round(self.AnimationSteps/2)
-        halfdelay = round(self.AnimationDelay/2)
-        def Show(step = 0):
-            Alpha = step / halfsteps
-            TaskPanel.root.attributes('-alpha', Alpha * self.PanelAlpha)
-            UserDesktop.root.attributes('-alpha', Alpha)
-            if step < halfsteps:
-                UserDesktop.root.after(halfdelay, lambda: Show(step + 1))
-
-        def HideAndUpdate(step = halfsteps):
-            Alpha = step / halfsteps
-            TaskPanel.root.attributes('-alpha', Alpha * self.PanelAlpha)
-            UserDesktop.root.attributes('-alpha', Alpha)
-            if step > 0:
-                UserDesktop.root.after(halfdelay, lambda: HideAndUpdate(step - 1))
-            else:
-                TaskPanel.ReConfigure()
-                UserDesktop.ReConfigure()
-                Show()
-
-        HideAndUpdate()
+        WindowEffects.Hide(
+            [
+                [(TaskPanel, self.PanelAlpha)],
+                [(UserDesktop, 1)]
+            ],
+            lambda: [
+                TaskPanel.ReConfigure(),
+                UserDesktop.ReConfigure(),
+                WindowEffects.Show(
+                    [
+                        [(TaskPanel, self.PanelAlpha)],
+                        [(UserDesktop, 1)]
+                    ],
+                    lambda: None, True
+                )
+            ], True
+        )
+        
 
 class Panel:
     def __init__(self, master):
@@ -209,7 +259,6 @@ class Window:
         os.system("taskkill /f /im explorer.exe")
         self.root = tk.Tk()
         self.BackgroundLabel = tk.Label(self.root)
-        self.Overlay = tk.Label(self.root, bg='black')
 
     def ReConfigure(self):
         self.root.geometry(f"{Config.Resolution[0]}x{Config.Resolution[1]}+0+0")
@@ -236,7 +285,12 @@ class Hotkeys:
             START_TERMINAL=lambda: os.system(f"""start cmd /k "cls & echo. & neofetch --stdout --art {os.path.dirname(os.path.abspath(__file__))}\\background\\console\\console_logo.txt" """),
             START_PANEL=lambda: (),
             START_FM=lambda: os.system("start explorer.exe /n"),
-            RECONFIGURE=lambda: (UserDesktop.ReConfigure(), TaskPanel.ReConfigure(), Config.Parse()),
+            RECONFIGURE=lambda: (
+                Config.Parse(),
+                WindowEffects.Update(),
+                UserDesktop.ReConfigure(),
+                TaskPanel.ReConfigure()
+                ),
             CHANGE_THEME=lambda: Config.SetTheme()
         )
         return ActionDict.get(action, lambda: None)()
@@ -264,12 +318,14 @@ class Hotkeys:
         keyboard.hook(RandomPressed)
         keyboard.wait()
 
-Config = Config()
-Config.Parse()
-
+Config = Configs()
+WindowEffects = Effects()
 UserDesktop = Window()
-HK = Hotkeys()
 TaskPanel = Panel(UserDesktop.root)
+HK = Hotkeys()
+
+Config.Parse()
+WindowEffects.Update()
 
 threading.Thread(target=HK.hotkey_listener, daemon=True).start()
 threading.Thread(target=TaskPanel.Create, daemon=True).start()
