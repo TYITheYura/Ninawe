@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#                Version: Very raw yet
+#                 Version: Very RAW1
 # And remember guys: Ninawe is not a windows explorer
 
 import tkinter as tk
@@ -29,6 +29,10 @@ class Config:
         self.PanelAlpha = None
         self.Themes = []
         self.OnThemeCount = 0
+        self.AnimationFrames = 0
+        self.AnimationDuration = 0
+        self.AnimationDelay = 0
+        self.AnimationSteps = 0
 
     def Parse(self):
         config = configparser.ConfigParser()
@@ -45,7 +49,13 @@ class Config:
         self.PanelDimensions = self.PanelMarginConfigure()
         self.PanelRoundingRadius = config.getint('Panel', 'RoundingRadius')
         self.PanelAlpha = config.getfloat('Panel', 'Alpha')
-
+        
+        # Preferences
+        self.AnimationDuration = config.getfloat('Preferences', 'AnimationDuration')
+        self.AnimationFrames = config.getint('Preferences', 'AnimationFrames')
+        self.AnimationSteps = round(self.AnimationDuration * self.AnimationFrames)
+        self.AnimationDelay = round((1000 * self.AnimationDuration) / self.AnimationSteps)
+        
         # Themes
         self.ThemeParse(config)
 
@@ -104,13 +114,32 @@ class Config:
         self.WindowBGImage = self.WindowBackgroundImageConfigure(Image)
 
     def SetTheme(self):
-        self.OnThemeCount += 1
         self.ApplyTheme(self.OnThemeCount)
         self.UpdateAllWindows()
+        self.OnThemeCount += 1
 
     def UpdateAllWindows(self):
-        TaskPanel.ReConfigure()
-        UserDesktop.ReConfigure()
+        halfsteps = round(self.AnimationSteps/2)
+        halfdelay = round(self.AnimationDelay/2)
+        def Show(step = 0):
+            Alpha = step / halfsteps
+            TaskPanel.root.attributes('-alpha', Alpha * self.PanelAlpha)
+            UserDesktop.root.attributes('-alpha', Alpha)
+            if step < halfsteps:
+                UserDesktop.root.after(halfdelay, lambda: Show(step + 1))
+
+        def HideAndUpdate(step = halfsteps):
+            Alpha = step / halfsteps
+            TaskPanel.root.attributes('-alpha', Alpha * self.PanelAlpha)
+            UserDesktop.root.attributes('-alpha', Alpha)
+            if step > 0:
+                UserDesktop.root.after(halfdelay, lambda: HideAndUpdate(step - 1))
+            else:
+                TaskPanel.ReConfigure()
+                UserDesktop.ReConfigure()
+                Show()
+
+        HideAndUpdate()
 
 class Panel:
     def __init__(self, master):
@@ -180,6 +209,7 @@ class Window:
         os.system("taskkill /f /im explorer.exe")
         self.root = tk.Tk()
         self.BackgroundLabel = tk.Label(self.root)
+        self.Overlay = tk.Label(self.root, bg='black')
 
     def ReConfigure(self):
         self.root.geometry(f"{Config.Resolution[0]}x{Config.Resolution[1]}+0+0")
@@ -206,7 +236,7 @@ class Hotkeys:
             START_TERMINAL=lambda: os.system(f"""start cmd /k "cls & echo. & neofetch --stdout --art {os.path.dirname(os.path.abspath(__file__))}\\background\\console\\console_logo.txt" """),
             START_PANEL=lambda: (),
             START_FM=lambda: os.system("start explorer.exe /n"),
-            RECONFIGURE=lambda: (UserDesktop.ReConfigure(), TaskPanel.ReConfigure()),
+            RECONFIGURE=lambda: (UserDesktop.ReConfigure(), TaskPanel.ReConfigure(), Config.Parse()),
             CHANGE_THEME=lambda: Config.SetTheme()
         )
         return ActionDict.get(action, lambda: None)()
