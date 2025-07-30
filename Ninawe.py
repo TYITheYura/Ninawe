@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#                 Version: Very RAW2
+#                 Version: Very RAW3
 # And remember guys: Ninawe is not a windows explorer
 
 import tkinter as tk
@@ -73,6 +73,15 @@ class Configs:
         self.OnThemeCount = 0
         self.AnimationFrames = 0
         self.AnimationDuration = 0
+        self.HotkeysList = []
+        self.ExitKey = None
+        self.ChangeThemeKey = None
+        self.ReConfigureKey = None
+        self.PanelKey = None
+        self.DefaultHKActions = {
+            "startfilemanager": "START_FM",
+            "startterminal": "START_TERMINAL"
+        }
 
     def Parse(self):
         config = configparser.ConfigParser()
@@ -98,6 +107,26 @@ class Configs:
         
         # Themes
         self.ThemeParse(config)
+
+        # Hotkeys
+        self.ExitKey = config['NinaweHotkeys']['NinaweQuit']
+        self.ChangeThemeKey = config['NinaweHotkeys']['NinaweChangeTheme']
+        self.ReConfigureKey = config['NinaweHotkeys']['NinaweReconfigure']
+        self.PanelKey = config['NinaweHotkeys']['NinawePanel']
+
+        self.HotkeyParse(config)
+
+    def HotkeyParse(self, config):
+        self.HotkeysList.clear()
+        for key, value in config['CustomHotkeys'].items():
+            combo, action = [s.strip() for s in value.split(',')]
+
+            if key.lower() in self.DefaultHKActions and action == "default":
+                action = lambda key = key: HK.DoAction(self.DefaultHKActions[key])
+            else:
+                action = lambda action = action: os.system(action)
+
+            self.HotkeysList.append((combo, action))
 
     def ThemeParse(self, config):
         self.Themes.clear()
@@ -128,25 +157,25 @@ class Configs:
         img = self.ResizeAndCrop(img, self.Resolution)
         return img
 
-    def ResizeAndCrop(self, img, target_size):
-        target_w, target_h = target_size
-        img_ratio = img.width / img.height
-        target_ratio = target_w / target_h
+    def ResizeAndCrop(self, img, TargetSize):
+        TargetWidth, TargetHeight = TargetSize
+        ImgRatio = img.width / img.height
+        target_ratio = TargetWidth / TargetHeight
 
-        if img_ratio > target_ratio:
-            scale = target_h / img.height
+        if ImgRatio > target_ratio:
+            Scale = TargetHeight / img.height
         else:
-            scale = target_w / img.width
+            Scale = TargetWidth / img.width
 
-        new_size = (int(img.width * scale), int(img.height * scale))
-        img = img.resize(new_size, Image.LANCZOS)
+        NewSize = (int(img.width * Scale), int(img.height * Scale))
+        img = img.resize(NewSize, Image.LANCZOS)
 
-        left = (img.width - target_w) // 2
-        top = (img.height - target_h) // 2
-        right = left + target_w
-        bottom = top + target_h
+        Left = (img.width - TargetWidth) // 2
+        Top = (img.height - TargetHeight) // 2
+        Right = Left + TargetWidth
+        Bottom = Top + TargetHeight
 
-        return img.crop((left, top, right, bottom))
+        return img.crop((Left, Top, Right, Bottom))
 
     def SetDefaultTheme(self, color, text, image):
         config = configparser.ConfigParser()
@@ -189,7 +218,6 @@ class Configs:
                 )
             ], True
         )
-        
 
 class Panel:
     def __init__(self, master):
@@ -226,15 +254,12 @@ class Panel:
     def Toggle(self):
         if self.Visible:
             self.root.withdraw()
-            print("hide")
             self.Visible = False
         else:
             self.root.deiconify()
-            print("visible")
             self.root.focus_force()
             self.Visible = True
         
-
     def HideIfOutFocus(self):
         if self.Visible:
             print("out of focus")
@@ -278,44 +303,73 @@ class Hotkeys:
     def __init__(self):
         self.WinSolo = False
         self.ThemeCounter = 0
+        self.PanelKeyAltName = None
+        self.KeyAlts = [
+            ["alt", "left alt", "right alt", "alt gr", "menu"],
+            ["ctrl", "left ctrl", "right ctrl", "control"],
+            ["shift", "left shift", "right shift"],
+            ["win", "windows", "left windows", "right windows"],
+            ["fn", "function"],
+            ["caps lock", "capslock"],
+            ["tab", "tabulator"],
+            ["esc", "escape"],
+        ]
 
     def DoAction(self, action):
         ActionDict = dict(
             SHELL_CLOSE=lambda: (os.system("start explorer.exe"), os._exit(0)),
             START_TERMINAL=lambda: os.system(f"""start cmd /k "cls & echo. & neofetch --stdout --art {os.path.dirname(os.path.abspath(__file__))}\\background\\console\\console_logo.txt" """),
-            START_PANEL=lambda: (),
             START_FM=lambda: os.system("start explorer.exe /n"),
             RECONFIGURE=lambda: (
                 Config.Parse(),
                 WindowEffects.Update(),
                 UserDesktop.ReConfigure(),
-                TaskPanel.ReConfigure()
+                TaskPanel.ReConfigure(),
+                keyboard.clear_all_hotkeys(),
+                HK.InitHotkeys()
                 ),
             CHANGE_THEME=lambda: Config.SetTheme()
         )
         return ActionDict.get(action, lambda: None)()
 
+    def InitHotkeys(self):
+
+        keyboard.add_hotkey(Config.ExitKey, lambda: self.DoAction("SHELL_CLOSE"))
+        keyboard.add_hotkey(Config.ReConfigureKey, lambda: self.DoAction("RECONFIGURE"))
+        keyboard.add_hotkey(Config.ChangeThemeKey, lambda: self.DoAction("CHANGE_THEME"))
+        
+        for combo, action in Config.HotkeysList:
+            keyboard.add_hotkey(combo, lambda action = action: action())
+
+        self.PanelKeyAltName = [keys.strip() for keys in Config.PanelKey.split(",")]
+
+        for Alts in self.KeyAlts:
+            if Config.PanelKey.lower() in Alts:
+                self.PanelKeyAltName = Alts
+                break
+
     def hotkey_listener(self):
-        def WinPressed(event):
-            self.WinSolo = True
+        def handle_event(event):
+            KeyName = event.name.lower()
 
-        def WinReleased(event):
-            if self.WinSolo:
-                TaskPanel.Toggle()
+            IsPanelKey = (
+                KeyName == Config.PanelKey.lower()
+                or KeyName in self.PanelKeyAltName
+            )
 
-        def RandomPressed(event):
-            if event.name not in ('left windows', 'right windows', "windows", "win"):
-                self.WinSolo = False
+            if event.event_type == "down":
+                if IsPanelKey:
+                    self.WinSolo = True
+                else:
+                    self.WinSolo = False
 
-        keyboard.add_hotkey('windows+q', lambda: self.DoAction("SHELL_CLOSE"))
-        keyboard.add_hotkey('windows+t', lambda: self.DoAction("START_TERMINAL"))
-        keyboard.add_hotkey('windows+p', lambda: self.DoAction("START_FM"))
-        keyboard.add_hotkey('windows+a', lambda: self.DoAction("RECONFIGURE"))
-        keyboard.add_hotkey('windows+u', lambda: self.DoAction("CHANGE_THEME"))
-        keyboard.on_press_key('windows', WinPressed)
-        keyboard.on_release_key('windows', WinReleased)
+            elif event.event_type == "up":
+                if IsPanelKey and self.WinSolo:
+                    TaskPanel.Toggle()
+                else:
+                    self.WinSolo = False
 
-        keyboard.hook(RandomPressed)
+        keyboard.hook(handle_event)
         keyboard.wait()
 
 Config = Configs()
@@ -326,6 +380,7 @@ HK = Hotkeys()
 
 Config.Parse()
 WindowEffects.Update()
+HK.InitHotkeys()
 
 threading.Thread(target=HK.hotkey_listener, daemon=True).start()
 threading.Thread(target=TaskPanel.Create, daemon=True).start()
