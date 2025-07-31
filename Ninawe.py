@@ -253,16 +253,26 @@ class Panel:
 
     def Toggle(self):
         if self.Visible:
-            self.root.withdraw()
+            WindowEffects.Hide(
+            [
+                [(TaskPanel, Config.PanelAlpha)]
+            ],
+            lambda: (self.root.withdraw())
+            )
             self.Visible = False
         else:
+            WindowEffects.Show(
+            [
+                [(TaskPanel, Config.PanelAlpha)]
+            ],
+            lambda: None
+            )
             self.root.deiconify()
             self.root.focus_force()
             self.Visible = True
         
     def HideIfOutFocus(self):
         if self.Visible:
-            print("out of focus")
             self.root.withdraw()
             self.Visible = False
 
