@@ -80,16 +80,17 @@ def MakeBlur(hwnd: int, enable: bool = True, blurMode: int = AccentState.ACCENT_
 
 # ==========[> Load fonts from file
 
-def LoadFont(fontFromConfig):
+def LoadFont(fontFromConfig, path = ""):
     if str(fontFromConfig).lower().endswith((".ttf", ".otf")):
-        if os.path.exists(fontFromConfig):
-            fontID = QFontDatabase.addApplicationFont(fontFromConfig)
+        fontFullPath = f"{path}\\{fontFromConfig}"
+        if os.path.exists(fontFullPath):
+            fontID = QFontDatabase.addApplicationFont(fontFullPath)
             if fontID != -1:
                 families = QFontDatabase.applicationFontFamilies(fontID)
                 if families:
                     return families[0]
             else:
-                print(f"[Log] [FontLoader] Could not load font from file: {fontFromConfig}")
+                print(f"[Log] [FontLoader] Could not load font from file: {fontFullPath}")
         else:
-            print(f"[Log] [FontLoader] Font file not found: {fontFromConfig}")
+            print(f"[Log] [FontLoader] Font file not found: {fontFullPath}")
     return fontFromConfig

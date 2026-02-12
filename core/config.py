@@ -48,6 +48,9 @@ class ConfigWrapper:
         except:
             return fallback
 
+    def GetSectionStatus(self, section):
+        return self.parser.has_section(section)
+
 # Theme [Global] properties (and defaults)
 class GlobalThemeConfigData:
     def __init__(self):
