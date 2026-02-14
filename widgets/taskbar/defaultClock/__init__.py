@@ -6,7 +6,7 @@ from core.utils import LoadFont, MakeBlur
 from core.config import ConfigWrapper
 import os
 
-class Clock(QLabel):
+class Widget(QLabel):
 	def __init__(self, parent = None):
 		super().__init__(parent)
 		self.setObjectName("ClockWidget")

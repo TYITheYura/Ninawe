@@ -3,8 +3,7 @@ from PyQt6.QtCore import Qt, QRect, QTime, QTimer, QRectF
 from PyQt6.QtGui import QPainter, QColor, QBrush, QFont
 from core.config import config as themeConfig
 from core.utils import LoadFont, MakeBlur
-from widgets.taskbar.clock.clock import Clock
-
+from core.widgetManager import WidgetManager
 class Taskbar(QWidget):
     def __init__(self):
         super().__init__()
@@ -17,8 +16,7 @@ class Taskbar(QWidget):
         self.rawPanelXPositionData = self.rawPanelYPositionData = None
         self.themeUpdatedState = True
 
-        # Clock widget
-        self.widgets = Clock(self)
+        self.widgetsManager = WidgetManager(self, "taskbar")
 
         self.UpdateStyles(configOnly = True)
         
@@ -92,11 +90,12 @@ class Taskbar(QWidget):
         self.radius = 0 if self.enableBlur else themeConfig.theme.GetInt("Taskbar", "border_radius_px", fallback = 10)
         self.borderColor = themeConfig.theme.Get("Taskbar", "argb_border_color", fallback = "#FFFFFF33")
         self.borderWidth = themeConfig.theme.GetInt("Taskbar", "border_width_px", fallback = 1)
+        self.widgetsManager.LoadWidgets()
 
-        if self.widgets:
-            self.widgets.panelWidth = self.panelWidth
-            self.widgets.panelHeight = self.panelHeight
-            self.widgets.Updater(changedSections)
+        if self.widgetsManager.widgets:
+            self.widgetsManager.panelWidth = self.panelWidth
+            self.widgetsManager.panelHeight = self.panelHeight
+            self.widgetsManager.ReloadStyles()
 
         if not configOnly:
             self.InitPanelComponents()

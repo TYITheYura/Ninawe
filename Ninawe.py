@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#               Version: Blue Rare 0.3
+#               Version: Blue Rare 0.4
 # And remember guys: Ninawe is not a windows explorer
 
 import sys
