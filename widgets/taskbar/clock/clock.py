@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QLabel, QGraphicsDropShadowEffect
-from PyQt6.QtCore import Qt, QTime, QTimer
+from PyQt6.QtCore import Qt, QTime, QTimer, QFileSystemWatcher
 from PyQt6.QtGui import QColor
 from core.config import config as selectedThemeConfig
 from core.utils import LoadFont, MakeBlur
@@ -27,18 +27,38 @@ class Clock(QLabel):
 		self.widgetPath = os.path.dirname(os.path.abspath(__file__))
 		self.configPath = os.path.join(self.widgetPath, "config.ini")
 
+		# Clock visibility
+		self.visibility = None
+
 		# Align clock
 		self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 		
 		# Connecting to config updating state
+		# Theme config
 		selectedThemeConfig.themeUpdated.connect(self.Updater)
+		# Clock config
+		self.clockConfigWatcher = QFileSystemWatcher()
+		if os.path.exists(self.configPath):
+			self.clockConfigWatcher.addPath(self.configPath)
+			self.clockConfigWatcher.fileChanged.connect(self.ClockConfigFileChanged)
 		
 		#  [> Clock timer
 		self.timer = QTimer(self)
 		self.timer.timeout.connect(self.UpdateTime)
-		self.timer.start(1000)
 
-	def Updater(self):
+	def ClockConfigFileChanged(self, path): # why the fuck did I even do that? lol
+		print(f"[Log] [Taskbar.Clock] | Local config changed: {path}. Updates will not be applied if there is already a section for this widget in the themeconfig.ini file.")
+		
+		if path not in self.clockConfigWatcher.files() and os.path.exists(path):
+			self.clockConfigWatcher.addPath(path)
+
+		self.Updater()
+
+	def Updater(self, changedSections = None):
+		if changedSections != None and len(changedSections) > 0:
+			if self.defaultSection not in changedSections:
+				return
+
 		self.clockConfig.parser.read(self.configPath)
 
 		# Config switcher
@@ -47,12 +67,10 @@ class Clock(QLabel):
 
 		else: # build-in widget config
 			self.selectedConfig = self.clockConfig
-		
-		# forced clock text update
-		self.UpdateTime()
 
 		# Enable/disable clock switch
-		if self.selectedConfig.GetBool(self.defaultSection, "visible", fallback = True):
+		self.visibility = self.selectedConfig.GetBool(self.defaultSection, "visible", fallback = True)
+		if self.visibility:
 			self.show()
 			if not self.timer.isActive():
 				self.timer.start(1000)
@@ -93,6 +111,14 @@ class Clock(QLabel):
 			font-size: {self.fontSize}pt;
 			background-color: transparent;
 		""")
+
+		if self.visibility:
+			self.UpdateTime()
+
+		# Correction of the width if the clock size is larger than the size specified in the config
+		self.adjustSize()
+		widgetWidth = self.width()
+		self.clockWidth = max(widgetWidth, self.clockWidth)
 
 		shadowPadding = 0
 		if self.fontShadow:

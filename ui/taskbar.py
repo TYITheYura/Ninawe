@@ -10,18 +10,17 @@ class Taskbar(QWidget):
         super().__init__()
         # =[> Connecting to theme config update event
         themeConfig.themeUpdated.connect(self.UpdateStyles)
-        self.panelBackgroundColor = self.enableBlur = self.radius = self.borderColor = self.borderWidth = self.enableBlur = self.blurMode = None
+        self.panelBackgroundColor = self.enableBlur = self.radius = self.borderColor = self.borderWidth = self.blurMode = None
         self.sw = self.sh = None
         self.anchorX = self.anchorY = None
-        self.panelWidth = None
-        self.panelHeight = None
-
+        self.panelWidth = self.panelHeight = None
+        self.rawPanelXPositionData = self.rawPanelYPositionData = None
         self.themeUpdatedState = True
 
         # Clock widget
         self.widgets = Clock(self)
 
-        self.UpdateStyles(True)
+        self.UpdateStyles(configOnly = True)
         
         # =[> Window flags
         self.setWindowFlags(
@@ -33,9 +32,13 @@ class Taskbar(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         # =[> First init
-        self.init_ui()
+        self.InitPanelComponents()
 
-    def UpdateStyles(self, configOnly = False):
+    def UpdateStyles(self, changedSections = None, configOnly = False):
+        if changedSections != None and len(changedSections) > 0:
+            if "Taskbar" not in changedSections:
+                return
+
         # =[> Data from config
         rawBGColor = themeConfig.theme.Get("Taskbar", "argb_color", fallback = "#000000")
         self.enableBlur = themeConfig.theme.GetBool("Taskbar", "blur_enabled", fallback = False)
@@ -50,7 +53,6 @@ class Taskbar(QWidget):
             # config blur mode: 0 (3 - default) / enable_blur = False
             self.qtBgColor = QColor(rawBGColor)
             self.winBlurColor = "#00000000"
-
 
         # Calculation the width and height of the panel
         screen = QApplication.primaryScreen().geometry()
@@ -78,6 +80,14 @@ class Taskbar(QWidget):
         except ValueError:
             self.panelHeight = round(self.sh * (2 / 100))
 
+        # =[> Anchors getting
+        self.anchorX = themeConfig.theme.GetInt("Taskbar", "anchor_x", fallback = 50)
+        self.anchorY = themeConfig.theme.GetInt("Taskbar", "anchor_y", fallback = 100)
+
+        # =[> Panel position
+        self.rawPanelXPositionData = themeConfig.theme.GetInt("Taskbar", "position_x", fallback = 98)
+        self.rawPanelYPositionData = themeConfig.theme.GetInt("Taskbar", "position_y", fallback = 2)
+
         # =[> Other props
         self.radius = 0 if self.enableBlur else themeConfig.theme.GetInt("Taskbar", "border_radius_px", fallback = 10)
         self.borderColor = themeConfig.theme.Get("Taskbar", "argb_border_color", fallback = "#FFFFFF33")
@@ -86,42 +96,35 @@ class Taskbar(QWidget):
         if self.widgets:
             self.widgets.panelWidth = self.panelWidth
             self.widgets.panelHeight = self.panelHeight
+            self.widgets.Updater(changedSections)
 
-        # Quiting if configOnly arg is True (update config only)
-        if configOnly:
-            return
+        if not configOnly:
+            self.InitPanelComponents()
 
-        # Or load all
-        self.themeUpdatedState = True
-        self.init_ui()
-        self.update()
-
-    def init_ui(self):
-        # =[> Anchors getting
-        self.anchorX = themeConfig.theme.GetInt("Taskbar", "anchor_x", fallback = 50)
-        self.anchorY = themeConfig.theme.GetInt("Taskbar", "anchor_y", fallback = 100)
-
-        # =[> Panel position
-        #  [> X
-        rawPanelXPositionData = themeConfig.theme.GetInt("Taskbar", "position_x", fallback = 98)
-        panelXPosition = int(self.sw * (rawPanelXPositionData / 100))
-
-        #  [> Y
-        rawPanelYPositionData = themeConfig.theme.GetInt("Taskbar", "position_y", fallback = 2)
-        panelYPosition = int(self.sh * (rawPanelYPositionData / 100))
+    def Init(self):
+        # Panel position
+        panelXPosition = int(self.sw * (self.rawPanelXPositionData / 100))
+        panelYPosition = int(self.sh * (self.rawPanelYPositionData / 100))
 
         # =[> Panel offset
-        #  [> X
         offsetX = int(self.panelWidth * (self.anchorX / 100))
         offsetY = int(self.panelHeight * (self.anchorY / 100))
 
+        # Panel position with offset
         panelX = panelXPosition - offsetX
         panelY = panelYPosition - offsetY
 
-        self.widgets.Updater()
-
         self.setGeometry(panelX, panelY, self.panelWidth, self.panelHeight)
 
+    def InitPanelComponents(self):
+        # Updating state
+        self.themeUpdatedState = True
+        # Self init
+        self.Init()
+        # Panel update
+        self.update()
+
+    # qwidget automatically call this btw
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)

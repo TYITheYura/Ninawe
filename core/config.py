@@ -2,6 +2,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, QFileSystemWatcher
 import configparser
 import os
 import sys
+import hashlib
 
 # Absolute path to files
 if getattr(sys, "frozen", False):
@@ -67,6 +68,7 @@ class ThemeConfig(ConfigWrapper):
         self.currentThemePath = ""
         self.themeInitFile = ""
 
+        self.hashes = {}
         self.globals = GlobalThemeConfigData()
 
         self.Load()
@@ -86,6 +88,20 @@ class ThemeConfig(ConfigWrapper):
         
         self.parser.clear()
         self.parser.read(self.themeInitFile)
+
+        changedSections = []
+        allSections = self.parser.sections()
+
+        for section in allSections:
+            items = sorted(self.parser.items(section))
+            rawData = str(items).encode("utf-8")
+            currentHash = hashlib.md5(rawData).hexdigest()
+            oldHash = self.hashes.get(section)
+
+            if currentHash != oldHash:
+                self.hashes[section] = currentHash
+                changedSections.append(section)
+
         print("[Log] [ThemeConfig] | Caching theme global properties...")
         rawFont = self.Get("Global", "font_family", fallback="Segoe UI")
         if rawFont.lower().endswith((".ttf", ".otf")):
@@ -97,6 +113,8 @@ class ThemeConfig(ConfigWrapper):
         self.globals.fontShadow = self.GetBool("Global", "font_shadow", fallback = True)
 
         print(f"[Log] [Info] [ThemeConfig] | Theme loaded: {themeName}")
+
+        return changedSections
 
     def GetResource(self, relativePath):
         if os.path.isabs(relativePath):
@@ -120,7 +138,7 @@ class AppConfig(ConfigWrapper):
 # All-in-one config manager
 class ConfigManager(QObject):
     # Signals
-    themeUpdated = pyqtSignal()
+    themeUpdated = pyqtSignal(list)
 
     def __init__(self):
         super().__init__()
@@ -144,14 +162,15 @@ class ConfigManager(QObject):
 
     # Triggered by system if file are changed
     def OnFileChanged(self):
-        print("[Log] [ConfigWatcher] | Changes in config files are detected. Trying to load...")
-        self.theme.Load()
+        changedSections = self.theme.Load()
+        if changedSections:
+            print(f"[Log] [ConfigWatcher] [ThemeConfig] | New theme data detected: {changedSections}.")
+            self.themeUpdated.emit(changedSections)
         self.UpdateWatchList()
-        self.themeUpdated.emit()
 
     def Reload(self):
-        self.app.load()
-        self.theme.load()
+        self.app.Load()
+        self.theme.Load()
         self.UpdateWatchList()
         self.themeUpdated.emit()
 
