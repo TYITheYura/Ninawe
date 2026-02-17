@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#               Version: Blue Rare 0.4
+#                 Version: Rare v0.1
 # And remember guys: Ninawe is not a windows explorer
 
 import sys
@@ -20,7 +20,17 @@ class NinaweShell:
         self.taskbar = None
 
     def start(self):
-        print(f"[Log] Starting Ninawe Shell...")
+        print(
+            '''
+                      ::::    ::: ::::::::::: ::::    :::     :::     :::       ::: ::::::::::    
+                     :+:+:   :+:     :+:     :+:+:   :+:   :+: :+:   :+:       :+: :+:            
+                    :+:+:+  +:+     +:+     :+:+:+  +:+  +:+   +:+  +:+       +:+ +:+             
+                   +#+ +:+ +#+     +#+     +#+ +:+ +#+ +#++:++#++: +#+  +:+  +#+ +#++:++#         
+                  +#+  +#+#+#     +#+     +#+  +#+#+# +#+     +#+ +#+ +#+#+ +#+ +#+               
+                 #+#   #+#+#     #+#     #+#   #+#+# #+#     #+#  #+#+# #+#+#  #+#                
+                ###    #### ########### ###    #### ###     ###   ###   ###   ##########          
+
+            ''')
         
         self.desktop = DesktopWindow()
         self.desktop.show()

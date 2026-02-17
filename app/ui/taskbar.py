@@ -8,7 +8,7 @@ class Taskbar(QWidget):
     def __init__(self):
         super().__init__()
         # =[> Connecting to theme config update event
-        themeConfig.themeUpdated.connect(self.UpdateStyles)
+        themeConfig.configUpdated.connect(self.UpdateStyles)
         self.panelBackgroundColor = self.enableBlur = self.radius = self.borderColor = self.borderWidth = self.blurMode = None
         self.sw = self.sh = None
         self.anchorX = self.anchorY = None
@@ -18,7 +18,7 @@ class Taskbar(QWidget):
 
         self.widgetsManager = WidgetManager(self, "taskbar")
 
-        self.UpdateStyles(configOnly = True)
+        self.UpdateStyles("init", ["ALL"])
         
         # =[> Window flags
         self.setWindowFlags(
@@ -32,10 +32,18 @@ class Taskbar(QWidget):
         # =[> First init
         self.InitPanelComponents()
 
-    def UpdateStyles(self, changedSections = None, configOnly = False):
-        if changedSections != None and len(changedSections) > 0:
-            if "Taskbar" not in changedSections:
-                return
+    def UpdateStyles(self, source, changedSections = None):
+        # If initial run or data update required
+        if "ALL" in changedSections or "Init" in source:
+            pass
+        # If section is changed
+        elif "Taskbar" in changedSections:
+            pass
+        # if update for taskbar not required
+        else:
+            if self.widgetsManager.widgets:
+                self.widgetsManager.ReloadStyles(changedSections)
+            return
 
         # =[> Data from config
         rawBGColor = themeConfig.theme.Get("Taskbar", "argb_color", fallback = "#000000")
@@ -90,14 +98,22 @@ class Taskbar(QWidget):
         self.radius = 0 if self.enableBlur else themeConfig.theme.GetInt("Taskbar", "border_radius_px", fallback = 10)
         self.borderColor = themeConfig.theme.Get("Taskbar", "argb_border_color", fallback = "#FFFFFF33")
         self.borderWidth = themeConfig.theme.GetInt("Taskbar", "border_width_px", fallback = 1)
-        self.widgetsManager.LoadWidgets()
-
+        
+        # Reloading widgets if full update
+        if "ALL" in changedSections:
+            self.widgetsManager.LoadWidgets()
+        
+        # Updating widget styles
         if self.widgetsManager.widgets:
             self.widgetsManager.panelWidth = self.panelWidth
             self.widgetsManager.panelHeight = self.panelHeight
-            self.widgetsManager.ReloadStyles()
+            self.widgetsManager.ReloadStyles(changedSections)
 
-        if not configOnly:
+        # Флаг для перерисовки блюра
+        self.themeUpdatedState = True
+        
+        # "configOnly" flag
+        if source != "init":
             self.InitPanelComponents()
 
     def Init(self):

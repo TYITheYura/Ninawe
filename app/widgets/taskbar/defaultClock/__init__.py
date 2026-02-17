@@ -35,7 +35,7 @@ class Widget(QLabel):
 		
 		# Connecting to config updating state
 		# Theme config
-		selectedThemeConfig.themeUpdated.connect(self.Updater)
+		selectedThemeConfig.configUpdated.connect(self.Updater)
 		# Clock config
 		self.clockConfigWatcher = QFileSystemWatcher()
 		if os.path.exists(self.configPath):
@@ -56,7 +56,9 @@ class Widget(QLabel):
 
 	def Updater(self, changedSections = None):
 		if changedSections != None and len(changedSections) > 0:
-			if self.defaultSection not in changedSections:
+			if "ALL" in changedSections:
+				pass
+			elif self.defaultSection not in changedSections:
 				return
 
 		self.clockConfig.parser.read(self.configPath)
