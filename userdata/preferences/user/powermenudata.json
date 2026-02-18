@@ -1,0 +1,44 @@
+{
+	"buttons": [
+		{
+			"id": "shutdown",
+			"name": "default",
+			"type": "console",
+			"action": "shutdown -s -t 0",
+			"icon": "default",
+			"overrideStyles": "QPushButton:hover { background-color: #FF0000 } QPushButton:pressed { background-color: #AA0000 }"
+		},
+		{
+			"id": "restart",
+			"name": "default",
+			"type": "console",
+			"action": "shutdown -r -t 0",
+			"icon": "default",
+			"overrideStyles": "QPushButton:hover { background-color: #00FF00 } QPushButton:pressed { background-color: #00AA00 }"
+		},
+		{
+			"id": "lock",
+			"name": "default",
+			"type": "console",
+			"action": "rundll32.exe user32.dll,LockWorkStation",
+			"icon": "default",
+			"overrideStyles": "QPushButton:hover { background-color: #00BFFF } QPushButton:pressed { background-color: #007DAA }"
+		},
+		{
+			"id": "sleep",
+			"name": "default",
+			"type": "console",
+			"action": "rundll32.exe powrprof.dll,SetSuspendState 0,1,0",
+			"icon": "default",
+			"overrideStyles": "QPushButton:hover { background-color: #FFFF00 } QPushButton:pressed { background-color: #AAAA00 }"
+		},
+		{
+			"id": "close",
+			"name": "default",
+			"type": "integrated",
+			"action": "close",
+			"icon": "default",
+			"overrideStyles": "QPushButton:hover { background-color: #AAAAAA } QPushButton:pressed { background-color: #555555 }"
+		}
+	]
+}

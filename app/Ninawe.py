@@ -2,13 +2,14 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#                 Version: Rare v0.1
+#                 Version: Rare v0.2
 # And remember guys: Ninawe is not a windows explorer
 
 import sys
 from PyQt6.QtWidgets import QApplication
 from ui.desktop import DesktopWindow
 from ui.taskbar import Taskbar
+from ui.powermenu import PowerMenu
 from core.config import config as cfg
 
 class NinaweShell:
@@ -18,6 +19,7 @@ class NinaweShell:
         # Links to the windows
         self.desktop = None
         self.taskbar = None
+        self.powerMenu = None
 
     def start(self):
         print(
@@ -32,11 +34,14 @@ class NinaweShell:
 
             ''')
         
-        self.desktop = DesktopWindow()
-        self.desktop.show()
+        # self.desktop = DesktopWindow()
+        # self.desktop.show()
         
-        self.taskbar = Taskbar()
-        self.taskbar.show()
+        # self.taskbar = Taskbar()
+        # self.taskbar.show()
+
+        self.powerMenu = PowerMenu()
+        self.powerMenu.show()
 
         sys.exit(self.app.exec())
 
