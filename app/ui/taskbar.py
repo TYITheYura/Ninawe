@@ -109,7 +109,7 @@ class Taskbar(QWidget):
             self.widgetsManager.panelHeight = self.panelHeight
             self.widgetsManager.ReloadStyles(changedSections)
 
-        # Флаг для перерисовки блюра
+        # Flag for blur redrawing
         self.themeUpdatedState = True
         
         # "configOnly" flag

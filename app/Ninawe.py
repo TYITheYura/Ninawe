@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#                 Version: Rare v0.2
+#                 Version: Rare v0.3
 # And remember guys: Ninawe is not a windows explorer
 
 import sys
