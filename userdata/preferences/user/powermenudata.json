@@ -6,7 +6,7 @@
 			"type": "console",
 			"action": "shutdown -s -t 0",
 			"icon": "default",
-			"overrideStyles": "QPushButton:hover { background-color: #ff0000 } QPushButton:pressed { background-color: #AA0000 }"
+			"overrideStyles": "QPushButton:hover { background-color: #FF0000 } QPushButton:pressed { background-color: #AA0000 }"
 		},
 		{
 			"id": "restart",

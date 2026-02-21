@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QPushButton, QApplication, QFrame
+from PyQt6.QtWidgets import QWidget, QBoxLayout, QPushButton, QApplication, QFrame
 from PyQt6.QtCore import Qt, QSize, QFileSystemWatcher, QRectF
 from PyQt6.QtGui import QColor, QAction, QIcon, QPainter, QBrush
 from core.config import config as configurator
@@ -17,8 +17,15 @@ class PowerMenu(QWidget):
         self.blurEnabled = self.blurMode = None
         self.buttonColor = self.hoverColor = self.pressedColor = None
         self.isFullscreen = self.bgColor = self.containerColor = None
-        self.containerWidth = self.containerHeight = None
+        self.containerWidth = self.containerHeight = self.containerMargins = None
         self.themeUpdatedState = True
+        self.borderWidth = self.borderColor = None
+        self.buttonBorder = None
+        self.doubleContainerBackground = self.doubleContainerBackgroundAccent = None
+        self.iconsDir = None
+        self.section = "PowerMenu"
+        
+        self.menuLayout = None
 
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint | 
@@ -27,16 +34,19 @@ class PowerMenu(QWidget):
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        self.layout = QHBoxLayout(self)
+        # Button container
+        self.container = QFrame(self)
+        
+        # Layouts
+        self.layout = QBoxLayout(QBoxLayout.Direction.LeftToRight, self)
+        self.containerLayoutForButtons = QBoxLayout(QBoxLayout.Direction.LeftToRight, self.container)
+        
+        # Layout props set
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.section = "PowerMenu"
-
-        # Button container
-        self.container = QFrame(self)
+        # Button container set
         self.container.setObjectName("PowerMenuContainer")
-        self.containerLayoutForButtons = QHBoxLayout(self.container)
         self.layout.addWidget(self.container)
 
         # User preferences file
@@ -81,7 +91,7 @@ class PowerMenu(QWidget):
         self.isFullscreen = configurator.theme.GetBool(self.section, "fullscreen", fallback = True)
         self.blurEnabled = configurator.theme.GetBool(self.section, "blur_enabled", fallback = True)
         self.blurMode = configurator.theme.GetInt(self.section, "blur_mode", fallback = 4)
-        self.radius = 0 if self.blurEnabled else configurator.theme.GetInt("PowerMenu", "border_radius_px", fallback = 10)
+        self.radius = 0 if self.blurEnabled else configurator.theme.GetInt("PowerMenu", "border_radius", fallback = 10)
         self.bgColor = configurator.theme.Get(self.section, "argb_background_color", fallback = "#00000080")
         self.containerColor = configurator.theme.Get(self.section, "argb_container_color", fallback = "#00000080")
         self.borderWidth = configurator.theme.GetInt(self.section, "border_width_px", fallback = 1)
@@ -93,6 +103,8 @@ class PowerMenu(QWidget):
         self.doubleContainerBackground = configurator.theme.GetBool(self.section, "double_container_bg", fallback = False)
         self.doubleContainerBackgroundAccent = configurator.theme.Get(self.section, "double_container_bg_accent", fallback = "bg")
         self.iconsDir = configurator.theme.Get(self.section, "icons_dir", fallback = "")
+
+        self.LayoutPicker()
 
         # =[> Panel color
         if self.blurEnabled and self.blurMode == 1:
@@ -188,6 +200,21 @@ class PowerMenu(QWidget):
 
         self.themeUpdatedState = True
         self.update()
+
+    def LayoutPicker(self):
+        configLayout = configurator.theme.Get(self.section, "menu_layout", fallback = "horizontal")
+
+        if configLayout != self.menuLayout:
+            self.menuLayout = configLayout
+            # v/h orientation picker 2000
+            if self.menuLayout == "vertical":
+                direction = QBoxLayout.Direction.TopToBottom
+            else:
+                direction = QBoxLayout.Direction.LeftToRight
+
+            # set orientation to layouts
+            self.layout.setDirection(direction)
+            self.containerLayoutForButtons.setDirection(direction)
 
     def ColorPicker(self):
         if self.doubleContainerBackground == True:
