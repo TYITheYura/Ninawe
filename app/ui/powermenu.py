@@ -23,6 +23,8 @@ class PowerMenu(QWidget):
         self.buttonBorder = None
         self.doubleContainerBackground = self.doubleContainerBackgroundAccent = None
         self.iconsDir = None
+        self.doubleContainerColor = self.fullscreenColor = None
+        self.useBGColor = None
         self.section = "PowerMenu"
         
         self.menuLayout = None
@@ -90,8 +92,8 @@ class PowerMenu(QWidget):
         self.buttonColor = configurator.theme.Get(self.section, "button_color", fallback = "transparent")
         self.isFullscreen = configurator.theme.GetBool(self.section, "fullscreen", fallback = True)
         self.blurEnabled = configurator.theme.GetBool(self.section, "blur_enabled", fallback = True)
-        self.blurMode = configurator.theme.GetInt(self.section, "blur_mode", fallback = 4)
-        self.radius = 0 if self.blurEnabled else configurator.theme.GetInt("PowerMenu", "border_radius", fallback = 10)
+        self.blurMode = configurator.theme.GetInt(self.section, "blur_mode", fallback = 0)
+        self.radius = 0 if self.blurEnabled and self.isFullscreen == False else configurator.theme.GetInt("PowerMenu", "border_radius", fallback = 10)
         self.bgColor = configurator.theme.Get(self.section, "argb_background_color", fallback = "#00000080")
         self.containerColor = configurator.theme.Get(self.section, "argb_container_color", fallback = "#00000080")
         self.borderWidth = configurator.theme.GetInt(self.section, "border_width_px", fallback = 1)
@@ -100,63 +102,48 @@ class PowerMenu(QWidget):
         self.containerWidth = configurator.theme.GetInt(self.section, "width", fallback = 600)
         self.containerHeight = configurator.theme.GetInt(self.section, "height", fallback = 200)
         self.containerMargins = configurator.theme.GetInt(self.section, "margins", fallback = 0)
+        self.containerPaddings = configurator.theme.GetInt(self.section, "paddings", fallback = 10)
         self.doubleContainerBackground = configurator.theme.GetBool(self.section, "double_container_bg", fallback = False)
         self.doubleContainerBackgroundAccent = configurator.theme.Get(self.section, "double_container_bg_accent", fallback = "bg")
         self.iconsDir = configurator.theme.Get(self.section, "icons_dir", fallback = "")
+        self.useBGColor = configurator.theme.GetBool    (self.section, "use_bg_color", fallback = False)
 
         self.LayoutPicker()
+        self.ColorPicker(True)
 
-        # =[> Panel color
-        if self.blurEnabled and self.blurMode == 1:
-            # config blur mode: 1 (4 - acrylic)
-            self.qtBgColor = QColor(0, 0, 0, 0)
-            self.winBlurColor = self.bgColor
-        else:
-            # config blur mode: 0 (3 - default) / enable_blur = False
-            self.qtBgColor = QColor(self.bgColor)
-            self.winBlurColor = "#00000000"
-
-        # Data apply
+        # Button maker
         for buttonPreference in self.userPreferencesData.get("buttons"):
             button = QPushButton()
+            buttonID = buttonPreference.get("id")
             button.setCursor(Qt.CursorShape.PointingHandCursor)
+            
             button.clicked.connect(
                 lambda required_variable_because_without_it_clicked_method_overriding_type_variable,
                 type = buttonPreference.get("type"),
                 act = buttonPreference.get("action"): 
                     self.RunCommand(type, act)
             )
-            self.containerLayoutForButtons.addWidget(button)
-            self.buttons[buttonPreference.get("id")] = button
+            
             buttonStyle = f"""
                 QPushButton {{
                     background-color: {self.buttonColor};
                     border: {self.buttonBorder}px solid white;
                     border-radius: {self.radius}px;
                     color: white;
-                    font-size: 50px;
-                    font-family: "Visitor TT2 BRK";
+                    font-size: 20px;
+                    font-family: "Arial";
                     font-weight: bold;
                     margin: 0;
-
                 }}
                 QPushButton:hover {{ background-color: {self.hoverColor}; }}
                 QPushButton:pressed {{ background-color: {self.pressedColor}; }}
             """ + buttonPreference.get("overrideStyles", "")
+
             button.setStyleSheet(buttonStyle)
-
-        self.container.setStyleSheet(f"""
-            QFrame#PowerMenuContainer {{
-                background-color: {self.containerColor if self.doubleContainerBackground else "transparent"};
-                border-radius: {self.radius}px;
-                margin: {self.containerMargins if self.doubleContainerBackground else 0}px;
-            }}
-        """)
-
-        # Pasting buttons
-        for buttonID, button in self.buttons.items():
             button.setFixedSize(self.buttonSize, self.buttonSize)
+            
             icon = buttonPreference.get("icon")
+
             if icon == "default":
                 icon = configurator.theme.GetPath(f"app\\assets\\powermenuicons\\{buttonID}.svg")
             else:
@@ -169,6 +156,17 @@ class PowerMenu(QWidget):
             else:
                 button.setText(buttonID[0].upper())
 
+            self.containerLayoutForButtons.addWidget(button)
+            self.buttons[buttonID] = button
+
+        # Container style
+        self.container.setStyleSheet(f"""
+            QFrame#PowerMenuContainer {{
+                background-color: transparent;
+            }}
+        """)
+
+        self.containerLayoutForButtons.setContentsMargins(0, 0, 0, 0)
         self.containerLayoutForButtons.setSpacing(self.spacing)
         self.containerLayoutForButtons.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -185,8 +183,12 @@ class PowerMenu(QWidget):
 
         containerRealWidth = self.container.width()
         containerRealHeight = self.container.height()
-        self.containerWidthMax = max(containerRealWidth, self.containerWidth)
-        self.containerHeightMax = max(containerRealHeight, self.containerHeight)
+
+        self.containerWidthMax = max(containerRealWidth, self.containerWidth) + self.containerPaddings * 2 + self.borderWidth * 2
+        self.containerHeightMax = max(containerRealHeight, self.containerHeight) + self.containerPaddings * 2 + self.borderWidth * 2
+
+        self.containerWidthMax = self.containerWidthMax + self.containerMargins * 2 if self.doubleContainerBackground else self.containerWidthMax
+        self.containerHeightMax = self.containerHeightMax + self.containerMargins * 2 if self.doubleContainerBackground else self.containerHeightMax
 
         if self.isFullscreen:
             self.setGeometry(self.screen)
@@ -205,18 +207,33 @@ class PowerMenu(QWidget):
         configLayout = configurator.theme.Get(self.section, "menu_layout", fallback = "horizontal")
 
         if configLayout != self.menuLayout:
-            self.menuLayout = configLayout
             # v/h orientation picker 2000
-            if self.menuLayout == "vertical":
+            if configLayout == "vertical":
                 direction = QBoxLayout.Direction.TopToBottom
-            else:
+            elif configLayout == "horizontal":
                 direction = QBoxLayout.Direction.LeftToRight
+            else:
+                return
 
             # set orientation to layouts
+            self.menuLayout = configLayout
             self.layout.setDirection(direction)
             self.containerLayoutForButtons.setDirection(direction)
 
-    def ColorPicker(self):
+    def ColorPicker(self, updateToBG = False):
+        if updateToBG: # what the fuck.
+            if self.isFullscreen:
+                if self.useBGColor:
+                    self.fullscreenColor = self.bgColor
+                    self.doubleContainerColor = "#00000000"
+                elif not self.useBGColor:
+                    self.fullscreenColor = "#01000000"
+                    self.doubleContainerColor = self.bgColor
+            elif not self.isFullscreen:
+                self.doubleContainerColor = self.ColorPicker()
+                self.fullscreenColor = self.bgColor
+            return
+
         if self.doubleContainerBackground == True:
             if self.doubleContainerBackgroundAccent == "container":
                 return self.containerColor
@@ -239,42 +256,76 @@ class PowerMenu(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        
-        # =[> Blur apply (the first and last update of the blur if the config is not updated in the future)
+
+        # Blur
         if self.themeUpdatedState:
             if self.blurEnabled:
-                MakeBlur(self.winId(), True, self.blurMode, self.bgColor)
+                MakeBlur(self.winId(), True, self.blurMode, self.fullscreenColor)
             else:
                 MakeBlur(self.winId(), False)
             self.themeUpdatedState = False
 
-        if self.isFullscreen and not self.blurEnabled:
-            painter.setBrush(QColor(self.bgColor)) 
+        if self.isFullscreen and (not self.blurEnabled or self.blurMode != 1):
+            painter.setBrush(QColor(self.fullscreenColor)) 
             painter.setPen(Qt.PenStyle.NoPen)
             painter.drawRect(self.rect())
 
-        # Border only to container
-        rect = QRectF(self.container.geometry())
+        buttonLen = len(self.buttons)
+        if buttonLen == 0:
+            print("[Log] [PowerMenu] | Seems like list of buttons is empty.")
+            return
+
+        currentMargins = self.containerMargins * 2 if self.doubleContainerBackground else 0
+
+        layoutWidth = self.containerWidthMax - self.borderWidth * 2 - self.containerPaddings * 2 - currentMargins
+        layoutHeight = self.containerHeightMax - self.borderWidth * 2 - self.containerPaddings * 2 - currentMargins
+
+        painter.setPen(Qt.PenStyle.NoPen)
         
-        # Border maker 2000
+        # Inner container w/h
+        innerW = layoutWidth + self.containerPaddings * 2
+        innerH = layoutHeight + self.containerPaddings * 2
+        
+        # Outer container w/h
+        outerW = innerW + self.containerMargins * 2
+        outerH = innerH + self.containerMargins * 2
+
+        # border & background maker 3000
+        outerColor = self.doubleContainerColor if (not self.blurEnabled or self.blurMode == 0) else "#01000000"
+        painter.setBrush(QBrush(QColor(outerColor)))
+        
+        borderRect = QRectF((self.width() - outerW) / 2, (self.height() - outerH) / 2, outerW, outerH) if self.doubleContainerBackground else QRectF((self.width() - innerW) / 2, (self.height() - innerH) / 2, innerW, innerH)
+
         if self.borderWidth > 0:
             pen = painter.pen()
+            pen.setStyle(Qt.PenStyle.SolidLine)
             pen.setColor(QColor(self.borderColor))
             pen.setWidth(self.borderWidth)
             pen.setJoinStyle(Qt.PenJoinStyle.MiterJoin)
             painter.setPen(pen)
 
             halfWidth = self.borderWidth / 2
-            drawRect = rect.adjusted(halfWidth, halfWidth, -halfWidth, -halfWidth)
+            borderRect = borderRect.adjusted(-halfWidth, -halfWidth, halfWidth, halfWidth)
         else:
             painter.setPen(Qt.PenStyle.NoPen)
-            drawRect = rect
-        
-        # Drawing background
-        painter.setBrush(QBrush(QColor(self.ColorPicker())))
 
-        # Drawing border
-        painter.drawRoundedRect(drawRect, self.radius, self.radius)
+        painter.drawRoundedRect(borderRect, self.RadiusSelector("border"), self.RadiusSelector("border"))
+        
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.setPen(Qt.PenStyle.NoPen)
+
+        # Inner "container"
+        innerRect = QRectF((self.width() - innerW) / 2, (self.height() - innerH) / 2, innerW, innerH)
+        painter.setBrush(QBrush(QColor(self.containerColor)))
+        painter.drawRoundedRect(innerRect, self.RadiusSelector("inner"), self.RadiusSelector("inner"))
+
+    def RadiusSelector(self, type):
+        menuSize = self.containerHeightMax if self.menuLayout == "horizontal" else self.containerWidthMax
+        if type == "inner":
+            margin = self.containerMargins if self.doubleContainerBackground else 0
+            return self.radius * ((menuSize - margin * 2 - self.borderWidth * 2) / self.buttonSize)
+        if type == "border":
+            return self.radius * ((menuSize - self.borderWidth) / self.buttonSize)
 
     def showEvent(self, event):
         super().showEvent(event)

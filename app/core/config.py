@@ -27,7 +27,7 @@ class ConfigWrapper:
     def GetBool(self, section, option, fallback = False):
         try:
             return self.parser.getboolean(section, option, fallback = fallback)
-        except (configparser.NoSectionError, configparser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError, Exception):
             return fallback
 
     def GetInt(self, section, option, fallback = 0):

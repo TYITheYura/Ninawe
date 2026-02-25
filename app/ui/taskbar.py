@@ -168,8 +168,6 @@ class Taskbar(QWidget):
             painter.setPen(Qt.PenStyle.NoPen)
             drawRect = rect
 
-        # Drawing background
+        # Drawing background & border
         painter.setBrush(QBrush(self.qtBgColor))
-        
-        # Drawing border
         painter.drawRoundedRect(drawRect, self.radius, self.radius)
