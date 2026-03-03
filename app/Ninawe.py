@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#                 Version: Rare v0.5
+#              Version: Medium rare v0.1
 # And remember guys: Ninawe is not a windows explorer
 
 import os
@@ -40,14 +40,14 @@ class NinaweShell:
     ---:::+++#####+++:::---                                                                
 ''')
         
-        # self.desktop = DesktopWindow()
-        # self.desktop.show()
+        self.desktop = DesktopWindow()
+        self.desktop.show()
         
         # self.taskbar = Taskbar()
         # self.taskbar.show()
 
-        self.powerMenu = PowerMenu()
-        self.powerMenu.show()
+        # self.powerMenu = PowerMenu()
+        # self.powerMenu.show()
 
         sys.exit(self.app.exec())
 

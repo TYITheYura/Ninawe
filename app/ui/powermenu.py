@@ -106,7 +106,7 @@ class PowerMenu(QWidget):
         self.doubleContainerBackground = configurator.theme.GetBool(self.section, "double_container_bg", fallback = False)
         self.doubleContainerBackgroundAccent = configurator.theme.Get(self.section, "double_container_bg_accent", fallback = "bg")
         self.iconsDir = configurator.theme.Get(self.section, "icons_dir", fallback = "")
-        self.useBGColor = configurator.theme.GetBool    (self.section, "use_bg_color", fallback = False)
+        self.useBGColor = configurator.theme.GetBool(self.section, "use_bg_color", fallback = False)
 
         self.LayoutPicker()
         self.ColorPicker(True)

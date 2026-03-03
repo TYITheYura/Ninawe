@@ -1,0 +1,37 @@
+{
+	"icons": [
+		{
+			"id": "id",
+			"name": "file_name",
+			"path": "path_to_file",
+			"icon": "if default - program icon, else - path to icon",
+			"position": ["x_grid_num", "y_grid_num"],
+			"type": "shortcut"
+		},
+		{
+			"id": "id",
+			"name": "file_name",
+			"path": "path_to_file",
+			"icon": "if default - program icon, else - path to icon",
+			"position": ["x_grid_num", "y_grid_num"],
+			"type": "widget",
+			"size": ["grid_rows", "grid_columns"]
+		},
+		{
+			"id": "id",
+			"name": "file_name",
+			"path": "path_to_file",
+			"icon": "if default - program icon, else - path to icon",
+			"position": ["x_grid_num", "y_grid_num"],
+			"type": "file"
+		}
+		{
+			"id": "id",
+			"name": "file_name",
+			"path": "path_to_file",
+			"icon": "if default - program icon, else - path to icon",
+			"position": ["x_grid_num", "y_grid_num"],
+			"type": "folder"
+		}
+	]
+}

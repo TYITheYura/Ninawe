@@ -1,5 +1,6 @@
 import ctypes
 from ctypes import c_int, c_void_p, Structure, POINTER, sizeof, windll
+from ctypes.wintypes import HWND
 from enum import Enum
 from PyQt6.QtGui import QFontDatabase
 import os
