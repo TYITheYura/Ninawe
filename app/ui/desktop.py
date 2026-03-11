@@ -1,10 +1,11 @@
 import os
 import random
 from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLabel, QFileIconProvider, QGraphicsDropShadowEffect, QFrame
-from PyQt6.QtGui import QPainter, QPixmap, QColor, QIcon
-from PyQt6.QtCore import Qt, QTimer, QVariantAnimation, QFileInfo
+from PyQt6.QtGui import QPainter, QPixmap, QColor, QIcon, QPen, QBrush
+from PyQt6.QtCore import Qt, QTimer, QVariantAnimation, QFileInfo, QRect
 from core.config import config as themeConfig
 import win32com.client
+import json
 
 class DesktopWindow(QMainWindow):
     def __init__(self):
@@ -61,54 +62,115 @@ class DesktopWindow(QMainWindow):
         self.LoadWallpaper(backgroundPath, isCarousel, intervalMin)
 
         self.desktop_items = []
-        
+        self.selected_items = []
+
+        self.is_selecting = False
+        self.selection_start = None
+        self.previously_selected = [] 
+
+        self.selection_box = QWidget(self)
+        self.selection_box.setStyleSheet("""
+            background-color: rgba(0, 120, 215, 60);
+            border: 1px solid rgba(0, 120, 215, 255);
+        """)
+        self.selection_box.hide()
+
         self.ScanDesktop()
 
     def ScanDesktop(self):
         desktop_path = os.path.expanduser("~/Desktop")
+        json_path = themeConfig.theme.GetPath("userdata\\preferences\\user\\desktopdata.json")
+
+        desktop_data = {"desktop": []}
+        if os.path.exists(json_path):
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    desktop_data = json.load(f)
+            except Exception as e:
+                print(f"[Log] [Desktop] | Failed to read JSON: {e}")
+
+        saved_items = {item["path"]: item for item in desktop_data.get("desktop", []) if "path" in item}
+
         if not os.path.exists(desktop_path):
-            print("[Log] [Desktop] [DesktopWindow] [Scan] | ummmm where is desktop folder???")
+            print("[Log] [Desktop] | Desktop folder not found!")
             return
+
+        itemHeight = 110
+        windowMarginY = 50
+        spacingY = 10
+        max_rows = max(1, (self.height() - windowMarginY * 2) // (itemHeight + spacingY))
+
+        occupied_positions = set()
+        for item in saved_items.values():
+            pos = item.get("position", [0, 0])
+            occupied_positions.add((pos[0], pos[1]))
 
         valid_filepaths = []
         for filename in os.listdir(desktop_path):
             if filename.startswith('.') or filename.lower() == 'desktop.ini':
                 continue
-            
-            filepath = os.path.join(desktop_path, filename)
-            valid_filepaths.append(filepath)
+            valid_filepaths.append(os.path.join(desktop_path, filename))
 
-        self.RenderGrid(valid_filepaths)
+        updated_desktop_data = []
+        
+        for filepath in valid_filepaths:
+            if filepath in saved_items:
+                updated_desktop_data.append(saved_items[filepath])
+            else:
+                new_pos = self.GetFirstFreePosition(occupied_positions, max_rows)
+                
+                occupied_positions.add(tuple(new_pos)) 
+                
+                new_item = {
+                    "type": "file",
+                    "name": os.path.basename(filepath),
+                    "path": filepath,
+                    "icon": "default",
+                    "position": new_pos 
+                }
+                updated_desktop_data.append(new_item)
 
-    def RenderGrid(self, filepaths):
-        itemWidth = 85
+        desktop_data["desktop"] = updated_desktop_data
+        
+        os.makedirs(os.path.dirname(json_path), exist_ok=True)
+        
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(desktop_data, f, indent=4, ensure_ascii=False)
+
+        self.RenderGrid(updated_desktop_data)
+
+    def RenderGrid(self, items_data):
+        itemWidth = 86
         itemHeight = 110
         windowMarginX = 50
         windowMarginY = 50
         spacingX = 10
         spacingY = 10
 
-        currentRow = 0
-        currentColumn = 0
-        
-        maxRowsCount = (self.height() - windowMarginY * 2) // (itemHeight + spacingY)
+        for item in self.desktop_items:
+            item.deleteLater()
+        self.desktop_items.clear()
+        self.selected_items.clear()
 
-        for filepath in filepaths:
-            item = DesktopItem(filepath, parent = self)
+        for data in items_data:
+            if data.get("type") == "widget":
+                continue
+                
+            filepath = data.get("path")
+            grid_x, grid_y = data.get("position", [0, 0])
             
-            positionX = windowMarginX + currentColumn * (itemWidth + spacingX)
-            positionY = windowMarginY + currentRow * (itemHeight + spacingY)
+            item = DesktopItem(filepath, parent=self)
+
+            positionX = windowMarginX + grid_x * (itemWidth + spacingX)
+            positionY = windowMarginY + grid_y * (itemHeight + spacingY)
+
+            item.grid_x = grid_x
+            item.grid_y = grid_y
             
             item.move(positionX, positionY)
             item.show()
             
             self.desktop_items.append(item)
-
-            currentRow += 1
-            
-            if currentRow >= maxRowsCount:
-                currentRow = 0
-                currentColumn += 1
 
     def LoadWallpaper(self, path, isCarousel, intervalMin):
         if os.path.isdir(path):
@@ -186,6 +248,122 @@ class DesktopWindow(QMainWindow):
         painter.drawPixmap(x, y, pixmap)
         painter.setOpacity(1.0)
 
+    def ItemClicked(self, item, ctrl_pressed):
+        if ctrl_pressed:
+            if item in self.selected_items:
+                item.SetSelected(False)
+                self.selected_items.remove(item)
+            else:
+                item.SetSelected(True)
+                self.selected_items.append(item)
+        else:
+            if item not in self.selected_items or len(self.selected_items) > 1:
+                self.ClearSelection()
+                item.SetSelected(True)
+                self.selected_items.append(item)
+
+    def ClearSelection(self):
+        for item in self.selected_items:
+            item.SetSelected(False)
+        self.selected_items.clear()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            ctrl_pressed = bool(event.modifiers() & Qt.KeyboardModifier.ControlModifier)
+
+            if not ctrl_pressed:
+                self.ClearSelection()
+                self.previously_selected = []
+            else:
+                self.previously_selected = self.selected_items.copy()
+
+            self.is_selecting = True
+            self.selection_start = event.pos()
+            
+            self.selection_box.setGeometry(QRect(self.selection_start, self.selection_start))
+            self.selection_box.show()
+
+    def mouseMoveEvent(self, event):
+        if self.is_selecting:
+            draw_rect = QRect(self.selection_start, event.pos()).normalized()
+            self.selection_box.setGeometry(draw_rect)
+            self.ProcessSelection(draw_rect)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton and self.is_selecting:
+            self.is_selecting = False
+            self.selection_box.hide()
+
+    def ProcessSelection(self, selection_rect):
+        for item in self.desktop_items:
+            if selection_rect.intersects(item.geometry()):
+                if item not in self.selected_items:
+                    item.SetSelected(True)
+                    self.selected_items.append(item)
+            else:
+                if item in self.selected_items and item not in self.previously_selected:
+                    item.SetSelected(False)
+                    self.selected_items.remove(item)
+
+    def GetFirstFreePosition(self, occupied_positions, max_rows):
+        col = 0
+        while True:
+            for row in range(max_rows):
+                if (col, row) not in occupied_positions:
+                    return [col, row]
+            col += 1
+
+    def SnapItemToGrid(self, item):
+        itemWidth = 86   
+        itemHeight = 110
+        windowMarginX = 50
+        windowMarginY = 50
+        spacingX = 10
+        spacingY = 10
+
+        target_grid_x = round((item.x() - windowMarginX) / (itemWidth + spacingX))
+        target_grid_y = round((item.y() - windowMarginY) / (itemHeight + spacingY))
+
+        target_grid_x = max(0, target_grid_x)
+        target_grid_y = max(0, target_grid_y)
+
+        is_occupied = False
+        for other_item in self.desktop_items:
+            if other_item != item and getattr(other_item, 'grid_x', -1) == target_grid_x and getattr(other_item, 'grid_y', -1) == target_grid_y:
+                is_occupied = True
+                break
+
+        if is_occupied:
+            target_grid_x = item.grid_x
+            target_grid_y = item.grid_y
+        else:
+            item.grid_x = target_grid_x
+            item.grid_y = target_grid_y
+            self.UpdateItemPositionInJSON(item.filepath, target_grid_x, target_grid_y)
+
+        final_x = windowMarginX + target_grid_x * (itemWidth + spacingX)
+        final_y = windowMarginY + target_grid_y * (itemHeight + spacingY)
+        
+        item.move(final_x, final_y)
+
+    def UpdateItemPositionInJSON(self, filepath, grid_x, grid_y):
+        import json
+        json_path = themeConfig.theme.GetPath("userdata\\preferences\\user\\desktopdata.json")
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                desktop_data = json.load(f)
+
+            for data in desktop_data.get("desktop", []):
+                if data.get("path") == filepath:
+                    data["position"] = [grid_x, grid_y]
+                    break
+                    
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(desktop_data, f, indent=4, ensure_ascii=False)
+                
+        except Exception as e:
+            print(f"[Log] [Desktop] | Failed to save new position for {filepath}: {e}")
+
 class DesktopItem(QWidget):
     def __init__(self, filepath, parent = None):
         super().__init__(parent)
@@ -257,32 +435,61 @@ class DesktopItem(QWidget):
             QFrame#IconFrame {
                 background: transparent;
                 border: 1px solid transparent;
+                border-radius: 4px;
             }
             QFrame#IconFrame:hover {
-                background: rgba(0, 191, 255, 50);
-                border: 1px solid rgba(0, 191, 255, 100);
+                background: rgba(255, 255, 255, 30);
+                border: 1px solid rgba(255, 255, 255, 60);
             }
-            QFrame#IconFrame[pressed = "true"] {
-                background: rgba(0, 191, 255, 100);
-                border: 1px solid rgba(0, 191, 255, 150);
+            QFrame#IconFrame[selected = "true"] {
+                background: rgba(255, 255, 255, 60);
+                border: 1px solid rgba(255, 255, 255, 100);
+            }
+            QFrame#IconFrame[selected = "true"]:hover {
+                background: rgba(255, 255, 255, 80);
+                border: 1px solid rgba(255, 255, 255, 120);
             }
         """)
 
+    def SetSelected(self, is_selected):
+        self.innerFrame.setProperty("selected", is_selected)
+        self.innerFrame.style().unpolish(self.innerFrame)
+        self.innerFrame.style().polish(self.innerFrame)
+
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
-            self.innerFrame.setProperty("pressed", True)
-            self.innerFrame.style().unpolish(self.innerFrame)
-            self.innerFrame.style().polish(self.innerFrame)
-            
+            self.drag_start_pos = event.pos() 
+            self.is_dragging = False
+
+            self.raise_()
+
+            ctrl_pressed = bool(event.modifiers() & Qt.KeyboardModifier.ControlModifier)
+            if self.parent():
+                self.parent().ItemClicked(self, ctrl_pressed)
+
+    def mouseMoveEvent(self, event):
+        if event.buttons() & Qt.MouseButton.LeftButton:
+            if hasattr(self, 'drag_start_pos') and self.drag_start_pos:
+                if (event.pos() - self.drag_start_pos).manhattanLength() > 5:
+                    self.is_dragging = True
+                    
+                if self.is_dragging:
+                    new_pos = self.mapToParent(event.pos()) - self.drag_start_pos
+                    self.move(new_pos)
+
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
-            self.innerFrame.setProperty("pressed", False)
-            self.innerFrame.style().unpolish(self.innerFrame)
-            self.innerFrame.style().polish(self.innerFrame)
+            self.drag_start_pos = None
+            if getattr(self, 'is_dragging', False):
+                self.is_dragging = False
+                if self.parent():
+                    self.parent().SnapItemToGrid(self)
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             try:
+                if self.parent():
+                    self.parent().ClearSelection()
                 os.startfile(self.filepath)
-            except Exception as exc:
-                print(f"[Log] [Desktop] [DesktopItem] [DoubleClick] | Failed to start {self.filepath}: {exc}")
+            except Exception as e:
+                print(f"[Log] [DesktopItem] | Failed to start {self.filepath}: {e}")
