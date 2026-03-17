@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget, QBoxLayout, QPushButton, QApplication, QFra
 from PyQt6.QtCore import Qt, QSize, QFileSystemWatcher, QRectF
 from PyQt6.QtGui import QColor, QAction, QIcon, QPainter, QBrush
 from core.config import config as configurator
-from core.utils import MakeBlur
+from core.utils import MakeBlur, MakeLog
 import subprocess
 import json
 import sys
@@ -26,23 +26,23 @@ class PowerMenu(QWidget):
         self.doubleContainerColor = self.fullscreenColor = None
         self.useBGColor = None
         self.section = "PowerMenu"
-        
+
         self.menuLayout = None
 
         self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint | 
-            Qt.WindowType.Tool | 
+            Qt.WindowType.FramelessWindowHint |
+            Qt.WindowType.Tool |
             Qt.WindowType.WindowStaysOnTopHint
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         # Button container
         self.container = QFrame(self)
-        
+
         # Layouts
         self.layout = QBoxLayout(QBoxLayout.Direction.LeftToRight, self)
         self.containerLayoutForButtons = QBoxLayout(QBoxLayout.Direction.LeftToRight, self.container)
-        
+
         # Layout props set
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -64,7 +64,7 @@ class PowerMenu(QWidget):
             self.powerMenuUserPropertiesWatcher.addPath(self.userPreferencesPath)
             self.powerMenuUserPropertiesWatcher.fileChanged.connect(self.LoadUserPreferences)
         configurator.configUpdated.connect(self.UpdateStyles)
-        
+
         self.LoadUserPreferences()
 
     def UpdateStyles(self, source = None, changedSections = None):
@@ -93,7 +93,7 @@ class PowerMenu(QWidget):
         self.isFullscreen = configurator.theme.GetBool(self.section, "fullscreen", fallback = True)
         self.blurEnabled = configurator.theme.GetBool(self.section, "blur_enabled", fallback = True)
         self.blurMode = configurator.theme.GetInt(self.section, "blur_mode", fallback = 0)
-        self.radius = 0 if self.blurEnabled and self.isFullscreen == False else configurator.theme.GetInt("PowerMenu", "border_radius", fallback = 10)
+        self.radius = 0 if self.blurEnabled and self.isFullscreen is False else configurator.theme.GetInt("PowerMenu", "border_radius", fallback = 10)
         self.bgColor = configurator.theme.Get(self.section, "argb_background_color", fallback = "#00000080")
         self.containerColor = configurator.theme.Get(self.section, "argb_container_color", fallback = "#00000080")
         self.borderWidth = configurator.theme.GetInt(self.section, "border_width_px", fallback = 1)
@@ -116,14 +116,14 @@ class PowerMenu(QWidget):
             button = QPushButton()
             buttonID = buttonPreference.get("id")
             button.setCursor(Qt.CursorShape.PointingHandCursor)
-            
+
             button.clicked.connect(
                 lambda required_variable_because_without_it_clicked_method_overriding_type_variable,
                 type = buttonPreference.get("type"),
-                act = buttonPreference.get("action"): 
+                act = buttonPreference.get("action"):
                     self.RunCommand(type, act)
             )
-            
+
             buttonStyle = f"""
                 QPushButton {{
                     background-color: {self.buttonColor};
@@ -141,14 +141,14 @@ class PowerMenu(QWidget):
 
             button.setStyleSheet(buttonStyle)
             button.setFixedSize(self.buttonSize, self.buttonSize)
-            
+
             icon = buttonPreference.get("icon")
 
             if icon == "default":
                 icon = configurator.theme.GetPath(f"app\\assets\\powermenuicons\\{buttonID}.svg")
             else:
                 icon = configurator.theme.GetPath(f"{self.iconsDir}\\{buttonID}.svg")
-            
+
             if os.path.exists(icon):
                 iconSize = self.buttonSize // 2
                 button.setIcon(QIcon(icon))
@@ -197,7 +197,7 @@ class PowerMenu(QWidget):
             y = (self.screen.height() - self.containerHeightMax) // 2
             self.setGeometry(x, y, self.containerWidthMax, self.containerHeightMax)
             self.setStyleSheet(f"background-color: transparent;")
-        
+
         self.container.setFixedSize(self.containerWidthMax, self.containerHeightMax)
 
         self.themeUpdatedState = True
@@ -234,7 +234,7 @@ class PowerMenu(QWidget):
                 self.fullscreenColor = self.bgColor
             return
 
-        if self.doubleContainerBackground == True:
+        if self.doubleContainerBackground is True:
             if self.doubleContainerBackgroundAccent == "container":
                 return self.containerColor
             else:
@@ -243,8 +243,8 @@ class PowerMenu(QWidget):
             return self.containerColor
 
     def LoadUserPreferences(self):
-        print("[Log] [PowerMenu] [UserPreferences] | Changes detected. Reloading.")
-        # Deleting buttons 
+        MakeLog("[Log] [PowerMenu] [UserPreferences] | Changes detected. Reloading.")
+        # Deleting buttons
         self.buttons.clear()
 
         # Opening powermenudata.json (user preferences)
@@ -266,13 +266,13 @@ class PowerMenu(QWidget):
             self.themeUpdatedState = False
 
         if self.isFullscreen and (not self.blurEnabled or self.blurMode != 1):
-            painter.setBrush(QColor(self.fullscreenColor)) 
+            painter.setBrush(QColor(self.fullscreenColor))
             painter.setPen(Qt.PenStyle.NoPen)
             painter.drawRect(self.rect())
 
         buttonLen = len(self.buttons)
         if buttonLen == 0:
-            print("[Log] [PowerMenu] | Seems like list of buttons is empty.")
+            MakeLog("[Log] [PowerMenu] | Seems like list of buttons is empty.")
             return
 
         currentMargins = self.containerMargins * 2 if self.doubleContainerBackground else 0
@@ -281,11 +281,11 @@ class PowerMenu(QWidget):
         layoutHeight = self.containerHeightMax - self.borderWidth * 2 - self.containerPaddings * 2 - currentMargins
 
         painter.setPen(Qt.PenStyle.NoPen)
-        
+
         # Inner container w/h
         innerW = layoutWidth + self.containerPaddings * 2
         innerH = layoutHeight + self.containerPaddings * 2
-        
+
         # Outer container w/h
         outerW = innerW + self.containerMargins * 2
         outerH = innerH + self.containerMargins * 2
@@ -293,7 +293,7 @@ class PowerMenu(QWidget):
         # border & background maker 3000
         outerColor = self.doubleContainerColor if (not self.blurEnabled or self.blurMode == 0) else "#01000000"
         painter.setBrush(QBrush(QColor(outerColor)))
-        
+
         borderRect = QRectF((self.width() - outerW) / 2, (self.height() - outerH) / 2, outerW, outerH) if self.doubleContainerBackground else QRectF((self.width() - innerW) / 2, (self.height() - innerH) / 2, innerW, innerH)
 
         if self.borderWidth > 0:
@@ -310,7 +310,7 @@ class PowerMenu(QWidget):
             painter.setPen(Qt.PenStyle.NoPen)
 
         painter.drawRoundedRect(borderRect, self.RadiusSelector("border"), self.RadiusSelector("border"))
-        
+
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.setPen(Qt.PenStyle.NoPen)
 
@@ -340,7 +340,7 @@ class PowerMenu(QWidget):
     def mousePressEvent(self, event):
         # Working only when background not transperent sadly.
         if self.childAt(event.pos()) is None:
-             self.close()
+            self.close()
 
     def RunCommand(self, type, action):
         # Build-in commands
@@ -354,7 +354,7 @@ class PowerMenu(QWidget):
                 os.system(action)
                 self.close()
             except Exception as e:
-                print(f"[Log] [PowerMenu] [RunCommand] | CMD failed: {e}")
+                MakeLog(f"[Log] [PowerMenu] [RunCommand] | CMD failed: {e}")
 
         # Programs
         elif type == "program":
@@ -362,4 +362,4 @@ class PowerMenu(QWidget):
                 subprocess.Popen(action, shell=True)
                 self.close()
             except Exception as e:
-                print(f"[Log] [PowerMenu] [RunCommand] | Exec failed: {e}")
+                MakeLog(f"[Log] [PowerMenu] [RunCommand] | Exec failed: {e}")

@@ -2,8 +2,11 @@ from PyQt6.QtWidgets import QWidget, QApplication, QLabel, QHBoxLayout, QGraphic
 from PyQt6.QtCore import Qt, QRect, QTime, QTimer, QRectF
 from PyQt6.QtGui import QPainter, QColor, QBrush, QFont
 from core.config import config as themeConfig
-from core.utils import LoadFont, MakeBlur
+from core.utils import LoadFont, MakeBlur, MakeLog
 from core.widgetManager import WidgetManager
+
+# TODO: fix widget position after changing taskbar width/height
+
 class Taskbar(QWidget):
     def __init__(self):
         super().__init__()
@@ -19,7 +22,7 @@ class Taskbar(QWidget):
         self.widgetsManager = WidgetManager(self, "taskbar")
 
         self.UpdateStyles("init", ["ALL"])
-        
+
         # =[> Window flags
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint |  # No borders
@@ -49,7 +52,7 @@ class Taskbar(QWidget):
         rawBGColor = themeConfig.theme.Get("Taskbar", "argb_color", fallback = "#000000")
         self.enableBlur = themeConfig.theme.GetBool("Taskbar", "blur_enabled", fallback = False)
         self.blurMode = themeConfig.theme.GetInt("Taskbar", "blur_mode", fallback = 4)
-        
+
         # =[> Panel color
         if self.enableBlur and self.blurMode == 1:
             # config blur mode: 1 (4 - acrylic)
@@ -98,11 +101,11 @@ class Taskbar(QWidget):
         self.radius = 0 if self.enableBlur else themeConfig.theme.GetInt("Taskbar", "border_radius_px", fallback = 10)
         self.borderColor = themeConfig.theme.Get("Taskbar", "argb_border_color", fallback = "#FFFFFF33")
         self.borderWidth = themeConfig.theme.GetInt("Taskbar", "border_width_px", fallback = 1)
-        
+
         # Reloading widgets if full update
         if "ALL" in changedSections:
             self.widgetsManager.LoadWidgets()
-        
+
         # Updating widget styles
         if self.widgetsManager.widgets:
             self.widgetsManager.panelWidth = self.panelWidth
@@ -111,7 +114,7 @@ class Taskbar(QWidget):
 
         # Flag for blur redrawing
         self.themeUpdatedState = True
-        
+
         # "configOnly" flag
         if source != "init":
             self.InitPanelComponents()
@@ -143,7 +146,7 @@ class Taskbar(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        
+
         # =[> Blur apply (the first and last update of the blur if the config is not updated in the future)
         if self.themeUpdatedState:
             if self.enableBlur:
@@ -152,8 +155,8 @@ class Taskbar(QWidget):
                 MakeBlur(self.winId(), False)
             self.themeUpdatedState = False
 
-        rect = QRectF(self.rect()) # Base
-        
+        rect = QRectF(self.rect())  # Base
+
         # Border maker 2000
         if self.borderWidth > 0:
             pen = painter.pen()

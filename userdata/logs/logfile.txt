@@ -1,0 +1,9 @@
+[Log] [Config] | Default path: C:\Users\User\Desktop\Ninawe\Ninawe
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [ThemeConfig] | Loading system theme: "default"
+[Log] [ThemeConfig] | Caching theme global properties...
+[Log] [ThemeConfig] | Theme loaded: default
+[Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\themeconfig.ini
+[Log] [ThemeConfig] | Loading system theme: "default"
+[Log] [Desktop] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers\ (Mode: cover)

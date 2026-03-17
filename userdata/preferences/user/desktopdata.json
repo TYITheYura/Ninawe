@@ -2,102 +2,112 @@
     "desktop": [
         {
             "type": "file",
+            "name": "123.png",
+            "path": "C:\\Users\\User\\Desktop\\123.png",
+            "icon": "default",
+            "position": [
+                1,
+                0
+            ]
+        },
+        {
+            "type": "file",
+            "name": "123.txt",
+            "path": "C:\\Users\\User\\Desktop\\123.txt",
+            "icon": "default",
+            "position": [
+                1,
+                1
+            ]
+        },
+        {
+            "type": "folder",
             "name": "Ninawe",
-            "path": "C:\\Users\\User/Desktop\\Ninawe",
+            "path": "C:\\Users\\User\\Desktop\\Ninawe",
             "icon": "default",
             "position": [
-                7,
-                1
+                0,
+                0
             ]
         },
         {
-            "type": "file",
+            "type": "folder",
             "name": "Poweramp Equalizer Mixer",
-            "path": "C:\\Users\\User/Desktop\\Poweramp Equalizer Mixer",
+            "path": "C:\\Users\\User\\Desktop\\Poweramp Equalizer Mixer",
             "icon": "default",
             "position": [
-                5,
+                0,
                 1
             ]
         },
         {
-            "type": "file",
+            "type": "exe_shortcut",
             "name": "Process Hacker 2.lnk",
-            "path": "C:\\Users\\User/Desktop\\Process Hacker 2.lnk",
+            "path": "C:\\Users\\User\\Desktop\\Process Hacker 2.lnk",
             "icon": "default",
             "position": [
-                4,
-                1
+                0,
+                2
             ]
         },
         {
-            "type": "file",
+            "type": "folder",
             "name": "uhhh",
-            "path": "C:\\Users\\User/Desktop\\uhhh",
+            "path": "C:\\Users\\User\\Desktop\\uhhh",
             "icon": "default",
             "position": [
-                4,
+                0,
                 3
             ]
         },
         {
-            "type": "file",
-            "name": "~$о бизнес дада я банкрот.docx",
-            "path": "C:\\Users\\User/Desktop\\~$о бизнес дада я банкрот.docx",
+            "type": "folder_shortcut",
+            "name": "Видео.lnk",
+            "path": "C:\\Users\\User\\Desktop\\Видео.lnk",
             "icon": "default",
             "position": [
-                12,
+                0,
                 4
             ]
         },
         {
-            "type": "file",
-            "name": "Видео.lnk",
-            "path": "C:\\Users\\User/Desktop\\Видео.lnk",
-            "icon": "default",
-            "position": [
-                7,
-                3
-            ]
-        },
-        {
-            "type": "file",
+            "type": "folder_shortcut",
             "name": "Документы.lnk",
-            "path": "C:\\Users\\User/Desktop\\Документы.lnk",
+            "path": "C:\\Users\\User\\Desktop\\Документы.lnk",
             "icon": "default",
             "position": [
-                10,
-                2
-            ]
-        },
-        {
-            "type": "file",
-            "name": "Изображения.lnk",
-            "path": "C:\\Users\\User/Desktop\\Изображения.lnk",
-            "icon": "default",
-            "position": [
-                5,
-                2
-            ]
-        },
-        {
-            "type": "file",
-            "name": "Музыка.lnk",
-            "path": "C:\\Users\\User/Desktop\\Музыка.lnk",
-            "icon": "default",
-            "position": [
-                10,
+                0,
                 5
             ]
         },
         {
-            "type": "file",
-            "name": "Новая папка",
-            "path": "C:\\Users\\User/Desktop\\Новая папка",
+            "type": "folder_shortcut",
+            "name": "Изображения.lnk",
+            "path": "C:\\Users\\User\\Desktop\\Изображения.lnk",
             "icon": "default",
             "position": [
-                6,
-                1
+                0,
+                6
+            ]
+        },
+        {
+            "type": "folder_shortcut",
+            "name": "Музыка.lnk",
+            "path": "C:\\Users\\User\\Desktop\\Музыка.lnk",
+            "icon": "default",
+            "position": [
+                0,
+                7
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "Новая папка",
+            "path": "C:\\Users\\User\\Desktop\\Новая папка",
+            "icon": "default",
+            "position": [
+                0,
+                8
             ]
         }
     ]

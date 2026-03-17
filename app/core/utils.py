@@ -4,6 +4,25 @@ from ctypes.wintypes import HWND
 from enum import Enum
 from PyQt6.QtGui import QFontDatabase
 import os
+from core.config import BASE_DIR
+
+# ==========[> Log maker
+
+def MakeLog(section = "", infoText = "", clearLogs = False):
+    if clearLogs:
+        with open(f"{BASE_DIR}\\userdata\\logs\\logfile.txt", "w") as logFile:
+            return
+
+    message = ""
+
+    if len(infoText) == 0:
+        message = section
+    else:
+        message = f"{section} | {infoText}"
+
+    with open(f"{BASE_DIR}\\userdata\\logs\\logfile.txt", "a") as logFile:
+        logFile.write(message + "\n")
+    print(message)
 
 # ==========[> Blur
 
@@ -47,12 +66,12 @@ def MakeBlur(hwnd: int, enable: bool = True, blurMode: int = AccentState.ACCENT_
     try:
         colorHEX = colorHEX.replace("#", "")
         if len(colorHEX) == 6: colorHEX = "FF" + colorHEX
-        
+
         a = int(colorHEX[0:2], 16)
         r = int(colorHEX[2:4], 16)
         g = int(colorHEX[4:6], 16)
         b = int(colorHEX[6:8], 16)
-        
+
         gradientColor = (a << 24) | (b << 16) | (g << 8) | r
     except:
         gradientColor = 0
@@ -69,7 +88,7 @@ def MakeBlur(hwnd: int, enable: bool = True, blurMode: int = AccentState.ACCENT_
     accent.AccentFlags = 0
 
     SetWCA(int(hwnd), ctypes.pointer(data))
-    
+
     if enable:
         blurMode = AccentState.ACCENT_ENABLE_ACRYLICBLURBEHIND.value if blurMode == 1 else AccentState.ACCENT_ENABLE_BLURBEHIND.value
         accent.AccentState = blurMode
@@ -81,9 +100,13 @@ def MakeBlur(hwnd: int, enable: bool = True, blurMode: int = AccentState.ACCENT_
 
 # ==========[> Load fonts from file
 
-def LoadFont(fontFromConfig, path = ""):
-    if str(fontFromConfig).lower().endswith((".ttf", ".otf")):
-        fontFullPath = f"{path}\\{fontFromConfig}"
+def LoadFont(fontFromConfig, path=""):
+    fontStr = str(fontFromConfig)
+    if fontStr.lower().endswith((".ttf", ".otf")):
+        if os.path.isabs(fontStr):
+            fontFullPath = fontStr
+        else:
+            fontFullPath = os.path.join(path, fontStr)
         if os.path.exists(fontFullPath):
             fontID = QFontDatabase.addApplicationFont(fontFullPath)
             if fontID != -1:
@@ -94,4 +117,4 @@ def LoadFont(fontFromConfig, path = ""):
                 print(f"[Log] [FontLoader] Could not load font from file: {fontFullPath}")
         else:
             print(f"[Log] [FontLoader] Font file not found: {fontFullPath}")
-    return fontFromConfig
+    return fontStr

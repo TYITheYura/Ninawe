@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#              Version: Medium Rare v0.2
+#              Version: Medium rare v1.0
 # And remember guys: Ninawe is not a windows explorer
 
 import os
@@ -21,7 +21,7 @@ from core.config import config as cfg
 class NinaweShell:
     def __init__(self):
         self.app = QApplication(sys.argv)
-        
+
         # Links to the windows
         self.desktop = None
         self.taskbar = None
@@ -29,22 +29,22 @@ class NinaweShell:
 
     def start(self):
         print('''
-                                                                                             ---:::+++#####+++:::---  
-                      ::: :: :  ::::    ::: ::::::::::: ::::    :::     :::     :::       ::: ::::::::::    
-                     :+: :: :  :+:+:   :+:     :+:     :+:+:   :+:   :+: :+:   :+:       :+: :+:            
-                    :+: :+ :  :+:+:+  +:+     +:+     :+:+:+  +:+  +:+   +:+  +:+       +:+ +:+             
-                   +#+ #+ +  +#+ +:+ +#+     +#+     +#+ +:+ +#+ +#++:++#++: +#+  +:+  +#+ +#++:++#         
-                  +#+ +# +  +#+  +#+#+#     +#+     +#+  +#+#+# +#+     +#+ +#+ +#+#+ +#+ +#+               
-                 #+# ## #  #+#   #+#+#     #+#     #+#   #+#+# #+#     #+#  #+#+# #+#+#  #+#                
-                ### ## #  ###    #### ########### ###    #### ###     ###   ###   ###   ##########          
-    ---:::+++#####+++:::---                                                                
+                                                                                             ---:::+++#####+++:::---
+                      ::: :: :  ::::    ::: ::::::::::: ::::    :::     :::     :::       ::: ::::::::::
+                     :+: :: :  :+:+:   :+:     :+:     :+:+:   :+:   :+: :+:   :+:       :+: :+:
+                    :+: :+ :  :+:+:+  +:+     +:+     :+:+:+  +:+  +:+   +:+  +:+       +:+ +:+
+                   +#+ #+ +  +#+ +:+ +#+     +#+     +#+ +:+ +#+ +#++:++#++: +#+  +:+  +#+ +#++:++#
+                  +#+ +# +  +#+  +#+#+#     +#+     +#+  +#+#+# +#+     +#+ +#+ +#+#+ +#+ +#+
+                 #+# ## #  #+#   #+#+#     #+#     #+#   #+#+# #+#     #+#  #+#+# #+#+#  #+#
+                ### ## #  ###    #### ########### ###    #### ###     ###   ###   ###   ##########
+    ---:::+++#####+++:::---
 ''')
-        
+
         self.desktop = DesktopWindow()
         self.desktop.show()
-        
-        self.taskbar = Taskbar()
-        self.taskbar.show()
+
+        # self.taskbar = Taskbar()
+        # self.taskbar.show()
 
         # self.powerMenu = PowerMenu()
         # self.powerMenu.show()

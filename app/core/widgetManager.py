@@ -32,10 +32,10 @@ class WidgetManager:
         self.UnloadWidgets()
 
         configSection = "Taskbar" if self.widgetType == "taskbar" else "Desktop"
-        
+
         # Reading active widgets
         rawList = themeConfig.theme.Get(configSection, "active_widgets", fallback = "")
-        
+
         if not rawList:
             print(f"[Log] [WidgetManager] [WidgetType: {self.widgetType.upper()}] | No active widgets found in config.")
             return
@@ -45,11 +45,11 @@ class WidgetManager:
         for name in widgetNames:
             if not name:
                 continue
-            
+
             try:
                 # forming path to widget (module)
                 modulePath = f"widgets.{self.widgetType}.{name}"
-                
+
                 # reimport module if it imported earlier
                 if modulePath in sys.modules:
                     module = importlib.reload(sys.modules[modulePath])
@@ -67,7 +67,7 @@ class WidgetManager:
                 instance = widgetClass(self.parent)
                 # Adding widget to list
                 self.widgets.append(instance)
-                
+
                 print(f"[Log] [WidgetManager] [WidgetType: {self.widgetType.upper()}] | Loaded: {name}")
 
             # exceptions
@@ -83,7 +83,7 @@ class WidgetManager:
         for widget in self.widgets:
             if hasattr(widget, "Updater"):
                 widget.Updater(changedSections)
-    
+
     def InitLayout(self):
         # Reinitializating widget (all)
         for widget in self.widgets:

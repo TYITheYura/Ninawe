@@ -11,7 +11,11 @@ else:
     # from config.py to default directory (.. x 3)
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-print(f"[Log] [Config] | Default path: {BASE_DIR}")
+from core.utils import MakeLog
+
+MakeLog(clearLogs = True)
+
+MakeLog(f"[Log] [Config] | Default path: {BASE_DIR}")
 
 # Base class for convenient data retrieval
 class ConfigWrapper:
@@ -61,7 +65,7 @@ class ConfigWrapper:
     # I'm too dumb to do this properly, so the hash variable must be called "hashes" in any case
     def SectionHashCheck(self, dataClaimer = None):
         if dataClaimer == None:
-            print("[Log] [ConfigWrapper] [SectionHashCheck] | Data not set")
+            MakeLog("[Log] [ConfigWrapper] [SectionHashCheck] | Data not set")
             return
 
         changedSections = []
@@ -106,10 +110,10 @@ class ThemeConfig(ConfigWrapper):
         if not os.path.exists(self.themeInitFile):
             if themeName != "default":
                 # fallback to default theme
-                print(f"[Log] [ThemeConfig] | No theme with name {themeName} detected. Rolling back to default.")
+                MakeLog(f"[Log] [ThemeConfig] | No theme with name {themeName} detected. Rolling back to default.")
                 self.currentThemePath = self.GetThemePath("default")
                 self.themeInitFile = os.path.join(self.currentThemePath, "themeconfig.ini")
-        
+
         self.parser.clear()
         self.parser.read(self.themeInitFile)
 
@@ -117,12 +121,12 @@ class ThemeConfig(ConfigWrapper):
 
         self.ParseGlobals()
 
-        print(f"[Log] [ThemeConfig] | Theme loaded: {themeName}")
+        MakeLog(f"[Log] [ThemeConfig] | Theme loaded: {themeName}")
 
         return changedSections
 
     def ParseGlobals(self):
-        print("[Log] [ThemeConfig] | Caching theme global properties...")
+        MakeLog("[Log] [ThemeConfig] | Caching theme global properties...")
         rawFont = self.Get("Global", "font_family", fallback =  "Segoe UI")
         if rawFont.lower().endswith((".ttf", ".otf")):
              self.globals.fontFamily = self.GetResource(rawFont)
@@ -136,21 +140,19 @@ class ThemeConfig(ConfigWrapper):
         # Theme folder paths
         userPath = os.path.join(self.GetPath(f"userdata\\themes\\{themeName}"))
         appPath = os.path.join(self.GetPath(f"app\\themes\\{themeName}"))
-        print(userPath)
-        print(appPath)
-        
+
         # User theme (high priority)
         if os.path.exists(os.path.join(userPath, "themeconfig.ini")):
-            print(f"[Log] [ThemeConfig] | Loading user theme: \"{themeName}\"")
+            MakeLog(f"[Log] [ThemeConfig] | Loading user theme: \"{themeName}\"")
             return userPath
 
         # Default build-in theme
         if os.path.exists(os.path.join(appPath, "themeconfig.ini")):
-            print(f"[Log] [ThemeConfig] | Loading system theme: \"{themeName}\"")
+            MakeLog(f"[Log] [ThemeConfig] | Loading system theme: \"{themeName}\"")
             return appPath
 
         # Not found anything
-        print(f"[Log] [ThemeConfig] | Theme \"{themeName}\" not found! Fallback to default.")
+        MakeLog(f"[Log] [ThemeConfig] | Theme \"{themeName}\" not found! Fallback to default.")
         return os.path.join(appPath, "default")
 
     def GetResource(self, relativePath):
@@ -168,12 +170,12 @@ class AppConfig(ConfigWrapper):
 
     def Load(self):
         if not os.path.exists(self.configFilePath):
-            print(f"[Log] [AppConfig] | Config file on directory {self.configFilePath} not found.")
+            MakeLog(f"[Log] [AppConfig] | Config file on directory {self.configFilePath} not found.")
             return []
 
         self.parser.read(self.configFilePath)
         changedSections = self.SectionHashCheck(self)
-        print(f"[Log] [AppConfig] | {self.configFilePath} loaded.")
+        MakeLog(f"[Log] [AppConfig] | {self.configFilePath} loaded.")
         return changedSections
 
 # All-in-one config manager
@@ -200,46 +202,47 @@ class ConfigManager(QObject):
         if self.app.configFilePath and self.app.configFilePath not in files:
             if os.path.exists(self.app.configFilePath):
                 self.watcher.addPath(self.app.configFilePath)
-                print(f"[Log] [ConfigWatcher] [UpdateWatchList] | Added: {self.app.configFilePath}")
+                MakeLog(f"[Log] [ConfigWatcher] [UpdateWatchList] | Added: {self.app.configFilePath}")
 
         if self.theme.themeInitFile and self.theme.themeInitFile not in files:
             if os.path.exists(self.theme.themeInitFile):
                 self.watcher.addPath(self.theme.themeInitFile)
-                print(f"[Log] [ConfigWatcher] [UpdateWatchList] | Added: {self.theme.themeInitFile}")
+                MakeLog(f"[Log] [ConfigWatcher] [UpdateWatchList] | Added: {self.theme.themeInitFile}")
 
     # One updater for config/themeconfig
     def OnFileChanged(self, path):
         if path == self.app.configFilePath:
-            print("[Log] [ConfigManager] [Config] | App config changes detected.")
+            MakeLog("[Log] [ConfigManager] [Config] | App config changes detected.")
             changes = self.app.Load()
             newTheme = self.app.Get("Theme", "current_theme", fallback = "default")
-            
+
             # If theme in config.ini switched
             if self.currentTheme != newTheme:
-                print(f"[Log] [ConfigManager] [Config] | Theme switch detected: {self.currentTheme} -> {newTheme}")
+                MakeLog(f"[Log] [ConfigManager] [Config] | Theme switch detected: {self.currentTheme} -> {newTheme}")
                 if self.theme.themeInitFile in self.watcher.files():
                     self.watcher.removePath(self.theme.themeInitFile)
-                
+
                 self.theme.Load(newTheme)
                 self.currentTheme = newTheme
                 self.UpdateWatchList()
-                
-                self.configUpdated.emit("theme", ["ALL"]) 
+
+                self.configUpdated.emit("theme", ["ALL"])
             # If other props is changed
             else:
                 self.configUpdated.emit("app", changes)
 
         elif path == self.theme.themeInitFile:
-            print("[Log] [ConfigManager] [Config] | Theme config changes detected.")
+            MakeLog("[Log] [ConfigManager] [Config] | Theme config changes detected.")
             changes = self.theme.Load(self.app.Get("Theme", "current_theme"))
             if changes:
                 self.configUpdated.emit("theme", changes)
-        
+
         self.UpdateWatchList()
 
     def Reload(self):
         self.app.Load()
         self.theme.Load()
         self.UpdateWatchList()
+
 
 config = ConfigManager()
