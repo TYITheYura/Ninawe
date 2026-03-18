@@ -3,7 +3,7 @@ import random
 from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLabel, QFileIconProvider, QGraphicsDropShadowEffect, QFrame
 from PyQt6.QtGui import QPainter, QPixmap, QColor, QIcon, QPen, QBrush, QDrag, QFontMetrics, QFont
 from PyQt6.QtCore import Qt, QTimer, QVariantAnimation, QFileInfo, QRect, QMimeData, QUrl
-from core.config import config as themeConfig
+from core.config import config as configurator
 import win32com.client
 import json
 import shutil
@@ -18,55 +18,76 @@ class IconConfig:
         self.spacingX = 0
         self.spacingY = 0
         self.bitmapSize = 0
+        self.containerBorderRadius = 0
+        self.containerBorder = 0
         self.iconLabelFontFamily = None
+
+        self.iconHoverColors = {}
+        self.iconSelectedColors = {}
+        self.iconHoverOnSelectedColors = {}
+        self.iconDropColors = {}
 
         self.iconLabelStatus = True
         self.iconStyleSheet = ""
         self.labelStyleSheet = ""
 
     def Updater(self):
-        self.iconLabelStatus = themeConfig.theme.GetBool("Desktop.Icon", "icon_label_status", fallback = True)
-        self.iconLabelFontSize = themeConfig.theme.GetInt("Desktop.Icon", "icon_label_font_size", fallback = 11)
-        self.itemWidth = themeConfig.theme.GetInt("Desktop.Icon", "item_width", fallback = 85)
-        self.itemHeight = themeConfig.theme.GetInt("Desktop.Icon", "item_height", fallback = 110)
-        self.spacingX = themeConfig.theme.GetInt("Desktop.Icon", "spacing_x", fallback = 0)
-        self.spacingY = themeConfig.theme.GetInt("Desktop.Icon", "spacing_y", fallback = 0)
-        self.bitmapSize = themeConfig.theme.GetInt("Desktop.Icon", "bitmap_size", fallback = 48)
-        self.iconLabelCompensator = themeConfig.theme.GetInt("Desktop.Icon", "icon_label_compensator", fallback = 0)
+        self.iconLabelStatus = configurator.theme.GetBool("Desktop.Icon", "icon_label_status", fallback = True)
+        self.iconLabelFontSize = configurator.theme.GetInt("Desktop.Icon", "icon_label_font_size", fallback = 11)
+        self.itemWidth = configurator.theme.GetInt("Desktop.Icon", "item_width", fallback = 85)
+        self.itemHeight = configurator.theme.GetInt("Desktop.Icon", "item_height", fallback = 110)
+        self.spacingX = configurator.theme.GetInt("Desktop.Icon", "spacing_x", fallback = 0)
+        self.spacingY = configurator.theme.GetInt("Desktop.Icon", "spacing_y", fallback = 0)
+        self.bitmapSize = configurator.theme.GetInt("Desktop.Icon", "bitmap_size", fallback = 48)
+        self.iconLabelCompensator = configurator.theme.GetInt("Desktop.Icon", "icon_label_compensator", fallback = 0)
+        self.containerBorderRadius = configurator.theme.GetInt("Desktop.Icon", "icon_container_border_radius", fallback = 0)
+        self.containerBorder = configurator.theme.GetInt("Desktop.Icon", "icon_container_border", fallback = 0)
 
-        rawFont = themeConfig.theme.Get("Desktop.Icon", "icon_label_font_family", fallback = "Segoe UI")
+        self.iconHoverColors["background"] = configurator.theme.Get("Desktop.Icon", "icon_hover_background", fallback = "#44FFFFFF")
+        self.iconHoverColors["border"] = configurator.theme.Get("Desktop.Icon", "icon_hover_border", fallback = "#55FFFFFF")
+
+        self.iconSelectedColors["background"] = configurator.theme.Get("Desktop.Icon", "icon_selected_background", fallback = "#55FFFFFF")
+        self.iconSelectedColors["border"] = configurator.theme.Get("Desktop.Icon", "icon_selected_border", fallback = "#66FFFFFF")
+
+        self.iconHoverOnSelectedColors["background"] = configurator.theme.Get("Desktop.Icon", "icon_hover_on_selected_background", fallback = "#66FFFFFF")
+        self.iconHoverOnSelectedColors["border"] = configurator.theme.Get("Desktop.Icon", "icon_hover_on_selected_border", fallback = "#77FFFFFF")
+
+        self.iconDropColors["background"] = configurator.theme.Get("Desktop.Icon", "icon_drop_background", fallback = "#77FFFFFF")
+        self.iconDropColors["border"] = configurator.theme.Get("Desktop.Icon", "icon_drop_border", fallback = "#88FFFFFF")
+
+        rawFont = configurator.theme.Get("Desktop.Icon", "icon_label_font_family", fallback = "Segoe UI")
 
         if rawFont == "default":
-            rawFont = themeConfig.theme.globals.fontFamily
+            rawFont = configurator.theme.globals.fontFamily
 
-        themePath = themeConfig.theme.GetThemePath(
-            themeConfig.app.Get("Theme", "current_theme", fallback="default")
+        themePath = configurator.theme.GetThemePath(
+            configurator.app.Get("Theme", "current_theme", fallback = "default")
         )
 
         self.iconLabelFontFamily = LoadFont(rawFont, themePath)
 
-        self.iconStyleSheet = """
-            QFrame#IconFrame {
+        self.iconStyleSheet = f"""
+            QFrame#IconFrame {{
                 background: transparent;
-                border: 1px solid transparent;
-                border-radius: 5px;
-            }
-            QFrame#IconFrame:hover {
-                background: rgba(255, 255, 255, 30);
-                border: 1px solid rgba(255, 255, 255, 60);
-            }
-            QFrame#IconFrame[selected = "true"] {
-                background: rgba(255, 255, 255, 60);
-                border: 1px solid rgba(255, 255, 255, 100);
-            }
-            QFrame#IconFrame[selected = "true"]:hover {
-                background: rgba(255, 255, 255, 80);
-                border: 1px solid rgba(255, 255, 255, 120);
-            }
-            QFrame#IconFrame[drop_hover = "true"] {
-                background: rgba(255, 255, 255, 40);
-                border: 1px solid rgba(255, 255, 255, 50);
-            }
+                border: {self.containerBorder}px solid transparent;
+                border-radius: {self.containerBorderRadius}px;
+            }}
+            QFrame#IconFrame:hover {{
+                background: {self.iconHoverColors.get("background")};
+                border: {self.containerBorder}px solid {self.iconHoverColors.get("border")};
+            }}
+            QFrame#IconFrame[selected = "true"] {{
+                background: {self.iconSelectedColors.get("background")};
+                border: {self.containerBorder}px solid {self.iconSelectedColors.get("border")};
+            }}
+            QFrame#IconFrame[selected = "true"]:hover {{
+                background: {self.iconHoverOnSelectedColors.get("background")};
+                border: {self.containerBorder}px solid {self.iconHoverOnSelectedColors.get("border")};
+            }}
+            QFrame#IconFrame[drop_hover = "true"] {{
+                background: {self.iconDropColors.get("background")};
+                border: {self.containerBorder}px solid {self.iconDropColors.get("border")};
+            }}
         """
 
         self.labelStyleSheet = f"""
@@ -78,9 +99,10 @@ class IconConfig:
 
 class DesktopConfig:
     def __init__(self):
-        self.desktopInfoFile = themeConfig.theme.GetPath("userdata\\preferences\\user\\desktopdata.json")
+        self.desktopInfoFile = configurator.theme.GetPath("userdata\\preferences\\user\\desktopdata.json")
         self.desktopPath = os.path.normpath(os.path.expanduser("~/Desktop"))
         self.wallpaperList = []
+        self.groudSelectionColors = {}
         self.wallpaperMode = None
         self.windowMarginX = 0
         self.windowMarginY = 0
@@ -92,15 +114,22 @@ class DesktopConfig:
         self.selectionStyleSheet = ""
 
     def Updater(self):
-        self.wallpaperMode = themeConfig.theme.Get("Desktop", "wallpaper_mode", fallback = "cover")
-        self.isCarousel = themeConfig.theme.GetBool("Desktop", "wallpaper_carousel", fallback = True)
-        self.intervalInMin = themeConfig.theme.GetFloat("Desktop", "carousel_interval_min", fallback = 10)
-        self.shuffle = themeConfig.theme.GetBool("Desktop", "carousel_shuffle", fallback = False)
-        self.backgroundPath = themeConfig.theme.GetResource(themeConfig.theme.Get("Desktop", "wallpaper_path"))
-        self.transitionMs = themeConfig.theme.GetInt("Desktop", "wallpaper_transition_ms", fallback = 500)
-        self.selectionStyleSheet = """
-            background-color: rgba(255, 255, 255, 50);
-            border: 1px solid rgba(255, 255, 255, 60);
+        self.wallpaperMode = configurator.theme.Get("Desktop", "wallpaper_mode", fallback = "cover")
+        self.isCarousel = configurator.theme.GetBool("Desktop", "wallpaper_carousel", fallback = True)
+        self.intervalInMin = configurator.theme.GetFloat("Desktop", "carousel_interval_min", fallback = 10)
+        self.shuffle = configurator.theme.GetBool("Desktop", "carousel_shuffle", fallback = False)
+        self.backgroundPath = configurator.theme.GetResource(configurator.theme.Get("Desktop", "wallpaper_path"))
+        self.transitionMs = configurator.theme.GetInt("Desktop", "wallpaper_transition_ms", fallback = 500)
+        self.windowMarginX = configurator.theme.GetInt("Desktop", "window_margin_x", fallback = 0)
+        self.windowMarginY = configurator.theme.GetInt("Desktop", "window_margin_y", fallback = 0)
+        self.groudSelectionBorderRadius = configurator.theme.GetInt("Desktop", "group_selection_border_radius", fallback = 0)
+        self.groudSelectionBorderWidth = configurator.theme.GetInt("Desktop", "group_selection_border_width", fallback = 0)
+        self.groudSelectionColors["background"] = configurator.theme.Get("Desktop", "group_selection_background", fallback = "#55FFFFFF")
+        self.groudSelectionColors["border"] = configurator.theme.Get("Desktop", "group_selection_background", fallback = "#66FFFFFF")
+        self.selectionStyleSheet = f"""
+            background-color: {self.groudSelectionColors.get("background")};
+            border: {self.groudSelectionBorderWidth}px solid {self.groudSelectionColors.get("border")};
+            border-radius: {self.groudSelectionBorderRadius}px;
         """
 
 class DesktopWindow(QMainWindow):
@@ -126,6 +155,8 @@ class DesktopWindow(QMainWindow):
         self.fadeAnimation = QVariantAnimation(self)
         self.fadeAnimation.valueChanged.connect(self.UpdateFade)
         self.fadeAnimation.finished.connect(self.EndTransition)
+
+        configurator.configUpdated.connect(self.UpdateStyles)
 
         # ahhhhh I'm too lazy to comment all the code :(
         # i think I'll do it next time
@@ -251,6 +282,33 @@ class DesktopWindow(QMainWindow):
         self.SaveJSONData(desktopData)
 
         self.RenderGrid(updatedDesktopData)
+
+    def UpdateStyles(self, source = None, changedSections = None):
+        if not changedSections:
+            return
+
+        needsUpdate = False
+
+        if "ALL" in changedSections or source == "init":
+            needsUpdate = True
+        elif "Desktop" in changedSections or "Desktop.Icon" in changedSections:
+            needsUpdate = True
+
+        if not needsUpdate:
+            return
+
+        MakeLog("[Log] [Desktop]", "Live config update detected. Reloading desktop...")
+
+        if "ALL" in changedSections or "Desktop" in changedSections or source == "init":
+            self.desktopConfig.Updater()
+            self.LoadWallpaper()
+            self.selectionBox.setStyleSheet(self.desktopConfig.selectionStyleSheet)
+
+        if "ALL" in changedSections or "Desktop.Icon" in changedSections or source == "init":
+            self.iconConfig.Updater()
+
+        self.ScanDesktop()
+        self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -602,14 +660,14 @@ class DesktopWindow(QMainWindow):
             MakeLog(f"[Log] [Desktop]", f"Failed to remove item {filepath} from JSON: {e}")
 
     def LoadJSONData(self):
-        with open(self.desktopConfig.desktopInfoFile, "r", encoding="utf-8") as f:
+        with open(self.desktopConfig.desktopInfoFile, "r", encoding = "utf-8") as f:
             desktopData = json.load(f)
 
         return desktopData
 
     def SaveJSONData(self, data):
         with open(self.desktopConfig.desktopInfoFile, "w", encoding="utf-8") as JSONFile:
-            json.dump(data, JSONFile, indent=4, ensure_ascii=False)
+            json.dump(data, JSONFile, indent = 4, ensure_ascii = False)
 
 class DesktopItem(QWidget):
     def __init__(self, filepath, itemType = "file", parent = None):
