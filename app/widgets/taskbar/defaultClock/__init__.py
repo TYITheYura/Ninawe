@@ -12,10 +12,10 @@ class Widget(QLabel):
 		self.setObjectName("ClockWidget")
 		self.defaultSection = "Taskbar.Clock"
 		self.clockConfig = ConfigWrapper()
-		
+
 		# Panel w/h info
-		self.panelWidth = parent.panelWidth
-		self.panelHeight = parent.panelHeight
+		self.panelWidth = parent.TBConfig.panelWidth
+		self.panelHeight = parent.TBConfig.panelHeight
 
 		# Fonts
 		self.fontFamily = self.fontSize = self.fontColor = self.fontShadow = None
@@ -32,7 +32,7 @@ class Widget(QLabel):
 
 		# Align clock
 		self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-		
+
 		# Connecting to config updating state
 		# Theme config
 		selectedThemeConfig.configUpdated.connect(self.Updater)
@@ -41,20 +41,20 @@ class Widget(QLabel):
 		if os.path.exists(self.configPath):
 			self.clockConfigWatcher.addPath(self.configPath)
 			self.clockConfigWatcher.fileChanged.connect(self.ClockConfigFileChanged)
-		
+
 		#  [> Clock timer
 		self.timer = QTimer(self)
 		self.timer.timeout.connect(self.UpdateTime)
 
-	def ClockConfigFileChanged(self, path): # why the fuck did I even do that? lol
+	def ClockConfigFileChanged(self, path):
 		print(f"[Log] [Taskbar.Clock] | Local config changed: {path}. Updates will not be applied if there is already a section for this widget in the themeconfig.ini file.")
-		
+
 		if path not in self.clockConfigWatcher.files() and os.path.exists(path):
 			self.clockConfigWatcher.addPath(path)
 
 		self.Updater()
 
-	def Updater(self, changedSections = None):
+	def Updater(self, source = None, changedSections = None):
 		if changedSections != None and len(changedSections) > 0:
 			if "ALL" in changedSections:
 				pass
@@ -87,7 +87,7 @@ class Widget(QLabel):
 		self.fontSize = self.selectedConfig.GetInt(self.defaultSection, "font_size", fallback = selectedThemeConfig.theme.globals.fontSize)
 		self.fontColor = self.selectedConfig.Get(self.defaultSection, "font_color", fallback = selectedThemeConfig.theme.globals.fontColor)
 		self.fontShadow = self.selectedConfig.Get(self.defaultSection, "font_shadow", fallback = selectedThemeConfig.theme.globals.fontShadow)
-		
+
 		# clock data
 		self.clockWidth = self.selectedConfig.GetInt(self.defaultSection, "width", fallback = 50)
 		self.clockPosition = self.selectedConfig.GetInt(self.defaultSection, "position", fallback = 50)
@@ -106,6 +106,9 @@ class Widget(QLabel):
 		# If values in taskbar constructor is not updated (for first init)
 		if self.panelWidth == None or self.panelHeight == None:
 			return
+
+		self.panelWidth = self.parent().TBConfig.panelWidth
+		self.panelHeight = self.parent().TBConfig.panelHeight
 
 		self.setStyleSheet(f"""
 			color: {self.fontColor};

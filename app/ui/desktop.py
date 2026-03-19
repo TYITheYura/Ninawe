@@ -1,8 +1,17 @@
 import os
 import random
-from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLabel, QFileIconProvider, QGraphicsDropShadowEffect, QFrame
-from PyQt6.QtGui import QPainter, QPixmap, QColor, QIcon, QPen, QBrush, QDrag, QFontMetrics, QFont
-from PyQt6.QtCore import Qt, QTimer, QVariantAnimation, QFileInfo, QRect, QMimeData, QUrl
+from PyQt6.QtWidgets import (
+    QMainWindow, QWidget, QVBoxLayout, QLabel, QMenu,
+    QFileIconProvider, QGraphicsDropShadowEffect, QFrame
+)
+from PyQt6.QtGui import (
+    QPainter, QPixmap, QColor, QIcon, QCursor,
+    QPen, QBrush, QDrag, QFontMetrics, QFont, QAction
+)
+from PyQt6.QtCore import (
+    Qt, QTimer, QVariantAnimation, QFileInfo,
+    QRect, QMimeData, QUrl, QFileSystemWatcher
+)
 from core.config import config as configurator
 import win32com.client
 import json
@@ -10,9 +19,45 @@ import shutil
 import subprocess
 from core.utils import MakeLog, LoadFont
 import re
+from easydict import EasyDict as easyDict
+import ctypes
+import ctypes.wintypes
+
+class ContextMenuConfig:
+    def __init__(self):
+        self.contextMenuDataPath = configurator.theme.GetPath("userdata\\preferences\\user\\contextmenudata.json")
+        # hardcode styles until full implementation
+        self.contextMenuStyleSheet = """
+            QMenu {
+                background-color: rgba(20, 20, 20, 220);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 30);
+                border-radius: 8px;
+                padding: 5px;
+                font-family: "Segoe UI";
+                font-size: 10pt;
+            }
+            QMenu::item {
+                padding: 6px 30px 6px 30px;
+                border-radius: 4px;
+                margin: 2px;
+            }
+            QMenu::item:selected {
+                background-color: rgba(255, 255, 255, 40);
+            }
+            QMenu::separator {
+                height: 1px;
+                background: rgba(255, 255, 255, 20);
+                margin: 4px 10px;
+            }
+            QMenu::indicator {
+                width: 0px; height: 0px;
+            }
+        """
 
 class IconConfig:
     def __init__(self):
+        self.contextMenuConfig = ContextMenuConfig()
         self.itemWidth = 0
         self.itemHeight = 0
         self.spacingX = 0
@@ -22,10 +67,14 @@ class IconConfig:
         self.containerBorder = 0
         self.iconLabelFontFamily = None
 
-        self.iconHoverColors = {}
-        self.iconSelectedColors = {}
-        self.iconHoverOnSelectedColors = {}
-        self.iconDropColors = {}
+        self.iconColors = easyDict(
+            {
+                "hover": {},
+                "selected": {},
+                "hoverOnSelected": {},
+                "drop": {}
+            }
+        )
 
         self.iconLabelStatus = True
         self.iconStyleSheet = ""
@@ -43,17 +92,17 @@ class IconConfig:
         self.containerBorderRadius = configurator.theme.GetInt("Desktop.Icon", "icon_container_border_radius", fallback = 0)
         self.containerBorder = configurator.theme.GetInt("Desktop.Icon", "icon_container_border", fallback = 0)
 
-        self.iconHoverColors["background"] = configurator.theme.Get("Desktop.Icon", "icon_hover_background", fallback = "#44FFFFFF")
-        self.iconHoverColors["border"] = configurator.theme.Get("Desktop.Icon", "icon_hover_border", fallback = "#55FFFFFF")
+        self.iconColors.hover.background = configurator.theme.Get("Desktop.Icon", "icon_hover_background", fallback = "#44FFFFFF")
+        self.iconColors.hover.border = configurator.theme.Get("Desktop.Icon", "icon_hover_border", fallback = "#55FFFFFF")
 
-        self.iconSelectedColors["background"] = configurator.theme.Get("Desktop.Icon", "icon_selected_background", fallback = "#55FFFFFF")
-        self.iconSelectedColors["border"] = configurator.theme.Get("Desktop.Icon", "icon_selected_border", fallback = "#66FFFFFF")
+        self.iconColors.selected.background = configurator.theme.Get("Desktop.Icon", "icon_selected_background", fallback = "#55FFFFFF")
+        self.iconColors.selected.border = configurator.theme.Get("Desktop.Icon", "icon_selected_border", fallback = "#66FFFFFF")
 
-        self.iconHoverOnSelectedColors["background"] = configurator.theme.Get("Desktop.Icon", "icon_hover_on_selected_background", fallback = "#66FFFFFF")
-        self.iconHoverOnSelectedColors["border"] = configurator.theme.Get("Desktop.Icon", "icon_hover_on_selected_border", fallback = "#77FFFFFF")
+        self.iconColors.hoverOnSelected.background = configurator.theme.Get("Desktop.Icon", "icon_hover_on_selected_background", fallback = "#66FFFFFF")
+        self.iconColors.hoverOnSelected.border = configurator.theme.Get("Desktop.Icon", "icon_hover_on_selected_border", fallback = "#77FFFFFF")
 
-        self.iconDropColors["background"] = configurator.theme.Get("Desktop.Icon", "icon_drop_background", fallback = "#77FFFFFF")
-        self.iconDropColors["border"] = configurator.theme.Get("Desktop.Icon", "icon_drop_border", fallback = "#88FFFFFF")
+        self.iconColors.drop.background = configurator.theme.Get("Desktop.Icon", "icon_drop_background", fallback = "#77FFFFFF")
+        self.iconColors.drop.border = configurator.theme.Get("Desktop.Icon", "icon_drop_border", fallback = "#88FFFFFF")
 
         rawFont = configurator.theme.Get("Desktop.Icon", "icon_label_font_family", fallback = "Segoe UI")
 
@@ -73,20 +122,20 @@ class IconConfig:
                 border-radius: {self.containerBorderRadius}px;
             }}
             QFrame#IconFrame:hover {{
-                background: {self.iconHoverColors.get("background")};
-                border: {self.containerBorder}px solid {self.iconHoverColors.get("border")};
+                background: {self.iconColors.hover.background};
+                border: {self.containerBorder}px solid {self.iconColors.hover.border};
             }}
             QFrame#IconFrame[selected = "true"] {{
-                background: {self.iconSelectedColors.get("background")};
-                border: {self.containerBorder}px solid {self.iconSelectedColors.get("border")};
+                background: {self.iconColors.selected.background};
+                border: {self.containerBorder}px solid {self.iconColors.selected.border};
             }}
             QFrame#IconFrame[selected = "true"]:hover {{
-                background: {self.iconHoverOnSelectedColors.get("background")};
-                border: {self.containerBorder}px solid {self.iconHoverOnSelectedColors.get("border")};
+                background: {self.iconColors.hoverOnSelected.background};
+                border: {self.containerBorder}px solid {self.iconColors.hoverOnSelected.border};
             }}
             QFrame#IconFrame[drop_hover = "true"] {{
-                background: {self.iconDropColors.get("background")};
-                border: {self.containerBorder}px solid {self.iconDropColors.get("border")};
+                background: {self.iconColors.drop.background};
+                border: {self.containerBorder}px solid {self.iconColors.drop.border};
             }}
         """
 
@@ -99,6 +148,7 @@ class IconConfig:
 
 class DesktopConfig:
     def __init__(self):
+        self.contextMenuConfig = ContextMenuConfig()
         self.desktopInfoFile = configurator.theme.GetPath("userdata\\preferences\\user\\desktopdata.json")
         self.desktopPath = os.path.normpath(os.path.expanduser("~/Desktop"))
         self.wallpaperList = []
@@ -112,6 +162,7 @@ class DesktopConfig:
         self.backgroundPath = None
         self.transitionMs = 0
         self.selectionStyleSheet = ""
+        self.contextMenuStyleSheet = ""
 
     def Updater(self):
         self.wallpaperMode = configurator.theme.Get("Desktop", "wallpaper_mode", fallback = "cover")
@@ -126,6 +177,7 @@ class DesktopConfig:
         self.groudSelectionBorderWidth = configurator.theme.GetInt("Desktop", "group_selection_border_width", fallback = 0)
         self.groudSelectionColors["background"] = configurator.theme.Get("Desktop", "group_selection_background", fallback = "#55FFFFFF")
         self.groudSelectionColors["border"] = configurator.theme.Get("Desktop", "group_selection_background", fallback = "#66FFFFFF")
+
         self.selectionStyleSheet = f"""
             background-color: {self.groudSelectionColors.get("background")};
             border: {self.groudSelectionBorderWidth}px solid {self.groudSelectionColors.get("border")};
@@ -155,6 +207,12 @@ class DesktopWindow(QMainWindow):
         self.fadeAnimation = QVariantAnimation(self)
         self.fadeAnimation.valueChanged.connect(self.UpdateFade)
         self.fadeAnimation.finished.connect(self.EndTransition)
+
+        # Desktop dir watcher btw
+        self.dirWatcher = QFileSystemWatcher(self)
+        if os.path.exists(self.desktopConfig.desktopPath):
+            self.dirWatcher.addPath(self.desktopConfig.desktopPath)
+        self.dirWatcher.directoryChanged.connect(self.OnDirectoryChanged)
 
         configurator.configUpdated.connect(self.UpdateStyles)
 
@@ -282,6 +340,78 @@ class DesktopWindow(QMainWindow):
         self.SaveJSONData(desktopData)
 
         self.RenderGrid(updatedDesktopData)
+
+    def OnDirectoryChanged(self, path):
+        actualFiles = set()
+        for filename in os.listdir(self.desktopConfig.desktopPath):
+            if filename.startswith('.') or filename.lower() == 'desktop.ini':
+                continue
+            actualFiles.add(os.path.normpath(os.path.join(self.desktopConfig.desktopPath, filename)))
+
+        trackedFiles = {os.path.normpath(item.filepath): item for item in self.desktopItems}
+
+        for filepath in list(trackedFiles.keys()):
+            if filepath not in actualFiles:
+                MakeLog("[Log] [Desktop] [OnDirectoryChanged]", f"File removed externally: {filepath}")
+                self.RemoveItemByPath(filepath)
+
+        desktopData = None
+        newItemsAdded = False
+
+        for filepath in actualFiles:
+            if filepath not in trackedFiles:
+                MakeLog("[Log] [Desktop] [OnDirectoryChanged]", f"New file detected: {filepath}")
+
+                if desktopData is None:
+                    desktopData = self.LoadJSONData()
+
+                occupiedPositions = set()
+                for item in desktopData.get("desktop", []):
+                    pos = item.get("position", [0, 0])
+                    occupiedPositions.add((pos[0], pos[1]))
+
+                maxRows = max(1, (self.height() - self.desktopConfig.windowMarginY * 2) // (self.iconConfig.itemHeight + self.iconConfig.spacingY))
+
+                if hasattr(self, 'pendingDropPositions') and filepath in self.pendingDropPositions:
+                    newPosition = self.pendingDropPositions.pop(filepath)
+                    if tuple(newPosition) in occupiedPositions or newPosition[1] >= maxRows:
+                        newPosition = self.GetFirstFreePosition(occupiedPositions, maxRows)
+                else:
+                    newPosition = self.GetFirstFreePosition(occupiedPositions, maxRows)
+
+                occupiedPositions.add(tuple(newPosition))
+
+                actualPath = self.GetRealTargetPath(filepath)
+                itemType = "file"
+                if os.path.isdir(actualPath):
+                    itemType = "folder_shortcut" if filepath.lower().endswith('.lnk') else "folder"
+                elif actualPath.lower().endswith('.exe'):
+                    itemType = "exe_shortcut" if filepath.lower().endswith('.lnk') else "executable"
+                elif filepath.lower().endswith('.lnk'):
+                    itemType = "shortcut"
+
+                newItemData = {
+                    "type": itemType,
+                    "name": os.path.basename(filepath),
+                    "path": filepath,
+                    "icon": "default",
+                    "position": newPosition
+                }
+                desktopData.setdefault("desktop", []).append(newItemData)
+                newItemsAdded = True
+
+                item = DesktopItem(filepath, itemType, parent = self)
+                positionX = self.desktopConfig.windowMarginX + newPosition[0] * (self.iconConfig.itemWidth + self.iconConfig.spacingX)
+                positionY = self.desktopConfig.windowMarginY + newPosition[1] * (self.iconConfig.itemHeight + self.iconConfig.spacingY)
+
+                item.grid_x = newPosition[0]
+                item.grid_y = newPosition[1]
+                item.move(positionX, positionY)
+                item.show()
+                self.desktopItems.append(item)
+
+        if newItemsAdded:
+            self.SaveJSONData(desktopData)
 
     def UpdateStyles(self, source = None, changedSections = None):
         if not changedSections:
@@ -525,6 +655,121 @@ class DesktopWindow(QMainWindow):
             self.isSelectingStatus = False
             self.selectionBox.hide()
 
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Context Menu Engine (tm)
+
+    def LoadContextMenuData(self):
+        try:
+            with open(self.desktopConfig.contextMenuConfig.contextMenuDataPath, "r", encoding = "utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            MakeLog("[Log] [Desktop]", f"Failed to load context menu JSON: {e}")
+            return {"desktop": []}
+
+    def BuildMenuFromJson(self, menuData, parentMenu):
+        for item in menuData:
+            itemType = item.get("type", "action")
+
+            if itemType == "separator":
+                parentMenu.addSeparator()
+
+            else:
+                label = item.get("label", "Item")
+                label_id = item.get("label_id", "")
+
+                if label_id and "." in label_id:
+                    section, key = label_id.split(".", 1)
+                    label = configurator.lang.Translate(section, key, fallback = label)
+
+                if itemType == "submenu":
+                    submenu = QMenu(label, self)
+                    submenu.setStyleSheet(parentMenu.styleSheet())
+                    self.BuildMenuFromJson(item.get("items", []), submenu)
+                    parentMenu.addMenu(submenu)
+
+                elif itemType == "action":
+                    action = parentMenu.addAction(label)
+                    action.setData(item.get("action", "none"))
+
+    def contextMenuEvent(self, event):
+        if self.childAt(event.pos()) and self.childAt(event.pos()) != self.selectionBox:
+            return
+
+        menu = QMenu(self)
+        menu.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
+        menu.setWindowFlags(
+            menu.windowFlags() |
+            Qt.WindowType.FramelessWindowHint |
+            Qt.WindowType.NoDropShadowWindowHint
+        )
+        menu.setStyleSheet(self.desktopConfig.contextMenuConfig.contextMenuStyleSheet)
+        menuData = self.LoadContextMenuData()
+
+        self.BuildMenuFromJson(menuData.get("desktop", []), menu)
+
+        if menu.isEmpty():
+            return
+
+        action = menu.exec(QCursor.pos())
+
+        if action:
+            command = action.data()
+            self.ExecuteMenuCommand(command)
+
+    def CreateNewFolder(self):
+        base_path = os.path.join(self.desktopConfig.desktopPath, "New folder")
+        path = base_path
+        counter = 2
+
+        while os.path.exists(path):
+            path = f"{base_path} ({counter})"
+            counter += 1
+
+        try:
+            os.makedirs(path)
+            MakeLog("[Log] [Desktop] [CreateNewFolder]", f"Created new folder: {path}")
+        except Exception as e:
+            MakeLog("[Log] [Desktop] [CreateNewFolder]", f"Failed to create folder: {e}")
+
+    def CreateNewTextFile(self):
+        base_path = os.path.join(self.desktopConfig.desktopPath, "New text document.txt")
+        path = base_path
+        counter = 2
+
+        while os.path.exists(path):
+            path = os.path.join(self.desktopConfig.desktopPath, f"New text document ({counter}).txt")
+            counter += 1
+
+        try:
+            with open(path, 'w') as f:
+                pass
+            MakeLog("[Log] [Desktop] [CreateNewTextFile]", f"Created new text file: {path}")
+        except Exception as e:
+            MakeLog("[Log] [Desktop] [CreateNewTextFile]", f"Failed to create text file: {e}")
+
+    def ExecuteMenuCommand(self, command):
+        if not command or command == "none":
+            return
+
+        MakeLog("[Log] [DesktopMenu] [ExecuteMenuCommand]", f"Executing command: {command}")
+
+        if command == "refresh":
+            self.ScanDesktop()
+        elif command == "create_folder":
+            self.CreateNewFolder()
+        elif command == "create_text":
+            self.CreateNewTextFile()
+
+        elif command.startswith("cmd:"):
+            target = command.split("cmd:")[1]
+            os.system(f"start {target}")
+
+        elif command.startswith("run:"):
+            target = command.split("run:")[1]
+            try:
+                subprocess.Popen(target, shell=True)
+            except Exception as e:
+                MakeLog("[Log] [DesktopMenu] [ExecuteMenuCommand]", f"Failed to run {target}: {e}")
+
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Drag & drop events
 
     def dragEnterEvent(self, event):
@@ -581,9 +826,6 @@ class DesktopWindow(QMainWindow):
 
             else:
                 internalMoves.append(filepath)
-
-        if newFilesAdded:
-            self.ScanDesktop()
 
         if internalMoves:
             primary_filepath = internalMoves[0]
@@ -795,6 +1037,14 @@ class DesktopItem(QWidget):
         self.innerFrame.style().unpolish(self.innerFrame)
         self.innerFrame.style().polish(self.innerFrame)
 
+    def OpenFile(self):
+        try:
+            if self.parent():
+                self.parent().ClearSelection()
+            os.startfile(self.filepath)
+        except Exception as e:
+            MakeLog("[Log] [DesktopItem] [OpenFile]", f"Failed to start {self.filepath}: {e}")
+
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Mouse events
 
     def mousePressEvent(self, event):
@@ -860,12 +1110,90 @@ class DesktopItem(QWidget):
 
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
+            self.OpenFile()
+
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Context Menu Engine (tm)
+
+    def contextMenuEvent(self, event):
+        parent = self.parent()
+        if not parent:
+            return
+
+        if not self.innerFrame.property("selected"):
+            parent.ClearSelection()
+            self.SetSelected(True)
+            parent.selectedItems.append(self)
+
+        menu = QMenu(self)
+        menu.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
+        menu.setWindowFlags(
+            menu.windowFlags() |
+            Qt.WindowType.FramelessWindowHint |
+            Qt.WindowType.NoDropShadowWindowHint
+        )
+        menu.setStyleSheet(self.iconConfig.contextMenuConfig.contextMenuStyleSheet)
+
+        menuData = parent.LoadContextMenuData()
+        parent.BuildMenuFromJson(menuData.get("item", []), menu)
+
+        if menu.isEmpty():
+            return
+
+        action = menu.exec(event.globalPos())
+
+        if action:
+            self.ExecuteItemCommand(action.data())
+
+    def ExecuteItemCommand(self, command):
+        if not command or command == "none":
+            return
+
+        MakeLog("[Log] [DesktopItem]", f"Executing item command: {command} on {self.filepath}")
+
+        if command == "open":
+            self.OpenFile()
+        elif command == "delete":
             try:
-                if self.parent():
-                    self.parent().ClearSelection()
-                os.startfile(self.filepath)
+                if os.path.isdir(self.filepath):
+                    import shutil
+                    shutil.rmtree(self.filepath)
+                else:
+                    os.remove(self.filepath)
             except Exception as e:
-                MakeLog("[Log] [DesktopItem]", f"Failed to start {self.filepath}: {e}")
+                MakeLog("[Log] [DesktopItem]", f"Failed to delete {self.filepath}: {e}")
+        elif command == "properties":
+            self.ShowWindowsProperties()
+
+    def ShowWindowsProperties(self):
+        SEE_MASK_INVOKEIDLIST = 0x0000000C
+
+        class SHELLEXECUTEINFO(ctypes.Structure):
+            _fields_ = [
+                ("cbSize", ctypes.wintypes.DWORD),
+                ("fMask", ctypes.c_ulong),
+                ("hwnd", ctypes.wintypes.HWND),
+                ("lpVerb", ctypes.c_wchar_p),
+                ("lpFile", ctypes.c_wchar_p),
+                ("lpParameters", ctypes.c_wchar_p),
+                ("lpDirectory", ctypes.c_wchar_p),
+                ("nShow", ctypes.c_int),
+                ("hInstApp", ctypes.wintypes.HINSTANCE),
+                ("lpIDList", ctypes.c_void_p),
+                ("lpClass", ctypes.c_wchar_p),
+                ("hkeyClass", ctypes.wintypes.HKEY),
+                ("dwHotKey", ctypes.wintypes.DWORD),
+                ("hIcon", ctypes.wintypes.HANDLE),
+                ("hProcess", ctypes.wintypes.HANDLE)
+            ]
+
+        sei = SHELLEXECUTEINFO()
+        sei.cbSize = ctypes.sizeof(sei)
+        sei.fMask = SEE_MASK_INVOKEIDLIST
+        sei.lpVerb = "properties"
+        sei.lpFile = os.path.normpath(self.filepath)
+        sei.nShow = 1
+
+        ctypes.windll.shell32.ShellExecuteExW(ctypes.byref(sei))
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Drag & drop events
 

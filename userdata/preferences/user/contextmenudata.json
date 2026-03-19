@@ -1,0 +1,69 @@
+{
+    "desktop": [
+        {
+            "label_id": "ContextMenu.refresh",
+            "label": "Refresh",
+            "action": "refresh"
+        },
+        {
+            "type": "separator" 
+        },
+        {
+            "label_id": "ContextMenu.create",
+            "label": "Create",
+            "type": "submenu",
+            "items": [
+                {
+                    "label_id": "ContextMenu.create_folder",
+                    "label": "Folder",
+                    "action": "create_folder"
+                },
+                {
+                    "label_id": "ContextMenu.create_text",
+                    "label": "Text Document",
+                    "action": "create_text"
+                }
+            ]
+        },
+        {
+            "type": "separator"
+        },
+        {
+            "label_id": "ContextMenu.display_settings",
+            "label": "Display Settings",
+            "action": "cmd:ms-settings:display" },
+        {
+            "label_id": "ContextMenu.personalization",
+            "label": "Personalization",
+            "action": "cmd:ms-settings:personalization"
+        },
+        {
+            "label_id": "",
+            "label": "Open Notepad",
+            "action": "run:notepad.exe"
+        }
+    ],
+    "item": [
+        {
+            "label_id": "ContextMenu.open",
+            "label": "Open",
+            "action": "open"
+        },
+        {
+            "type": "separator"
+        },
+        {
+            "label_id": "ContextMenu.delete",
+            "label": "Delete",
+            "action": "delete"
+        },
+        {
+            "type": "separator"
+        },
+        {   
+            "label_id": "ContextMenu.properties",
+            "label": "Properties",
+            "action": "properties"
+        }
+    ]
+}

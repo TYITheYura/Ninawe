@@ -3,3 +3,4 @@
 </p>
 <p><b>Ninawe</b> is a fully customizable minimalist shell for Windows, free from distracting buttons, icons, and other clutter, leaving only the essential functions.</p>
 <p><b>Currently in development (mostly for a coursework project), in the future the functionality will be updated.</b></p>
+<b><b>YouTube channel (sometimes something is posted here): https://www.youtube.com/@ninawe_shell</b></p>
