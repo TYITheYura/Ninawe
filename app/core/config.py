@@ -143,12 +143,12 @@ class ThemeConfig(ConfigWrapper):
 
         # User theme (high priority)
         if os.path.exists(os.path.join(userPath, "themeconfig.ini")):
-            MakeLog(f"[Log] [ThemeConfig] | Loading user theme: \"{themeName}\"")
+            # MakeLog(f"[Log] [ThemeConfig] | Loading user theme: \"{themeName}\"") # Commented because flood
             return userPath
 
         # Default build-in theme
         if os.path.exists(os.path.join(appPath, "themeconfig.ini")):
-            MakeLog(f"[Log] [ThemeConfig] | Loading system theme: \"{themeName}\"")
+            # MakeLog(f"[Log] [ThemeConfig] | Loading system theme: \"{themeName}\"") # Commented because flood
             return appPath
 
         # Not found anything

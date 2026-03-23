@@ -1,10 +1,11 @@
 [Log] [Config] | Default path: C:\Users\User\Desktop\Ninawe\Ninawe
 [Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
-[Log] [LangManager] | Loading system language: ru
-[Log] [ThemeConfig] | Loading system theme: "default"
+[Log] [LangManager] | Loading system language: uk
 [Log] [ThemeConfig] | Caching theme global properties...
 [Log] [ThemeConfig] | Theme loaded: default
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\themeconfig.ini
-[Log] [ThemeConfig] | Loading system theme: "default"
 [Log] [Desktop] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers\ (Mode: cover)
+[Log] [ConfigManager] [Config] | Theme config changes detected.
+[Log] [ThemeConfig] | Caching theme global properties...
+[Log] [ThemeConfig] | Theme loaded: default

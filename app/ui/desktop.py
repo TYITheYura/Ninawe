@@ -1,8 +1,8 @@
 import os
 import random
 from PyQt6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QLabel, QMenu,
-    QFileIconProvider, QGraphicsDropShadowEffect, QFrame
+    QMainWindow, QWidget, QVBoxLayout, QLabel, QMenu, QApplication, QLineEdit,
+    QFileIconProvider, QGraphicsDropShadowEffect, QFrame, QGraphicsOpacityEffect
 )
 from PyQt6.QtGui import (
     QPainter, QPixmap, QColor, QIcon, QCursor,
@@ -22,42 +22,11 @@ import re
 from easydict import EasyDict as easyDict
 import ctypes
 import ctypes.wintypes
-
-class ContextMenuConfig:
-    def __init__(self):
-        self.contextMenuDataPath = configurator.theme.GetPath("userdata\\preferences\\user\\contextmenudata.json")
-        # hardcode styles until full implementation
-        self.contextMenuStyleSheet = """
-            QMenu {
-                background-color: rgba(20, 20, 20, 220);
-                color: white;
-                border: 1px solid rgba(255, 255, 255, 30);
-                border-radius: 8px;
-                padding: 5px;
-                font-family: "Segoe UI";
-                font-size: 10pt;
-            }
-            QMenu::item {
-                padding: 6px 30px 6px 30px;
-                border-radius: 4px;
-                margin: 2px;
-            }
-            QMenu::item:selected {
-                background-color: rgba(255, 255, 255, 40);
-            }
-            QMenu::separator {
-                height: 1px;
-                background: rgba(255, 255, 255, 20);
-                margin: 4px 10px;
-            }
-            QMenu::indicator {
-                width: 0px; height: 0px;
-            }
-        """
+from ui.components.contextmenu import ContextMenu
+from ui.powermenu import PowerMenu
 
 class IconConfig:
     def __init__(self):
-        self.contextMenuConfig = ContextMenuConfig()
         self.itemWidth = 0
         self.itemHeight = 0
         self.spacingX = 0
@@ -148,7 +117,6 @@ class IconConfig:
 
 class DesktopConfig:
     def __init__(self):
-        self.contextMenuConfig = ContextMenuConfig()
         self.desktopInfoFile = configurator.theme.GetPath("userdata\\preferences\\user\\desktopdata.json")
         self.desktopPath = os.path.normpath(os.path.expanduser("~/Desktop"))
         self.wallpaperList = []
@@ -162,7 +130,6 @@ class DesktopConfig:
         self.backgroundPath = None
         self.transitionMs = 0
         self.selectionStyleSheet = ""
-        self.contextMenuStyleSheet = ""
 
     def Updater(self):
         self.wallpaperMode = configurator.theme.Get("Desktop", "wallpaper_mode", fallback = "cover")
@@ -216,6 +183,16 @@ class DesktopWindow(QMainWindow):
 
         configurator.configUpdated.connect(self.UpdateStyles)
 
+        self.cutItems = []
+        self.desktopItems = []
+        self.selectedItems = []
+        self.previouslySelectedItems = []
+        self.pendingDropPositions = {}
+
+        self.isSelectingStatus = False
+        self.selectionStart = None
+        self.hoveredDropTarget = None
+
         # ahhhhh I'm too lazy to comment all the code :(
         # i think I'll do it next time
         self.Init()
@@ -225,6 +202,7 @@ class DesktopWindow(QMainWindow):
     def Init(self):
         self.setWindowTitle("Ninawe Desktop")
         self.setAcceptDrops(True)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus) 
 
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint |
@@ -232,9 +210,7 @@ class DesktopWindow(QMainWindow):
             Qt.WindowType.WindowStaysOnBottomHint
         )
 
-        # screen resolution
-        screen = self.screen().geometry()
-        self.setGeometry(screen)
+        self.setGeometry(self.screen().geometry())
 
         self.fadeAnimation.setDuration(self.desktopConfig.transitionMs)
         self.fadeAnimation.setStartValue(0.0)
@@ -244,19 +220,9 @@ class DesktopWindow(QMainWindow):
 
         self.LoadWallpaper()
 
-        self.desktopItems = []
-        self.selectedItems = []
-
-        self.isSelectingStatus = False
-        self.selectionStart = None
-        self.previouslySelectedItems = []
-
         self.selectionBox = QWidget(self)
         self.selectionBox.setStyleSheet(self.desktopConfig.selectionStyleSheet)
         self.selectionBox.hide()
-        self.hoveredDropTarget = None
-
-        self.pendingDropPositions = {}
 
         self.ScanDesktop()
 
@@ -452,6 +418,18 @@ class DesktopWindow(QMainWindow):
         if self.nextBackgroundBitmap and not self.nextBackgroundBitmap.isNull() and self.fadeAlpha > 0:
             self.DrawCenteredPixmap(painter, self.nextBackgroundBitmap, self.fadeAlpha)
 
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Window Events
+
+    def closeEvent(self, event):
+        event.ignore()
+
+        if not hasattr(self, 'powerMenuWindow'):
+            from ui.powermenu import PowerMenu
+            self.powerMenuWindow = PowerMenu()
+
+        if not self.powerMenuWindow.isVisible():
+            self.powerMenuWindow.show()
+
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> BG Utils
 
     def GetScaledPixmap(self, path):
@@ -629,6 +607,8 @@ class DesktopWindow(QMainWindow):
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Mouse events
 
     def mousePressEvent(self, event):
+        self.setFocus()
+
         if event.button() == Qt.MouseButton.LeftButton:
             ctrlButtonPressedStatus = bool(event.modifiers() & Qt.KeyboardModifier.ControlModifier)
 
@@ -655,96 +635,24 @@ class DesktopWindow(QMainWindow):
             self.isSelectingStatus = False
             self.selectionBox.hide()
 
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Context Menu Engine (tm)
-
-    def LoadContextMenuData(self):
-        try:
-            with open(self.desktopConfig.contextMenuConfig.contextMenuDataPath, "r", encoding = "utf-8") as f:
-                return json.load(f)
-        except Exception as e:
-            MakeLog("[Log] [Desktop]", f"Failed to load context menu JSON: {e}")
-            return {"desktop": []}
-
-    def BuildMenuFromJson(self, menuData, parentMenu):
-        for item in menuData:
-            itemType = item.get("type", "action")
-
-            if itemType == "separator":
-                parentMenu.addSeparator()
-
-            else:
-                label = item.get("label", "Item")
-                label_id = item.get("label_id", "")
-
-                if label_id and "." in label_id:
-                    section, key = label_id.split(".", 1)
-                    label = configurator.lang.Translate(section, key, fallback = label)
-
-                if itemType == "submenu":
-                    submenu = QMenu(label, self)
-                    submenu.setStyleSheet(parentMenu.styleSheet())
-                    self.BuildMenuFromJson(item.get("items", []), submenu)
-                    parentMenu.addMenu(submenu)
-
-                elif itemType == "action":
-                    action = parentMenu.addAction(label)
-                    action.setData(item.get("action", "none"))
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Context Menu
 
     def contextMenuEvent(self, event):
         if self.childAt(event.pos()) and self.childAt(event.pos()) != self.selectionBox:
             return
 
-        menu = QMenu(self)
-        menu.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        menu.setWindowFlags(
-            menu.windowFlags() |
-            Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.NoDropShadowWindowHint
-        )
-        menu.setStyleSheet(self.desktopConfig.contextMenuConfig.contextMenuStyleSheet)
-        menuData = self.LoadContextMenuData()
+        gridX = round((event.pos().x() - self.desktopConfig.windowMarginX) / (self.iconConfig.itemWidth + self.iconConfig.spacingX))
+        gridY = round((event.pos().y() - self.desktopConfig.windowMarginY) / (self.iconConfig.itemHeight + self.iconConfig.spacingY))
+        self.lastContextMenuGridPos = [max(0, gridX), max(0, gridY)]
 
-        self.BuildMenuFromJson(menuData.get("desktop", []), menu)
+        menu = ContextMenu("desktop", self)
 
         if menu.isEmpty():
             return
 
-        action = menu.exec(QCursor.pos())
+        menu.commandClicked.connect(self.ExecuteMenuCommand)
 
-        if action:
-            command = action.data()
-            self.ExecuteMenuCommand(command)
-
-    def CreateNewFolder(self):
-        base_path = os.path.join(self.desktopConfig.desktopPath, "New folder")
-        path = base_path
-        counter = 2
-
-        while os.path.exists(path):
-            path = f"{base_path} ({counter})"
-            counter += 1
-
-        try:
-            os.makedirs(path)
-            MakeLog("[Log] [Desktop] [CreateNewFolder]", f"Created new folder: {path}")
-        except Exception as e:
-            MakeLog("[Log] [Desktop] [CreateNewFolder]", f"Failed to create folder: {e}")
-
-    def CreateNewTextFile(self):
-        base_path = os.path.join(self.desktopConfig.desktopPath, "New text document.txt")
-        path = base_path
-        counter = 2
-
-        while os.path.exists(path):
-            path = os.path.join(self.desktopConfig.desktopPath, f"New text document ({counter}).txt")
-            counter += 1
-
-        try:
-            with open(path, 'w') as f:
-                pass
-            MakeLog("[Log] [Desktop] [CreateNewTextFile]", f"Created new text file: {path}")
-        except Exception as e:
-            MakeLog("[Log] [Desktop] [CreateNewTextFile]", f"Failed to create text file: {e}")
+        menu.exec(QCursor.pos())
 
     def ExecuteMenuCommand(self, command):
         if not command or command == "none":
@@ -755,9 +663,14 @@ class DesktopWindow(QMainWindow):
         if command == "refresh":
             self.ScanDesktop()
         elif command == "create_folder":
-            self.CreateNewFolder()
+            self.CreateDesktopItem("New folder", isFolder = True)
         elif command == "create_text":
-            self.CreateNewTextFile()
+            self.CreateDesktopItem("New text document.txt")
+        elif command == "paste":
+            self.PasteCommand()
+        elif command.startswith("create:"):
+            target = command.split("create:")[1]
+            self.CreateDesktopItem(target)
 
         elif command.startswith("cmd:"):
             target = command.split("cmd:")[1]
@@ -769,6 +682,81 @@ class DesktopWindow(QMainWindow):
                 subprocess.Popen(target, shell=True)
             except Exception as e:
                 MakeLog("[Log] [DesktopMenu] [ExecuteMenuCommand]", f"Failed to run {target}: {e}")
+
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CME Commands (Misc)
+
+    def CreateDesktopItem(self, defaultName, isFolder = False):
+        basePath = os.path.join(self.desktopConfig.desktopPath, defaultName)
+        path = basePath
+        counter = 2
+
+        if isFolder:
+            while os.path.exists(path):
+                path = f"{basePath} ({counter})"
+                counter += 1
+        else:
+            namePart, extPart = os.path.splitext(defaultName)
+            while os.path.exists(path):
+                path = os.path.join(self.desktopConfig.desktopPath, f"{namePart} ({counter}){extPart}")
+                counter += 1
+
+        try:
+            if hasattr(self, 'lastContextMenuGridPos'):
+                self.pendingDropPositions[path] = self.lastContextMenuGridPos
+
+            if isFolder:
+                os.makedirs(path)
+            else:
+                with open(path, 'w') as f:
+                    pass
+
+            MakeLog("[Log] [Desktop]", f"Created item: {path}")
+        except Exception as e:
+            MakeLog("[Log] [Desktop]", f"Failed to create item {path}: {e}")
+
+    def PasteCommand(self):
+        clipboard = QApplication.clipboard()
+        mimeData = clipboard.mimeData()
+
+        if mimeData.hasUrls():
+            isCut = False
+            for fmt in mimeData.formats():
+                if "Preferred DropEffect" in fmt:
+                    effectData = mimeData.data(fmt)
+                    bytesData = bytes(effectData)
+                    if len(bytesData) >= 1 and bytesData[0] == 2:
+                        isCut = True
+                    break
+
+            for url in mimeData.urls():
+                sourcePath = os.path.normpath(url.toLocalFile())
+                if not os.path.exists(sourcePath):
+                    continue
+
+                filename = os.path.basename(sourcePath)
+                targetPath = os.path.join(self.desktopConfig.desktopPath, filename)
+
+                counter = 2
+                baseName, ext = os.path.splitext(filename)
+                while os.path.exists(targetPath):
+                    targetPath = os.path.join(self.desktopConfig.desktopPath, f"{baseName} ({counter}){ext}")
+                    counter += 1
+
+                try:
+                    if isCut:
+                        MakeLog("[Log] [Desktop]", f"Moving (Cut) file: {sourcePath} to {targetPath}")
+                        shutil.move(sourcePath, targetPath)
+                    else:
+                        MakeLog("[Log] [Desktop]", f"Copying file: {sourcePath} to {targetPath}")
+                        if os.path.isdir(sourcePath):
+                            shutil.copytree(sourcePath, targetPath)
+                        else:
+                            shutil.copy2(sourcePath, targetPath)
+                except Exception as e:
+                    MakeLog("[Log] [Desktop]", f"Paste error: {e}")
+
+            if isCut:
+                clipboard.clear()
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Drag & drop events
 
@@ -934,6 +922,7 @@ class DesktopItem(QWidget):
     def Init(self):
         self.setFixedWidth(self.iconConfig.itemWidth)
         self.setMinimumHeight(self.iconConfig.itemHeight)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         mainLayout = QVBoxLayout(self)
         mainLayout.setContentsMargins(0, 0, 0, 0)
@@ -1045,9 +1034,80 @@ class DesktopItem(QWidget):
         except Exception as e:
             MakeLog("[Log] [DesktopItem] [OpenFile]", f"Failed to start {self.filepath}: {e}")
 
+    def SetCutState(self, isCut):
+        if isCut:
+            effect = QGraphicsOpacityEffect(self)
+            effect.setOpacity(0.5)
+            self.setGraphicsEffect(effect)
+        else:
+            self.setGraphicsEffect(None)
+
+    def StartRename(self):
+        if hasattr(self, 'textLabel'):
+            self.textLabel.hide()
+
+        self.nameEditor = QLineEdit(self.filename, self.innerFrame)
+        self.nameEditor.setStyleSheet("""
+            QLineEdit {
+                background: white;
+                color: black;
+                border: 1px solid #0078D7;
+                selection-background-color: #0078D7;
+                padding: 0px;
+                margin: 0px 4px 0px 4px;
+                border-radius: 2px;
+            }
+        """)
+        self.nameEditor.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.innerFrame.layout().addWidget(self.nameEditor)
+
+        self.nameEditor.show()
+        self.nameEditor.setFocus()
+
+        baseName = os.path.splitext(self.filename)[0]
+        self.nameEditor.setSelection(0, len(baseName))
+
+        self.nameEditor.editingFinished.connect(self.FinishRename)
+
+    def FinishRename(self):
+        if not hasattr(self, 'nameEditor'):
+            return
+
+        newName = self.nameEditor.text().strip()
+
+        self.nameEditor.deleteLater()
+        del self.nameEditor
+        if hasattr(self, 'textLabel'):
+            self.textLabel.show()
+
+        if not newName or newName == self.filename:
+            return
+
+        originalExtension = os.path.splitext(self.filepath)[1]
+        if originalExtension.lower() == '.lnk' and not newName.lower().endswith('.lnk'):
+            newName += originalExtension
+        # ----------------------------------------------------------------
+
+        newPath = os.path.join(os.path.dirname(self.filepath), newName)
+
+        if os.path.exists(newPath):
+            MakeLog("[Log] [DesktopItem]", f"File with this name already exists! {newPath}")
+            return
+
+        parent = self.parent()
+        if parent:
+            parent.pendingDropPositions[newPath] = [self.grid_x, self.grid_y]
+
+        try:
+            os.rename(self.filepath, newPath)
+            MakeLog("[Log] [DesktopItem]", f"Renamed: {self.filepath} -> {newPath}")
+        except Exception as e:
+            MakeLog("[Log] [DesktopItem]", f"Rename error: {e}")
+
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Mouse events
 
     def mousePressEvent(self, event):
+        self.setFocus()
         if event.button() == Qt.MouseButton.LeftButton:
             self.dragStartPos = event.pos()
             self.raise_()
@@ -1112,7 +1172,7 @@ class DesktopItem(QWidget):
         if event.button() == Qt.MouseButton.LeftButton:
             self.OpenFile()
 
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Context Menu Engine (tm)
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Context Menu
 
     def contextMenuEvent(self, event):
         parent = self.parent()
@@ -1124,25 +1184,14 @@ class DesktopItem(QWidget):
             self.SetSelected(True)
             parent.selectedItems.append(self)
 
-        menu = QMenu(self)
-        menu.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        menu.setWindowFlags(
-            menu.windowFlags() |
-            Qt.WindowType.FramelessWindowHint |
-            Qt.WindowType.NoDropShadowWindowHint
-        )
-        menu.setStyleSheet(self.iconConfig.contextMenuConfig.contextMenuStyleSheet)
-
-        menuData = parent.LoadContextMenuData()
-        parent.BuildMenuFromJson(menuData.get("item", []), menu)
+        menu = ContextMenu("item", self)
 
         if menu.isEmpty():
             return
 
-        action = menu.exec(event.globalPos())
+        menu.commandClicked.connect(self.ExecuteItemCommand)
 
-        if action:
-            self.ExecuteItemCommand(action.data())
+        menu.exec(event.globalPos())
 
     def ExecuteItemCommand(self, command):
         if not command or command == "none":
@@ -1153,16 +1202,66 @@ class DesktopItem(QWidget):
         if command == "open":
             self.OpenFile()
         elif command == "delete":
-            try:
-                if os.path.isdir(self.filepath):
-                    import shutil
-                    shutil.rmtree(self.filepath)
-                else:
-                    os.remove(self.filepath)
-            except Exception as e:
-                MakeLog("[Log] [DesktopItem]", f"Failed to delete {self.filepath}: {e}")
+            parent = self.parent()
+
+            itemsToDelete = []
+
+            if parent and hasattr(parent, 'selectedItems') and self in parent.selectedItems:
+                itemsToDelete = list(parent.selectedItems)
+            else:
+                itemsToDelete = [self]
+
+            for item in itemsToDelete:
+                try:
+                    if os.path.isdir(item.filepath):
+                        import shutil
+                        shutil.rmtree(item.filepath)
+                    else:
+                        os.remove(item.filepath)
+                    MakeLog("[Log] [DesktopItem]", f"Deleted: {item.filepath}")
+                except Exception as e:
+                    MakeLog("[Log] [DesktopItem]", f"Failed to delete {item.filepath}: {e}")
+
+            if parent and itemsToDelete != [self]:
+                parent.ClearSelection()
         elif command == "properties":
             self.ShowWindowsProperties()
+        elif command in ["copy", "cut"]:
+            clipboard = QApplication.clipboard()
+            mimeData = QMimeData()
+
+            urls = []
+            parent = self.parent()
+
+            if parent and hasattr(parent, 'cutItems'):
+                for item in parent.cutItems:
+                    item.SetCutState(False)
+                parent.cutItems.clear()
+
+            if parent and hasattr(parent, 'selectedItems') and self in parent.selectedItems:
+                for item in parent.selectedItems:
+                    urls.append(QUrl.fromLocalFile(item.filepath))
+
+                    if command == "cut":
+                        item.SetCutState(True)
+                        parent.cutItems.append(item)
+            else:
+                urls.append(QUrl.fromLocalFile(self.filepath))
+                if command == "cut":
+                    self.SetCutState(True)
+                    if parent:
+                        parent.cutItems.append(self)
+
+            mimeData.setUrls(urls)
+
+            # x02 - cut, x05 - copy
+            dropEffect = b'\x02\x00\x00\x00' if command == "cut" else b'\x05\x00\x00\x00'
+            mimeData.setData("Preferred DropEffect", dropEffect)
+
+            clipboard.setMimeData(mimeData)
+            MakeLog("[Log] [DesktopItem]", f"Items {command}ed to clipboard")
+        elif command == "rename":
+            self.StartRename()
 
     def ShowWindowsProperties(self):
         SEE_MASK_INVOKEIDLIST = 0x0000000C

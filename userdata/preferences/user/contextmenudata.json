@@ -9,6 +9,14 @@
             "type": "separator" 
         },
         {
+            "label_id": "ContextMenu.paste",
+            "label": "Paste",
+            "action": "paste"
+        },
+        {
+            "type": "separator" 
+        },
+        {
             "label_id": "ContextMenu.create",
             "label": "Create",
             "type": "submenu",
@@ -22,7 +30,17 @@
                     "label_id": "ContextMenu.create_text",
                     "label": "Text Document",
                     "action": "create_text"
+                },
+                {
+                    "type": "separator"
+
+                },
+                {
+                    "label_id": "ContextMenu.domagic",
+                    "label": "Do magic",
+                    "action": "create:something.docx"
                 }
+
             ]
         },
         {
@@ -43,6 +61,7 @@
             "action": "run:notepad.exe"
         }
     ],
+    
     "item": [
         {
             "label_id": "ContextMenu.open",
@@ -53,9 +72,27 @@
             "type": "separator"
         },
         {
+            "label_id": "ContextMenu.cut",
+            "label": "Cut",
+            "action": "cut"
+        },
+        {
+            "label_id": "ContextMenu.copy",
+            "label": "Copy",
+            "action": "copy"
+        },
+        {
+            "type": "separator" 
+        },
+        {
             "label_id": "ContextMenu.delete",
             "label": "Delete",
             "action": "delete"
+        },
+        {
+            "label_id": "ContextMenu.rename",
+            "label": "Переименовать",
+            "action": "rename"
         },
         {
             "type": "separator"

@@ -5,8 +5,6 @@ from core.config import config as themeConfig
 from core.utils import LoadFont, MakeBlur, MakeLog
 from core.widgetManager import WidgetManager
 
-# TODO: fix widget position after changing taskbar width/height
-
 class TaskbarConfig:
     def __init__(self):
         self.enableBlur = None
@@ -186,3 +184,6 @@ class Taskbar(QWidget):
         # Drawing background & border
         painter.setBrush(QBrush(self.TBConfig.qtBgColor))
         painter.drawRoundedRect(drawRect, self.TBConfig.radius, self.TBConfig.radius)
+
+    def closeEvent(self, event):
+        event.ignore()

@@ -2,22 +2,12 @@
     "desktop": [
         {
             "type": "file",
-            "name": "123.png",
-            "path": "C:\\Users\\User\\Desktop\\123.png",
+            "name": "import sys.py",
+            "path": "C:\\Users\\User\\Desktop\\import sys.py",
             "icon": "default",
             "position": [
                 0,
-                1
-            ]
-        },
-        {
-            "type": "file",
-            "name": "123.txt",
-            "path": "C:\\Users\\User\\Desktop\\123.txt",
-            "icon": "default",
-            "position": [
-                3,
-                3
+                2
             ]
         },
         {
@@ -46,18 +36,18 @@
             "path": "C:\\Users\\User\\Desktop\\Process Hacker 2.lnk",
             "icon": "default",
             "position": [
-                6,
-                3
+                0,
+                4
             ]
         },
         {
             "type": "folder",
-            "name": "uhhh",
-            "path": "C:\\Users\\User\\Desktop\\uhhh",
+            "name": "uhhhhhhh",
+            "path": "C:\\Users\\User\\Desktop\\uhhhhhhh",
             "icon": "default",
             "position": [
-                3,
-                2
+                4,
+                5
             ]
         },
         {
@@ -98,16 +88,6 @@
             "position": [
                 2,
                 8
-            ]
-        },
-        {
-            "type": "folder",
-            "name": "Новая папка",
-            "path": "C:\\Users\\User\\Desktop\\Новая папка",
-            "icon": "default",
-            "position": [
-                2,
-                6
             ]
         }
     ]
