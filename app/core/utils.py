@@ -97,6 +97,28 @@ def MakeBlur(hwnd: int, enable: bool = True, blurMode: int = AccentState.ACCENT_
 
         SetWCA(int(hwnd), ctypes.pointer(data))
 
+# ==========[> File properties window maker 4000
+
+SEE_MASK_INVOKEIDLIST = 0x0000000C
+
+class ShellExecuteInfo(Structure):
+    _fields_ = [
+        ("cbSize", ctypes.wintypes.DWORD),
+        ("fMask", ctypes.c_ulong),
+        ("hwnd", ctypes.wintypes.HWND),
+        ("lpVerb", ctypes.c_wchar_p),
+        ("lpFile", ctypes.c_wchar_p),
+        ("lpParameters", ctypes.c_wchar_p),
+        ("lpDirectory", ctypes.c_wchar_p),
+        ("nShow", ctypes.c_int),
+        ("hInstApp", ctypes.wintypes.HINSTANCE),
+        ("lpIDList", ctypes.c_void_p),
+        ("lpClass", ctypes.c_wchar_p),
+        ("hkeyClass", ctypes.wintypes.HKEY),
+        ("dwHotKey", ctypes.wintypes.DWORD),
+        ("hIcon", ctypes.wintypes.HANDLE),
+        ("hProcess", ctypes.wintypes.HANDLE)
+    ]
 
 # ==========[> Load fonts from file
 

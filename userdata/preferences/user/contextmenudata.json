@@ -91,7 +91,7 @@
         },
         {
             "label_id": "ContextMenu.rename",
-            "label": "Переименовать",
+            "label": "Rename",
             "action": "rename"
         },
         {
@@ -101,6 +101,13 @@
             "label_id": "ContextMenu.properties",
             "label": "Properties",
             "action": "properties"
+        }
+    ],
+    "widget": [
+        {
+            "label_id": "ContextMenu.delete_widget",
+            "label": "Delete widget",
+            "action": "delete"
         }
     ]
 }

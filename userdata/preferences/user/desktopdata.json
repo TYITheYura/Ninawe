@@ -2,12 +2,22 @@
     "desktop": [
         {
             "type": "file",
-            "name": "import sys.py",
-            "path": "C:\\Users\\User\\Desktop\\import sys.py",
+            "name": "123.txt",
+            "path": "C:\\Users\\User\\Desktop\\123.txt",
             "icon": "default",
             "position": [
-                0,
+                17,
                 2
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "123213",
+            "path": "C:\\Users\\User\\Desktop\\123213",
+            "icon": "default",
+            "position": [
+                4,
+                4
             ]
         },
         {
@@ -16,8 +26,8 @@
             "path": "C:\\Users\\User\\Desktop\\Ninawe",
             "icon": "default",
             "position": [
-                0,
-                0
+                6,
+                6
             ]
         },
         {
@@ -26,8 +36,8 @@
             "path": "C:\\Users\\User\\Desktop\\Poweramp Equalizer Mixer",
             "icon": "default",
             "position": [
-                1,
-                1
+                7,
+                4
             ]
         },
         {
@@ -36,8 +46,8 @@
             "path": "C:\\Users\\User\\Desktop\\Process Hacker 2.lnk",
             "icon": "default",
             "position": [
-                0,
-                4
+                8,
+                6
             ]
         },
         {
@@ -46,8 +56,8 @@
             "path": "C:\\Users\\User\\Desktop\\uhhhhhhh",
             "icon": "default",
             "position": [
-                4,
-                5
+                8,
+                1
             ]
         },
         {
@@ -56,8 +66,8 @@
             "path": "C:\\Users\\User\\Desktop\\Видео.lnk",
             "icon": "default",
             "position": [
-                1,
-                3
+                5,
+                1
             ]
         },
         {
@@ -66,8 +76,8 @@
             "path": "C:\\Users\\User\\Desktop\\Документы.lnk",
             "icon": "default",
             "position": [
-                1,
-                5
+                4,
+                1
             ]
         },
         {
@@ -76,8 +86,8 @@
             "path": "C:\\Users\\User\\Desktop\\Изображения.lnk",
             "icon": "default",
             "position": [
-                2,
-                5
+                7,
+                1
             ]
         },
         {
@@ -86,8 +96,44 @@
             "path": "C:\\Users\\User\\Desktop\\Музыка.lnk",
             "icon": "default",
             "position": [
+                3,
+                2
+            ]
+        },
+        {
+            "type": "widget",
+            "name": "defaultClock",
+            "position": [
+                9,
+                4
+            ],
+            "spanX": 4,
+            "spanY": 1,
+            "id": "1365d1b6-f983-4c01-a892-65895b286488",
+            "minWidth": 300,
+            "minHeight": 100
+        },
+        {
+            "type": "widget",
+            "name": "defaultSpectrum",
+            "position": [
+                6,
+                7
+            ],
+            "id": "5970183f-b67f-4a42-873b-5680d9433cbe",
+            "spanX": 10,
+            "spanY": 2,
+            "minWidth": 800,
+            "minHeight": 200
+        },
+        {
+            "type": "file",
+            "name": "43243242.png",
+            "path": "C:\\Users\\User\\Desktop\\43243242.png",
+            "icon": "default",
+            "position": [
                 2,
-                8
+                4
             ]
         }
     ]

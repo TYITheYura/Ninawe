@@ -6,6 +6,13 @@
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\themeconfig.ini
 [Log] [Desktop] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers\ (Mode: cover)
-[Log] [ConfigManager] [Config] | Theme config changes detected.
-[Log] [ThemeConfig] | Caching theme global properties...
-[Log] [ThemeConfig] | Theme loaded: default
+[Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: defaultClock
+[SpectrumWidget] Connected: Динамики / головные телефоны (Realtek Audio)
+[Log] [DesktopItem] | Executing item command: rename on C:\Users\User\Desktop\12321.png
+[Log] [DesktopItem] | Executing item command: rename on C:\Users\User\Desktop\12321.png
+[Log] [DesktopItem] | Renamed: C:\Users\User\Desktop\12321.png -> C:\Users\User\Desktop\43243242.png
+[Log] [Desktop] [OnDirectoryChanged] | File removed externally: C:\Users\User\Desktop\12321.png
+[Log] [Desktop] [OnDirectoryChanged] | New file detected: C:\Users\User\Desktop\43243242.png
+[Log] [DesktopItem] | Executing item command: rename on C:\Users\User\Desktop\43243242.png
+[Log] [DesktopItem] | Executing item command: rename on C:\Users\User\Desktop\43243242.png
+[Log] [DesktopItem] | Executing item command: rename on C:\Users\User\Desktop\43243242.png

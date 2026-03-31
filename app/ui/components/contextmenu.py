@@ -106,9 +106,10 @@ class ContextMenuConfig:
 class ContextMenu(QMenu):
     commandClicked = pyqtSignal(str)
 
-    def __init__(self, sectionName, parent = None):
+    def __init__(self, sectionName, parent = None, customPath = None):
         super().__init__(parent)
         self.sectionName = sectionName
+        self.customPath = customPath
 
         self.CMConfig = ContextMenuConfig()
 
@@ -126,15 +127,33 @@ class ContextMenu(QMenu):
         self.LoadAndBuildMenu()
 
     def LoadAndBuildMenu(self):
+        defaultItems = []
+        customItems = []
+
         try:
             with open(self.CMConfig.contextMenuDataPath, "r", encoding = "utf-8") as f:
                 menuData = json.load(f)
+                defaultItems = menuData.get(self.sectionName, [])
         except Exception as e:
-            MakeLog("[Log] [ContextMenu]", f"Failed to load JSON: {e}")
-            return
+            MakeLog("[Log] [ContextMenu]", f"Failed to load default JSON: {e}")
 
-        sectionData = menuData.get(self.sectionName, [])
-        self.BuildMenuFromJson(sectionData, self)
+        if self.customPath:
+            try:
+                with open(self.customPath, "r", encoding = "utf-8") as f:
+                    customData = json.load(f)
+                    customItems = customData.get(self.sectionName, [])
+            except Exception as e:
+                MakeLog("[Log] [ContextMenu]", f"Failed to load custom JSON: {e}")
+
+        if customItems and defaultItems:
+            finalItems = customItems + [{"type": "separator"}] + defaultItems
+        elif customItems:
+            finalItems = customItems
+        else:
+            finalItems = defaultItems
+
+        # 5. Строим финальное меню!
+        self.BuildMenuFromJson(finalItems, self)
 
     def BuildMenuFromJson(self, menuData, parentMenu):
         for item in menuData:

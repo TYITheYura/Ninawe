@@ -1,0 +1,9 @@
+{
+    "widget": [
+        {
+            "label_id": "ContextMenu.empty",
+            "label": "Test custom menu sections",
+            "action": ""
+        }
+    ]
+}
