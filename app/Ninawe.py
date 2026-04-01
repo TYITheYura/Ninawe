@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#              Version: Medium Rare v4.0
+#              Version: Medium Rare v4.1
 # And remember guys: Ninawe is not a windows explorer
 
 import os

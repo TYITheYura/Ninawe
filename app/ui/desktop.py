@@ -1213,6 +1213,12 @@ class DesktopItem(QWidget):
         mainLayout.addWidget(self.innerFrame)
         self.setStyleSheet(self.iconConfig.iconStyleSheet)
 
+    def deleteLater(self):
+        if hasattr(self, 'widgetInstance') and hasattr(self.widgetInstance, 'deleteLater'):
+            self.widgetInstance.deleteLater()
+
+        super().deleteLater()
+
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Misc
 
     def LabelSize(self):
@@ -1459,9 +1465,6 @@ class DesktopItem(QWidget):
                             parent.RemoveItemFromJSON(widgetId, isWidget = True)
                             if item in parent.desktopItems:
                                 parent.desktopItems.remove(item)
-
-                        if hasattr(item, 'widgetInstance') and hasattr(item.widgetInstance, 'deleteLater'):
-                            item.widgetInstance.deleteLater()
 
                         item.deleteLater()
                         MakeLog("[Log] [DesktopItem]", f"Deleted widget: {widgetId}")

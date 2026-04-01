@@ -34,7 +34,7 @@ class WidgetConfig:
 
         self.sensitivity = 3
         self.smoothing = 10
-        self.fpsTimer = 33.3
+        self.refreshRateTimer = 33.3
         self.scale = "log"
         self.attackCoefficient = 0.5
         self.rollOffCoefficient = 0.5
@@ -67,9 +67,9 @@ class WidgetConfig:
         self.BANDS = self.selectedConfig.GetInt(self.propsSection, "bands", fallback = 64)
         self.MIN_FREQ = self.selectedConfig.GetInt(self.propsSection, "min_freq", fallback = 40)
         self.MAX_FREQ = self.selectedConfig.GetInt(self.propsSection, "max_freq", fallback = 20000)
-        self.sensitivity = self.selectedConfig.GetInt(self.propsSection, "sensitivity", fallback = 3)
+        self.sensitivity = self.selectedConfig.GetFloat(self.propsSection, "sensitivity", fallback = 3)
         self.smoothing = self.selectedConfig.GetInt(self.propsSection, "smoothing", fallback = 10)
-        self.fpsTimer = round(1000 / self.selectedConfig.GetInt(self.propsSection, "fps", fallback = 30))
+        self.refreshRateTimer = round(1000 / self.selectedConfig.GetInt(self.propsSection, "refresh_rate", fallback = 30))
         self.scale = self.selectedConfig.Get(self.propsSection, "scale", fallback = "log").lower()
         self.attackCoefficient = self.selectedConfig.GetFloat(self.propsSection, "attack", fallback = 0.5)
         self.rollOffCoefficient = self.selectedConfig.GetFloat(self.propsSection, "roll_off", fallback = 0.5)
@@ -198,7 +198,7 @@ class SpectrumRenderer(QWidget):
         self.targetHeights = np.clip(np.array(newData) * WConfig.sensitivity, 0, 100)
 
         if np.max(self.targetHeights) > 0 and not self.parent().renderTimer.isActive():
-            self.parent().renderTimer.start(WConfig.fpsTimer)
+            self.parent().renderTimer.start(WConfig.refreshRateTimer)
 
     def paintEvent(self, event):
         w = self.width()
@@ -286,7 +286,7 @@ class Widget(QWidget):
 
         self.renderTimer = QTimer(self)
         self.renderTimer.timeout.connect(self.renderer.update)
-        self.renderTimer.start(WConfig.fpsTimer)
+        self.renderTimer.start(WConfig.refreshRateTimer)
 
     def OnGlobalConfigChanged(self, source, changedSections):
         if "ALL" not in changedSections and WConfig.propsSection not in changedSections and WConfig.styleSection not in changedSections:
@@ -305,7 +305,7 @@ class Widget(QWidget):
     def ApplyNewConfig(self):
         WConfig.Updater()
         self.renderTimer.stop()
-        self.renderTimer.start(WConfig.fpsTimer)
+        self.renderTimer.start(WConfig.refreshRateTimer)
         self.renderer.ReinitArrays()
         self.audioThreadObj.TriggerReinit()
 

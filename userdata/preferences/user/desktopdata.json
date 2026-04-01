@@ -12,16 +12,6 @@
         },
         {
             "type": "folder",
-            "name": "123213",
-            "path": "C:\\Users\\User\\Desktop\\123213",
-            "icon": "default",
-            "position": [
-                4,
-                4
-            ]
-        },
-        {
-            "type": "folder",
             "name": "Ninawe",
             "path": "C:\\Users\\User\\Desktop\\Ninawe",
             "icon": "default",
@@ -104,8 +94,8 @@
             "type": "widget",
             "name": "defaultClock",
             "position": [
-                9,
-                4
+                17,
+                8
             ],
             "spanX": 4,
             "spanY": 1,
@@ -117,24 +107,14 @@
             "type": "widget",
             "name": "defaultSpectrum",
             "position": [
-                6,
+                1,
                 7
             ],
             "id": "5970183f-b67f-4a42-873b-5680d9433cbe",
-            "spanX": 10,
-            "spanY": 2,
-            "minWidth": 800,
-            "minHeight": 200
-        },
-        {
-            "type": "file",
-            "name": "43243242.png",
-            "path": "C:\\Users\\User\\Desktop\\43243242.png",
-            "icon": "default",
-            "position": [
-                2,
-                4
-            ]
+            "minWidth": 1280,
+            "minHeight": 200,
+            "spanX": 16,
+            "spanY": 2
         }
     ]
 }
