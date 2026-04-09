@@ -16,7 +16,7 @@ class Widget(QLabel):
             font-family: 'Segoe UI', sans-serif;
             font-size: 64px;
             font-weight: bold;
-            background-color: transparent; 
+            background-color: transparent;
             border-radius: 15px;
         """)
 

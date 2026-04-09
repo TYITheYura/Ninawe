@@ -2,8 +2,9 @@ from PyQt6.QtWidgets import QLabel, QGraphicsDropShadowEffect
 from PyQt6.QtCore import Qt, QTime, QTimer, QFileSystemWatcher
 from PyQt6.QtGui import QColor
 from core.config import config as selectedThemeConfig
-from core.utils import LoadFont, MakeBlur
+from core.utils import LoadFont
 from core.config import ConfigWrapper
+from ui.taskbar import TBConfig
 import os
 
 class Widget(QLabel):
@@ -14,8 +15,8 @@ class Widget(QLabel):
 		self.clockConfig = ConfigWrapper()
 
 		# Panel w/h info
-		self.panelWidth = parent.TBConfig.panelWidth
-		self.panelHeight = parent.TBConfig.panelHeight
+		self.panelWidth = TBConfig.panelWidth
+		self.panelHeight = TBConfig.panelHeight
 
 		# Fonts
 		self.fontFamily = self.fontSize = self.fontColor = self.fontShadow = None
@@ -55,19 +56,18 @@ class Widget(QLabel):
 		self.Updater()
 
 	def Updater(self, source = None, changedSections = None):
-		if changedSections != None and len(changedSections) > 0:
+		if changedSections is not None and len(changedSections) > 0:
 			if "ALL" in changedSections:
 				pass
 			elif self.defaultSection not in changedSections:
 				return
 
-		self.clockConfig.parser.read(self.configPath)
-
 		# Config switcher
-		if selectedThemeConfig.theme.GetSectionStatus(self.defaultSection) == True: # themeconfig.ini
+		if selectedThemeConfig.theme.GetSectionStatus(self.defaultSection): # themeconfig.ini
 			self.selectedConfig = selectedThemeConfig.theme
 
 		else: # build-in widget config
+			self.clockConfig.parser.read(self.configPath)
 			self.selectedConfig = self.clockConfig
 
 		# Enable/disable clock switch
@@ -86,7 +86,7 @@ class Widget(QLabel):
 		self.fontFamily = LoadFont(self.fontFamily, self.widgetPath)
 		self.fontSize = self.selectedConfig.GetInt(self.defaultSection, "font_size", fallback = selectedThemeConfig.theme.globals.fontSize)
 		self.fontColor = self.selectedConfig.Get(self.defaultSection, "font_color", fallback = selectedThemeConfig.theme.globals.fontColor)
-		self.fontShadow = self.selectedConfig.Get(self.defaultSection, "font_shadow", fallback = selectedThemeConfig.theme.globals.fontShadow)
+		self.fontShadow = self.selectedConfig.GetBool(self.defaultSection, "font_shadow", fallback = selectedThemeConfig.theme.globals.fontShadow)
 
 		# clock data
 		self.clockWidth = self.selectedConfig.GetInt(self.defaultSection, "width", fallback = 50)
@@ -104,11 +104,11 @@ class Widget(QLabel):
 
 	def Init(self):
 		# If values in taskbar constructor is not updated (for first init)
-		if self.panelWidth == None or self.panelHeight == None:
+		if self.panelWidth is None or self.panelHeight is None:
 			return
 
-		self.panelWidth = self.parent().TBConfig.panelWidth
-		self.panelHeight = self.parent().TBConfig.panelHeight
+		self.panelWidth = TBConfig.panelWidth
+		self.panelHeight = TBConfig.panelHeight
 
 		self.setStyleSheet(f"""
 			color: {self.fontColor};

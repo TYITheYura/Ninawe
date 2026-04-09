@@ -2,32 +2,33 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#              Version: Medium Rare v4.1
+#                Version: Medium v0.1
 # And remember guys: Ninawe is not a windows explorer
 
 import os
 import ctypes
+import sys
+
+system32Path = "C:\\Windows\\System32"
+if system32Path.lower() not in os.environ.get("PATH", "").lower():
+    os.environ["PATH"] = system32Path + os.pathsep + os.environ.get("PATH", "")
 
 os.system("mode con cols=128 lines=30")
-ctypes.windll.kernel32.SetConsoleTitleW(f"Ninawe Is Not A Windows Explorer - Shell")
+ctypes.windll.kernel32.SetConsoleTitleW("Ninawe Is Not A Windows Explorer - Shell")
 
-import sys
 from PyQt6.QtWidgets import QApplication
+
+app = QApplication(sys.argv)
+
+from core.config import config
 from ui.desktop import DesktopWindow
 from ui.taskbar import Taskbar
 from ui.powermenu import PowerMenu
-from core.config import config as cfg
+from ui.launchpad import Launchpad
 
 class NinaweShell:
     def __init__(self):
-        self.app = QApplication(sys.argv)
 
-        # Links to the windows
-        self.desktop = None
-        self.taskbar = None
-        self.powerMenu = None
-
-    def start(self):
         print('''
                                                                                              ---:::+++#####+++:::---
                       ::: :: :  ::::    ::: ::::::::::: ::::    :::     :::     :::       ::: ::::::::::
@@ -40,17 +41,24 @@ class NinaweShell:
     ---:::+++#####+++:::---
 ''')
 
+        # Links to the windows
         self.desktop = DesktopWindow()
-        self.desktop.show()
-
         self.taskbar = Taskbar()
+        self.powerMenu = PowerMenu()
+        self.launchpad = Launchpad()
+
+    def Start(self):
+
+        print("[Log] [Starter] | Trying so hard to start something...")
+
+        self.desktop.show()
         self.taskbar.show()
-
-        # self.powerMenu = PowerMenu()
         # self.powerMenu.show()
+        # self.launchpad.show()
 
-        sys.exit(self.app.exec())
+        sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     shell = NinaweShell()
-    shell.start()
+    shell.Start()

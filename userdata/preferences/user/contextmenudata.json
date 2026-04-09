@@ -109,5 +109,74 @@
             "label": "Delete widget",
             "action": "delete"
         }
+    ],
+    "system.recycle_bin": [
+        {
+            "label_id": "ContextMenu.open",
+            "label": "Open",
+            "action": "open"
+        },
+        {
+            "label_id": "ContextMenu.clear",
+            "label": "Clear",
+            "action": "empty_bin"
+        },
+        {
+            "type": "separator"
+        },
+        {
+            "label_id": "ContextMenu.properties",
+            "label": "Properties",
+            "action": "properties"
+        }
+    ],
+    "system.computer": [
+        {
+            "label_id": "ContextMenu.open",
+            "label": "Open",
+            "action": "open"
+        },
+        {
+            "type": "separator"
+        },
+        {
+            "label_id": "ContextMenu.properties",
+            "label": "Properties",
+            "action": "properties"
+        }
+    ],
+    "launchpad.pinned": [
+        {
+            "label_id": "ContextMenu.unpin",
+            "label": "Unpin",
+            "action": "unpin"
+        }
+    ],
+    "launchpad.unpinned": [
+            {
+            "label_id": "ContextMenu.pin",
+            "label": "Pin",
+            "action": "pin"
+        }
+    ],
+    "launchpad.powerbutton": [
+        {
+            "label_id": "ContextMenu.shutdown",
+            "label": "Shutdown",
+            "action": "shutdown",
+            "icon": "app\\assets\\launchpadicons\\shutdown.svg"
+        },
+        {
+            "label_id": "ContextMenu.restart",
+            "label": "Restart",
+            "action": "restart",
+            "icon": "app\\assets\\launchpadicons\\restart.svg"
+        },
+        {
+            "label_id": "ContextMenu.logout",
+            "label": "Logout",
+            "action": "logout",
+            "icon": "app\\assets\\launchpadicons\\logout.svg"
+        }
     ]
 }

@@ -1,22 +1,16 @@
 [Log] [Config] | Default path: C:\Users\User\Desktop\Ninawe\Ninawe
-[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
 [Log] [LangManager] | Loading system language: uk
 [Log] [ThemeConfig] | Caching theme global properties...
 [Log] [ThemeConfig] | Theme loaded: default
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\themeconfig.ini
-[Log] [Desktop] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers\ (Mode: cover)
+[Log] [ConfigUpdateChecker] | Connected: ['PowerMenu']
+[Log] [ConfigUpdateChecker] | Connected: ['Desktop']
+[Log] [ConfigUpdateChecker] | Connected: ['Desktop.Icon']
+[Log] [ConfigUpdateChecker] | Connected: ['Taskbar']
+[Log] [WallpaperManager] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers (Mode: cover)
+[Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
+[Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
+[Spectrum] Started with GPU (OpenGL) Engine
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: defaultClock
-[SpectrumWidget] Connected: Динамики / головные телефоны (Realtek Audio)
-[Log] [Desktop.Spectrum] | LC changed: C:\Users\User\Desktop\Ninawe\Ninawe\app\widgets\desktop\defaultSpectrum\config.ini
-[SpectrumWidget] Connected: Динамики / головные телефоны (Realtek Audio)
-[Log] [Desktop.Spectrum] | LC changed: C:\Users\User\Desktop\Ninawe\Ninawe\app\widgets\desktop\defaultSpectrum\config.ini
-[SpectrumWidget] Connected: Динамики / головные телефоны (Realtek Audio)
-[Log] [Desktop.Spectrum] | LC changed: C:\Users\User\Desktop\Ninawe\Ninawe\app\widgets\desktop\defaultSpectrum\config.ini
-[Spectrum] Audio stream died: operands could not be broadcast together with shapes (384,) (512,) 
-[Spectrum] Reconnecting in 2 seconds...
-[SpectrumWidget] Connected: Динамики / головные телефоны (Realtek Audio)
-[Log] [Desktop.Spectrum] | LC changed: C:\Users\User\Desktop\Ninawe\Ninawe\app\widgets\desktop\defaultSpectrum\config.ini
-[SpectrumWidget] Connected: Динамики / головные телефоны (Realtek Audio)
-[Log] [Desktop.Spectrum] | LC changed: C:\Users\User\Desktop\Ninawe\Ninawe\app\widgets\desktop\defaultSpectrum\config.ini
-[SpectrumWidget] Connected: Динамики / головные телефоны (Realtek Audio)
+[SpectrumWidget] Connected: Р”РёРЅР°РјРёРєРё / РіРѕР»РѕРІРЅС‹Рµ С‚РµР»РµС„РѕРЅС‹ (Realtek Audio)

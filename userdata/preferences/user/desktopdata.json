@@ -6,8 +6,48 @@
             "path": "C:\\Users\\User\\Desktop\\123.txt",
             "icon": "default",
             "position": [
+                8,
+                3
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "bin",
+            "path": "C:\\Users\\User\\Desktop\\bin",
+            "icon": "default",
+            "position": [
                 17,
-                2
+                5
+            ]
+        },
+        {
+            "type": "file",
+            "name": "fixes.txt",
+            "path": "C:\\Users\\User\\Desktop\\fixes.txt",
+            "icon": "default",
+            "position": [
+                6,
+                3
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "icons",
+            "path": "C:\\Users\\User\\Desktop\\icons",
+            "icon": "default",
+            "position": [
+                16,
+                3
+            ]
+        },
+        {
+            "type": "file",
+            "name": "jic.txt",
+            "path": "C:\\Users\\User\\Desktop\\jic.txt",
+            "icon": "default",
+            "position": [
+                6,
+                4
             ]
         },
         {
@@ -16,8 +56,8 @@
             "path": "C:\\Users\\User\\Desktop\\Ninawe",
             "icon": "default",
             "position": [
-                6,
-                6
+                17,
+                3
             ]
         },
         {
@@ -26,7 +66,7 @@
             "path": "C:\\Users\\User\\Desktop\\Poweramp Equalizer Mixer",
             "icon": "default",
             "position": [
-                7,
+                17,
                 4
             ]
         },
@@ -36,8 +76,28 @@
             "path": "C:\\Users\\User\\Desktop\\Process Hacker 2.lnk",
             "icon": "default",
             "position": [
-                8,
-                6
+                2,
+                1
+            ]
+        },
+        {
+            "type": "file",
+            "name": "test.txt",
+            "path": "C:\\Users\\User\\Desktop\\test.txt",
+            "icon": "default",
+            "position": [
+                7,
+                3
+            ]
+        },
+        {
+            "type": "file",
+            "name": "tz.txt",
+            "path": "C:\\Users\\User\\Desktop\\tz.txt",
+            "icon": "default",
+            "position": [
+                5,
+                2
             ]
         },
         {
@@ -46,8 +106,8 @@
             "path": "C:\\Users\\User\\Desktop\\uhhhhhhh",
             "icon": "default",
             "position": [
-                8,
-                1
+                15,
+                3
             ]
         },
         {
@@ -56,8 +116,8 @@
             "path": "C:\\Users\\User\\Desktop\\Видео.lnk",
             "icon": "default",
             "position": [
-                5,
-                1
+                21,
+                2
             ]
         },
         {
@@ -66,8 +126,8 @@
             "path": "C:\\Users\\User\\Desktop\\Документы.lnk",
             "icon": "default",
             "position": [
-                4,
-                1
+                22,
+                3
             ]
         },
         {
@@ -76,7 +136,7 @@
             "path": "C:\\Users\\User\\Desktop\\Изображения.lnk",
             "icon": "default",
             "position": [
-                7,
+                20,
                 1
             ]
         },
@@ -86,7 +146,57 @@
             "path": "C:\\Users\\User\\Desktop\\Музыка.lnk",
             "icon": "default",
             "position": [
-                3,
+                22,
+                1
+            ]
+        },
+        {
+            "type": "file",
+            "name": "нужное.txt",
+            "path": "C:\\Users\\User\\Desktop\\нужное.txt",
+            "icon": "default",
+            "position": [
+                6,
+                5
+            ]
+        },
+        {
+            "type": "file",
+            "name": "тервер_тема_5.zip",
+            "path": "C:\\Users\\User\\Desktop\\тервер_тема_5.zip",
+            "icon": "default",
+            "position": [
+                5,
+                5
+            ]
+        },
+        {
+            "type": "file",
+            "name": "тервер_тема_6.zip",
+            "path": "C:\\Users\\User\\Desktop\\тервер_тема_6.zip",
+            "icon": "default",
+            "position": [
+                8,
+                2
+            ]
+        },
+        {
+            "type": "system_icon",
+            "name": "Этот компьютер",
+            "path": "shell:::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
+            "system_type": "computer",
+            "position": [
+                1,
+                1
+            ]
+        },
+        {
+            "type": "system_icon",
+            "name": "Корзина",
+            "path": "shell:::{645FF040-5081-101B-9F08-00AA002F954E}",
+            "system_type": "recycle_bin",
+            "position": [
+                1,
                 2
             ]
         },
@@ -94,11 +204,11 @@
             "type": "widget",
             "name": "defaultClock",
             "position": [
-                17,
-                8
+                10,
+                5
             ],
             "spanX": 4,
-            "spanY": 1,
+            "spanY": 2,
             "id": "1365d1b6-f983-4c01-a892-65895b286488",
             "minWidth": 300,
             "minHeight": 100
@@ -107,14 +217,14 @@
             "type": "widget",
             "name": "defaultSpectrum",
             "position": [
-                1,
-                7
+                0,
+                8
             ],
             "id": "5970183f-b67f-4a42-873b-5680d9433cbe",
-            "minWidth": 1280,
-            "minHeight": 200,
-            "spanX": 16,
-            "spanY": 2
+            "minWidth": 1920,
+            "minHeight": 350,
+            "spanX": 24,
+            "spanY": 4
         }
     ]
 }

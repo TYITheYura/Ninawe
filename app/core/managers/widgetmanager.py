@@ -1,14 +1,12 @@
 import importlib
 import sys
-from PyQt6.QtWidgets import QWidget
-from core.config import config as themeConfig
 import os
 import configparser
 from core.utils import MakeLog
 
 class WidgetManager:
     def __init__(self, parent, widgetType = None):
-        if widgetType == None:
+        if widgetType is None:
             MakeLog("[Log] [WidgetManager] | Widget type not selected")
 
         # link to window
@@ -37,6 +35,7 @@ class WidgetManager:
         configSection = "Taskbar" if self.widgetType == "taskbar" else "Desktop"
 
         # Reading active widgets
+        from core.config import config as themeConfig  # lazy loading btw (hate ImportError: cannot import name 'config' from partially initialized module 'core.config')
         rawList = themeConfig.theme.Get(configSection, "active_widgets", fallback = "")
 
         if not rawList:
@@ -79,7 +78,7 @@ class WidgetManager:
             except Exception as e:
                 MakeLog(f"[Log] [WidgetManager] [WidgetType: {self.widgetType.upper()}] | Failed to load widget '{name}': {e}")
                 import traceback
-                traceback.MakeLog_exc()
+                traceback.print_exc()
 
     # It can be called without creating an object, although I haven't figured out how to implement it in LoadWidgets properly yet...
     @staticmethod
@@ -92,6 +91,7 @@ class WidgetManager:
 
         try:
             # priority: 1 - userdata, 2 - app
+            from core.config import config as themeConfig
             userPath = themeConfig.theme.GetPath(f"userdata\\widgets\\{widgetType}\\{name}\\config.ini")
             appPath = themeConfig.theme.GetPath(f"app\\widgets\\{widgetType}\\{name}\\config.ini")
 
@@ -108,7 +108,7 @@ class WidgetManager:
                     BIWidgetConfig["minWidth"] = parser.getint("Layout", "min_width", fallback = 200)
                     BIWidgetConfig["minHeight"] = parser.getint("Layout", "min_height", fallback = 200)
         except Exception as e:
-            MakeLog(f"[Log] [WidgetManager] | Failed to read config for {name}: {e}")
+            MakeLog(f"[Log] [WidgetManager] [WidgetType: {widgetType.upper()}] | Failed to read config for {name}: {e}")
 
         return BIWidgetConfig
 
@@ -128,16 +128,17 @@ class WidgetManager:
 
             # Showing error if widget class is not found
             if not hasattr(module, "Widget"):
-                MakeLog(f"[Log] [WidgetManager] | Widget '{name}' has no class 'Widget'.")
+                MakeLog(f"[Log] [WidgetManager] [WidgetType: {widgetType.upper()}] | Widget '{name}' has no class 'Widget'.")
                 return None
 
             # Else returning class
+            MakeLog(f"[Log] [WidgetManager] [WidgetType: {widgetType.upper()}] | Loaded: {name}")
             return getattr(module, "Widget")
 
         except ModuleNotFoundError:
-            MakeLog(f"[Log] [WidgetManager] | Widget folder not found: widgets/{widgetType}/{name}")
+            MakeLog(f"[Log] [WidgetManager] [WidgetType: {widgetType.upper()}] | Widget folder not found: widgets/{widgetType}/{name}")
         except Exception as e:
-            MakeLog(f"[Log] [WidgetManager] | Failed to get widget class '{name}': {e}")
+            MakeLog(f"[Log] [WidgetManager] [WidgetType: {widgetType.upper()}] | Failed to get widget class '{name}': {e}")
 
         return None
 
