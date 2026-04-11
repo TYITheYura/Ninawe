@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#                Version: Medium v0.1
+#                Version: Medium v1.0
 # And remember guys: Ninawe is not a windows explorer
 
 import os
@@ -44,8 +44,8 @@ class NinaweShell:
         # Links to the windows
         self.desktop = DesktopWindow()
         self.taskbar = Taskbar()
-        self.powerMenu = PowerMenu()
-        self.launchpad = Launchpad()
+        # self.powerMenu = PowerMenu()
+        # self.launchpad = Launchpad()
 
     def Start(self):
 

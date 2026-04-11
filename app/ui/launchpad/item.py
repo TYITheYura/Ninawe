@@ -7,6 +7,7 @@ from core.workers import ThumbnailLoaderThread
 from ui.components import ContextMenu
 from PyQt6.QtGui import QDrag
 from PyQt6.QtCore import QMimeData
+from .config import IConfig
 
 class LaunchpadItem(QWidget):
     def __init__(self, parent, name, path, iconPath = None):
@@ -14,25 +15,17 @@ class LaunchpadItem(QWidget):
         self.name = name
         self.path = path
         self.parent = parent
-        self.setFixedSize(100, 140)
+
+        self.Init()
+
+    def Init(self):
+        IConfig.configUpdated.connect(self.UpdateStyles)
+        self.setFixedSize(IConfig.containerWidth, IConfig.containerHeight)
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
-        self.setStyleSheet("""
-            LaunchpadItem {
-                background-color: transparent;
-                border-radius: 15px;
-            }
-            LaunchpadItem:hover {
-                background-color: rgba(255, 255, 255, 30);
-                border: 1px solid rgba(255, 255, 255, 50);
-            }
-            LaunchpadItem:focus {
-                background-color: rgba(255, 255, 255, 30);
-                border: 1px solid rgba(255, 255, 255, 50);
-            }
-        """)
+        self.setStyleSheet(IConfig.containerStyle)
 
         self.WSHELL = win32com.client.Dispatch("WScript.Shell")
 
@@ -41,10 +34,11 @@ class LaunchpadItem(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.iconLabel = QLabel()
-        self.iconLabel.setFixedSize(64, 64)
+        self.iconLabel.setObjectName("IconLabel")
+        self.iconLabel.setFixedSize(IConfig.iconSize + IConfig.iconPadding, IConfig.iconSize + IConfig.iconPadding)
 
         self.iconLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.iconLabel.setStyleSheet("""background-color: rgba(255, 255, 255, 0.1); border-radius: 15px;""")
+        self.iconLabel.setStyleSheet(IConfig.iconStyle)
 
         self.textLabel = QLabel(self.name)
         self.textLabel.setAlignment(Qt.AlignmentFlag.AlignHCenter)
@@ -57,7 +51,7 @@ class LaunchpadItem(QWidget):
         layout.addWidget(self.textLabel, alignment = Qt.AlignmentFlag.AlignHCenter)
         layout.addStretch()
 
-        self.thumbnailThread = ThumbnailLoaderThread(self.path, 48, self)
+        self.thumbnailThread = ThumbnailLoaderThread(self.path, IConfig.iconSize, self)
         self.thumbnailThread.loadedSignal.connect(self.ApplyThumbnail)
         self.thumbnailThread.finished.connect(self.thumbnailThread.deleteLater)
         self.thumbnailThread.start()
@@ -65,9 +59,25 @@ class LaunchpadItem(QWidget):
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.ShowContextMenu)
 
+    def UpdateStyles(self, source = None, changedSections = None):
+        self.setFixedSize(IConfig.containerWidth, IConfig.containerHeight)
+        self.setStyleSheet(IConfig.containerStyle)
+
+        self.iconLabel.setFixedSize(
+            IConfig.iconSize + IConfig.iconPadding,
+            IConfig.iconSize + IConfig.iconPadding
+        )
+
+        self.iconLabel.setStyleSheet(IConfig.iconStyle)
+
+        self.thumbnailThread = ThumbnailLoaderThread(self.path, IConfig.iconSize, self)
+        self.thumbnailThread.loadedSignal.connect(self.ApplyThumbnail)
+        self.thumbnailThread.finished.connect(self.thumbnailThread.deleteLater)
+        self.thumbnailThread.start()
+
     def ApplyThumbnail(self, pixmap):
         scaledPixmap = pixmap.scaled(
-            48, 48,
+            IConfig.iconSize, IConfig.iconSize,
             Qt.AspectRatioMode.KeepAspectRatio,
             Qt.TransformationMode.SmoothTransformation
         )
@@ -76,9 +86,16 @@ class LaunchpadItem(QWidget):
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.dragStartPosition = event.pos()
+            self.setProperty("isPressed", True)
+            self.style().unpolish(self)
+            self.style().polish(self)
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
+        self.setProperty("isPressed", False)
+        self.style().unpolish(self)
+        self.style().polish(self)
+
         if event.button() == Qt.MouseButton.LeftButton:
             if (event.pos() - self.dragStartPosition).manhattanLength() < QApplication.startDragDistance():
                 self.parent.close()
@@ -98,6 +115,10 @@ class LaunchpadItem(QWidget):
         if self.path not in self.parent.manager.state["launchpad"]:
             return
 
+        self.setProperty("isPressed", False)
+        self.style().unpolish(self)
+        self.style().polish(self)
+
         drag = QDrag(self)
         mimeData = QMimeData()
         mimeData.setText(self.path)
@@ -116,8 +137,8 @@ class LaunchpadItem(QWidget):
         self.textLabel.setVisible(True)
 
     def ShowContextMenu(self, pos):
-        is_pinned = self.path in self.parent.manager.state["launchpad"]
-        section = "launchpad.pinned" if is_pinned else "launchpad.unpinned"
+        isPinned = self.path in self.parent.manager.state["launchpad"]
+        section = "launchpad.pinned" if isPinned else "launchpad.unpinned"
 
         menu = ContextMenu(section, self)
         menu.commandClicked.connect(self.ExecuteCommand)

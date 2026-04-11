@@ -6,8 +6,9 @@ from core.utils import MakeLog
 class AppConfig(ConfigWrapper):
     def __init__(self):
         super().__init__()
-        self.configFilePath = os.path.join(BASE_DIR, "userdata", "preferences",  "program", "config.ini")
+        self.configFilePath = os.path.join(BASE_DIR, "userdata", "preferences", "program", "config.ini")
         self.hashes = {}
+        self.Load()
 
     def Load(self):
         if not os.path.exists(self.configFilePath):

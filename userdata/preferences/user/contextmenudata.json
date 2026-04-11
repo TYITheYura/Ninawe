@@ -158,25 +158,5 @@
             "label": "Pin",
             "action": "pin"
         }
-    ],
-    "launchpad.powerbutton": [
-        {
-            "label_id": "ContextMenu.shutdown",
-            "label": "Shutdown",
-            "action": "shutdown",
-            "icon": "app\\assets\\launchpadicons\\shutdown.svg"
-        },
-        {
-            "label_id": "ContextMenu.restart",
-            "label": "Restart",
-            "action": "restart",
-            "icon": "app\\assets\\launchpadicons\\restart.svg"
-        },
-        {
-            "label_id": "ContextMenu.logout",
-            "label": "Logout",
-            "action": "logout",
-            "icon": "app\\assets\\launchpadicons\\logout.svg"
-        }
     ]
 }

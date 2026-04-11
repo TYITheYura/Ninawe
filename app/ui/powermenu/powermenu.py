@@ -116,6 +116,7 @@ class PowerMenu(QWidget):
         self.container.resize(1, 1)
         self.container.adjustSize()
         self.adjustSize()
+        # woahhh, never do this again please
 
         containerRealWidth = self.container.width()
         containerRealHeight = self.container.height()

@@ -4,6 +4,9 @@ from PyQt6.QtGui import QPainter, QColor, QBrush
 from core.utils import MakeBlur
 from core.managers import WidgetManager
 from .config import TBConfig
+from ui.launchpad import Launchpad
+
+lpad = Launchpad()
 
 class Taskbar(QWidget):
     def __init__(self):
@@ -24,30 +27,7 @@ class Taskbar(QWidget):
         #  [> Transperent bg attribute
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
-        # =[> First init
-        self.InitPanelComponents()
-
     def UpdateStyles(self, source, changedSections = None):
-        # =[> Panel width
-        try:
-            if "%" in str(TBConfig.rawPanelWidthData):
-                value = int(str(TBConfig.rawPanelWidthData).replace("%", ""))
-                TBConfig.panelWidth = round(TBConfig.sw * (value / 100))
-            else:
-                TBConfig.panelWidth = int(str(TBConfig.rawPanelWidthData).replace("px", ""))
-        except ValueError:
-            TBConfig.panelWidth = TBConfig.sw
-
-        # =[> Panel height
-        try:
-            if "%" in str(TBConfig.rawPanelHeightData):
-                value = int(str(TBConfig.rawPanelHeightData).replace("%", ""))
-                TBConfig.panelHeight = round(TBConfig.sh * (value / 100))
-            else:
-                TBConfig.panelHeight = int(str(TBConfig.rawPanelHeightData).replace("px", ""))
-        except ValueError:
-            TBConfig.panelHeight = round(TBConfig.sh * (2 / 100))
-
         # Reloading widgets if full update
         if "ALL" in changedSections:
             self.widgetsManager.LoadWidgets()
@@ -56,37 +36,11 @@ class Taskbar(QWidget):
         if self.widgetsManager.widgets:
             self.widgetsManager.ReloadStyles(changedSections)
 
+        self.setGeometry(TBConfig.panelX, TBConfig.panelY, TBConfig.panelWidth, TBConfig.panelHeight)
+
         # Flag for blur redrawing
         TBConfig.themeUpdatedState = True
 
-        # "configOnly" flag
-        if source != "init":
-            self.InitPanelComponents()
-
-    def Init(self):
-        # Panel position
-        panelXPosition = int(TBConfig.sw * (TBConfig.rawPanelXPositionData / 100))
-        panelYPosition = int(TBConfig.sh * (TBConfig.rawPanelYPositionData / 100))
-
-        # =[> Panel offset
-        offsetX = int(TBConfig.panelWidth * (TBConfig.anchorX / 100))
-        offsetY = int(TBConfig.panelHeight * (TBConfig.anchorY / 100))
-
-        # Panel position with offset
-        panelX = panelXPosition - offsetX
-        panelY = panelYPosition - offsetY
-
-        self.setGeometry(panelX, panelY, TBConfig.panelWidth, TBConfig.panelHeight)
-
-    def InitPanelComponents(self):
-        # Updating state
-        TBConfig.themeUpdatedState = True
-        # Self init
-        self.Init()
-        # Panel update
-        self.update()
-
-    # qwidget automatically call this btw
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -97,6 +51,7 @@ class Taskbar(QWidget):
                 MakeBlur(self.winId(), True, TBConfig.blurMode, TBConfig.winBlurColor)
             else:
                 MakeBlur(self.winId(), False)
+
             TBConfig.themeUpdatedState = False
 
         rect = QRectF(self.rect())  # Base
@@ -121,3 +76,7 @@ class Taskbar(QWidget):
 
     def closeEvent(self, event):
         event.ignore()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Control:
+            lpad.show()

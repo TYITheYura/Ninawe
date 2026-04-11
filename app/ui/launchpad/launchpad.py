@@ -5,19 +5,21 @@ from PyQt6.QtWidgets import (
     QApplication
 )
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor, QPainter
 from core.utils import MakeBlur, WSHELL
-from core.managers import LaunchpadStateManager
-from core.config import config as configurator
 from ui.components import PowerButton
 from .item import LaunchpadItem
+from .config import LConfig
+from core.managers import LaunchpadStateManager
 
 class Launchpad(QWidget):
     def __init__(self):
         super().__init__()
-        self.launchpadInfoFile = configurator.theme.GetPath("userdata\\preferences\\user\\launchpaddata.json")
-        self.manager = LaunchpadStateManager(self.launchpadInfoFile)
+        LConfig.configUpdated.connect(self.UpdateStyles)
+        self.manager = LaunchpadStateManager(LConfig.launchpadInfoFile)
         self.Init()
         self.LoadApps()
+        self.ApplyGeometry()
 
     def Init(self):
         self.setWindowFlags(
@@ -26,26 +28,17 @@ class Launchpad(QWidget):
             Qt.WindowType.WindowStaysOnTopHint
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-
         self.setAcceptDrops(True)
 
-        screen = QApplication.primaryScreen().geometry()
-        self.setGeometry(screen)
-
-        mainLayout = QVBoxLayout(self)
-        mainLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.mainLayout = QVBoxLayout(self)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.container = QFrame()
         self.container.setObjectName("LaunchpadContainer")
-        self.container.setFixedSize(int(screen.width() * 0.6), int(screen.height() * 0.7))
+        self.container.setFixedSize(LConfig.containerWidth, LConfig.containerHeight)
 
-        self.container.setStyleSheet("""
-            QFrame#LaunchpadContainer {
-                background-color: rgba(43, 43, 43, 180);
-                border-radius: 24px;
-                border: 1px solid rgba(255, 255, 255, 25);
-            }
-        """)
+        self.container.setStyleSheet(LConfig.containerStyle)
 
         containerLayout = QVBoxLayout(self.container)
         containerLayout.setContentsMargins(30, 30, 30, 30)
@@ -54,20 +47,7 @@ class Launchpad(QWidget):
         self.searchBar = QLineEdit()
         self.searchBar.setPlaceholderText("Search...")
         self.searchBar.setFixedHeight(45)
-        self.searchBar.setStyleSheet("""
-            QLineEdit {
-                background-color: rgba(255, 255, 255, 20);
-                border-radius: 10px;
-                padding: 0 15px;
-                color: white;
-                font-size: 16px;
-                border: 1px solid rgba(255, 255, 255, 30);
-            }
-            QLineEdit:focus {
-                border: 1px solid rgba(255, 255, 255, 80);
-                background-color: rgba(255, 255, 255, 30);
-            }
-        """)
+        self.searchBar.setStyleSheet(LConfig.searchbarStyle)
         containerLayout.addWidget(self.searchBar)
 
         self.searchBar.installEventFilter(self)
@@ -76,34 +56,7 @@ class Launchpad(QWidget):
 
         self.scrollArea = QScrollArea()
         self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setStyleSheet("""
-            QScrollArea {
-                background: transparent;
-                border: none;
-            }
-            QScrollBar:vertical {
-                background: transparent;
-                width: 8px;
-                margin: 0px;
-            }
-            QScrollBar::handle:vertical {
-                background: rgba(255, 255, 255, 50);
-                min-height: 30px;
-                border-radius: 4px;
-            }
-            QScrollBar::handle:vertical:hover {
-                background: rgba(255, 255, 255, 80);
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                height: 0px;
-                width: 0px;
-                background: none;
-                border: none;
-            }
-            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-                background: none;
-            }
-        """)
+        self.scrollArea.setStyleSheet(LConfig.scrollAreaStyle)
 
         scrollContent = QWidget()
         scrollContent.setStyleSheet("background: transparent;")
@@ -141,52 +94,82 @@ class Launchpad(QWidget):
         bottomLayout.addWidget(self.powerMenu)
 
         containerLayout.addLayout(bottomLayout)
-        mainLayout.addWidget(self.container)
+        self.mainLayout.addWidget(self.container)
+
+    def ApplyGeometry(self):
+        screen = QApplication.primaryScreen().geometry()
+
+        if LConfig.isFullscreen:
+            self.setGeometry(screen)
+        else:
+            x = (screen.width() - LConfig.containerWidth) // 2
+            y = (screen.height() - LConfig.containerHeight) // 2
+            self.setGeometry(x, y, LConfig.containerWidth, LConfig.containerHeight)
+
+        self.RefreshGrids()
+
+    def UpdateStyles(self, source = None, changedSections = None):
+        self.container.setFixedSize(LConfig.containerWidth, LConfig.containerHeight)
+        self.container.setStyleSheet(LConfig.containerStyle)
+        self.searchBar.setStyleSheet(LConfig.searchbarStyle)
+        self.scrollArea.setStyleSheet(LConfig.scrollAreaStyle)
+
+        self.ApplyGeometry()
 
     def showEvent(self, event):
-        MakeBlur(self.winId(), True, 1, "#11FFFFFF")
+        if LConfig.blurEnabled:
+            MakeBlur(self.winId(), True, LConfig.blurMode, LConfig.fullscreenColor)
+        else:
+            MakeBlur(self.winId(), False)
+
         super().showEvent(event)
         self.activateWindow()
         self.raise_()
         self.searchBar.setFocus()
         self.BuildVisualGrid()
 
+    def paintEvent(self, event):
+        if LConfig.blurEnabled and LConfig.isFullscreen and LConfig.blurMode != 1:
+            painter = QPainter(self)
+            painter.setBrush(QColor(LConfig.fullscreenColor))
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.drawRect(self.rect())
+
     def BuildVisualGrid(self):
         self.visualGrid = []
-        columns = 6
 
         if self.searchBar.text():
             rowItems = []
             for item in self.appWidgets:
                 if item.isVisible():
                     rowItems.append(item)
-                    if len(rowItems) == columns:
+                    if len(rowItems) == LConfig.columns:
                         self.visualGrid.append(rowItems)
                         rowItems = []
             if rowItems:
                 self.visualGrid.append(rowItems)
         else:
             pinnedPaths = self.manager.state.get("launchpad", [])
-            pRow = []
+            pinnedRow = []
             for path in pinnedPaths:
                 item = next((w for w in self.appWidgets if w.path == path), None)
                 if item and item.isVisible():
-                    pRow.append(item)
-                    if len(pRow) == columns:
-                        self.visualGrid.append(pRow)
-                        pRow = []
-            if pRow:
-                self.visualGrid.append(pRow)
+                    pinnedRow.append(item)
+                    if len(pinnedRow) == LConfig.columns:
+                        self.visualGrid.append(pinnedRow)
+                        pinnedRow = []
+            if pinnedRow:
+                self.visualGrid.append(pinnedRow)
 
-            aRow = []
+            allRow = []
             for item in self.appWidgets:
                 if item.path not in pinnedPaths and item.isVisible():
-                    aRow.append(item)
-                    if len(aRow) == columns:
-                        self.visualGrid.append(aRow)
-                        aRow = []
-            if aRow:
-                self.visualGrid.append(aRow)
+                    allRow.append(item)
+                    if len(allRow) == LConfig.columns:
+                        self.visualGrid.append(allRow)
+                        allRow = []
+            if allRow:
+                self.visualGrid.append(allRow)
 
     def LoadApps(self):
         pathsToScan = [
@@ -273,17 +256,16 @@ class Launchpad(QWidget):
 
     def LiveUpdatePinnedGrid(self):
         pinnedPaths = self.manager.state.get("launchpad", [])
-        pColumns = 6
-        pRow, pColumn = 0, 0
+        pinnedRow, pinnedColumn = 0, 0
 
         for path in pinnedPaths:
             item = next((w for w in self.appWidgets if w.path == path), None)
             if item:
-                self.pinnedGrid.addWidget(item, pRow, pColumn, alignment = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
-                pColumn += 1
-                if pColumn >= pColumns:
-                    pColumn = 0
-                    pRow += 1
+                self.pinnedGrid.addWidget(item, pinnedRow, pinnedColumn, alignment = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+                pinnedColumn += 1
+                if pinnedColumn >= LConfig.columns:
+                    pinnedColumn = 0
+                    pinnedRow += 1
 
         self.BuildVisualGrid()
 
@@ -292,55 +274,55 @@ class Launchpad(QWidget):
         event.acceptProposedAction()
 
     def MoveFocus(self, currentItem, direction):
-        if not hasattr(self, 'visualGrid') or not self.visualGrid:
+        if not self.visualGrid:
             return
 
-        currRow, currColumn = -1, -1
+        currentRow, currentColumn = -1, -1
         for r, row in enumerate(self.visualGrid):
             if currentItem in row:
-                currRow = r
-                currColumn = row.index(currentItem)
+                currentRow = r
+                currentColumn = row.index(currentItem)
                 break
 
-        if currRow == -1:
+        if currentRow == -1:
             return
 
-        nextR, nextC = currRow, currColumn
+        nextRow, nextColumn = currentRow, currentColumn
 
         if direction == "right":
-            nextC += 1
-            if nextC >= len(self.visualGrid[currRow]):
-                if currRow + 1 < len(self.visualGrid):
-                    nextR += 1
-                    nextC = 0
+            nextColumn += 1
+            if nextColumn >= len(self.visualGrid[currentRow]):
+                if currentRow + 1 < len(self.visualGrid):
+                    nextRow += 1
+                    nextColumn = 0
                 else:
-                    nextC -= 1
+                    nextColumn -= 1
 
         elif direction == "left":
-            nextC -= 1
-            if nextC < 0:
-                if currRow - 1 >= 0:
-                    nextR -= 1
-                    nextC = len(self.visualGrid[nextR]) - 1
+            nextColumn -= 1
+            if nextColumn < 0:
+                if currentRow - 1 >= 0:
+                    nextRow -= 1
+                    nextColumn = len(self.visualGrid[nextRow]) - 1
                 else:
-                    nextC = 0
+                    nextColumn = 0
 
         elif direction == "down":
-            if currRow + 1 < len(self.visualGrid):
-                nextR += 1
-                nextC = min(currColumn, len(self.visualGrid[nextR]) - 1)
+            if currentRow + 1 < len(self.visualGrid):
+                nextRow += 1
+                nextColumn = min(currentColumn, len(self.visualGrid[nextRow]) - 1)
 
         elif direction == "up":
-            if currRow - 1 >= 0:
-                nextR -= 1
-                nextC = min(currColumn, len(self.visualGrid[nextR]) - 1)
+            if currentRow - 1 >= 0:
+                nextRow -= 1
+                nextColumn = min(currentColumn, len(self.visualGrid[nextRow]) - 1)
             else:
                 self.searchBar.setFocus()
                 return
 
-        target_widget = self.visualGrid[nextR][nextC]
-        target_widget.setFocus()
-        self.scrollArea.ensureWidgetVisible(target_widget, 0, 50)
+        targetWidget = self.visualGrid[nextRow][nextColumn]
+        targetWidget.setFocus()
+        self.scrollArea.ensureWidgetVisible(targetWidget, 0, 50)
 
     def RefreshGrids(self):
         self.FilterApps(self.searchBar.text())
@@ -378,46 +360,42 @@ class Launchpad(QWidget):
         if query:
             self.pinnedLabel.hide()
 
-            columns = 6
-            row, col = 0, 0
+            row, column = 0, 0
             for item in self.appWidgets:
                 appName = item.name.lower()
                 if any(variant in appName for variant in searchVariants):
-                    self.allAppsGrid.addWidget(item, row, col, alignment = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+                    self.allAppsGrid.addWidget(item, row, column, alignment = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
                     item.show()
 
-                    col += 1
-                    if col >= columns:
-                        col = 0
+                    column += 1
+                    if column >= LConfig.columns:
+                        column = 0
                         row += 1
         else:
             self.pinnedLabel.show()
 
             # rendering pinned
-            pColumns = 6
-            pRow, pColumn = 0, 0
-
+            pinnedRow, pinnedColumn = 0, 0
             for path in pinnedPaths:
                 item = next((w for w in self.appWidgets if w.path == path), None)
                 if item:
-                    self.pinnedGrid.addWidget(item, pRow, pColumn, alignment = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+                    self.pinnedGrid.addWidget(item, pinnedRow, pinnedColumn, alignment = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
                     item.show()
-                    pColumn += 1
-                    if pColumn >= pColumns:
-                        pColumn = 0
-                        pRow += 1
+                    pinnedColumn += 1
+                    if pinnedColumn >= LConfig.columns:
+                        pinnedColumn = 0
+                        pinnedRow += 1
 
             # rendering all
-            aColumns = 6
-            aRow, aColumn = 0, 0
+            allRow, allColumn = 0, 0
             for item in self.appWidgets:
                 if item.path not in pinnedPaths:
-                    self.allAppsGrid.addWidget(item, aRow, aColumn, alignment = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+                    self.allAppsGrid.addWidget(item, allRow, allColumn, alignment = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
                     item.show()
-                    aColumn += 1
-                    if aColumn >= aColumns:
-                        aColumn = 0
-                        aRow += 1
+                    allColumn += 1
+                    if allColumn >= LConfig.columns:
+                        allColumn = 0
+                        allRow += 1
 
         self.BuildVisualGrid()
 
@@ -441,17 +419,30 @@ class Launchpad(QWidget):
         return super().eventFilter(obj, event)
 
     def mousePressEvent(self, event):
-        self.setFocus()
+        if not self.container.geometry().contains(event.pos()):
+            self.close()
+        else:
+            self.setFocus()
+        super().mousePressEvent(event)
+
+    def changeEvent(self, event):
+        if event.type() == event.Type.ActivationChange:
+            if not self.isActiveWindow():
+                self.close()
+        super().changeEvent(event)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Down:
-            if hasattr(self, 'visualGrid') and self.visualGrid and self.visualGrid[0]:
+            if self.visualGrid[0]:
                 firstItem = self.visualGrid[0][0]
                 firstItem.setFocus()
                 self.scrollArea.ensureWidgetVisible(firstItem, 0, 50)
 
         elif event.key() == Qt.Key.Key_Up:
             self.searchBar.setFocus()
+
+        elif event.key() == Qt.Key.Key_Escape or Qt.Key.Key_Control:
+            self.close()
 
         else:
             super().keyPressEvent(event)

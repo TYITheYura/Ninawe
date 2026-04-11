@@ -53,7 +53,6 @@ class ContextMenu(QMenu):
         else:
             finalItems = defaultItems
 
-        # 5. Строим финальное меню!
         self.BuildMenuFromJson(finalItems, self)
 
     def BuildMenuFromJson(self, menuData, parentMenu):

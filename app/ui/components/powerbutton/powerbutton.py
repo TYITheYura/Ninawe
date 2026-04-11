@@ -52,7 +52,7 @@ class PowerButton(QFrame):
 
         self.mainBtn = QPushButton()
         self.mainBtn.setFocusPolicy(Qt.FocusPolicy.TabFocus)
-        self.mainBtn.setIcon(QIcon(configurator.theme.GetPath(f"app\\ui\\components\\powerbutton\\resources\\icon\\icon.svg")))
+        self.mainBtn.setIcon(QIcon(configurator.theme.GetPath("app\\ui\\components\\powerbutton\\resources\\icon\\icon.svg")))
         self.mainBtn.setFixedSize(50, 50)
         self.mainBtn.setStyleSheet("""
             QPushButton {
