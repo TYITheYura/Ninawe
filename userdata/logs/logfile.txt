@@ -14,12 +14,6 @@
 [Log] [WallpaperManager] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers (Mode: cover)
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
-[Spectrum] Started with GPU (OpenGL) Engine
+[SpectrumWidget] Started with GPU (OpenGL) Engine
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: defaultClock
-[SpectrumWidget] Connected: Динамики / головные телефоны (Realtek Audio)
-[Log] [Desktop] [OnDirectoryChanged] | New file detected: C:\Users\User\Desktop\123.png
-[Log] [DesktopMenu] [ExecuteMenuCommand] | Executing command: refresh
-[Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
-[Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
-[Spectrum] Started with GPU (OpenGL) Engine
-[SpectrumWidget] Connected: Динамики / головные телефоны (Realtek Audio)
+[SpectrumAudioThread] | Connected: Динамики / головные телефоны (Realtek Audio)

@@ -13,7 +13,7 @@ warnings.filterwarnings("ignore", message = "data discontinuity in recording")
 class AudioThread(QThread):
     dataReadySignal = pyqtSignal(object)
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.needsReinit = True
         self.isRunning = True
@@ -21,56 +21,78 @@ class AudioThread(QThread):
     def TriggerReinit(self):
         self.needsReinit = True
 
+    def BuildMatrices(self):
+        if WConfig.scale == "linear":
+            edges = np.linspace(WConfig.MIN_FREQ, WConfig.MAX_FREQ, WConfig.BANDS + 1)
+            self.bandFreqs = np.linspace(WConfig.MIN_FREQ, WConfig.MAX_FREQ, WConfig.BANDS)
+        else:
+            edges = np.logspace(np.log10(WConfig.MIN_FREQ), np.log10(WConfig.MAX_FREQ), WConfig.BANDS + 1)
+            self.bandFreqs = np.logspace(np.log10(WConfig.MIN_FREQ), np.log10(WConfig.MAX_FREQ), WConfig.BANDS)
+
+        self.FFTFreqs = np.fft.rfftfreq(WConfig.CHUNK_SIZE, 1.0 / WConfig.SAMPLE_RATE)
+        self.bandIndices = [np.searchsorted(self.FFTFreqs, edge) for edge in edges]
+        self.EQCurve = np.linspace(
+            WConfig.EQStartCoef,
+            WConfig.EQEndCoef,
+            WConfig.BANDS,
+            dtype = np.float32
+        )
+
+        self.weightMatrix = np.zeros((WConfig.BANDS, len(self.FFTFreqs)), dtype = np.float32)
+        for i in range(WConfig.BANDS):
+            startIDx = self.bandIndices[i]
+            endIDx = self.bandIndices[i + 1]
+
+            if endIDx > startIDx + 1:
+                self.weightMatrix[i, startIDx:endIDx] = 1.0 / (endIDx - startIDx)
+            else:
+                targetFrequency = self.bandFreqs[i]
+                idx = np.searchsorted(self.FFTFreqs, targetFrequency)
+                if idx == 0:
+                    self.weightMatrix[i, 0] = 1.0
+                elif idx >= len(self.FFTFreqs):
+                    self.weightMatrix[i, -1] = 1.0
+                else:
+                    x0, x1 = self.FFTFreqs[idx - 1], self.FFTFreqs[idx]
+                    dx = x1 - x0
+                    if dx > 0:
+                        w1 = (targetFrequency - x0) / dx
+                        self.weightMatrix[i, idx - 1] = 1.0 - w1
+                        self.weightMatrix[i, idx] = w1
+                    else:
+                        self.weightMatrix[i, idx] = 1.0
+
+        self.zeroArray = np.zeros(WConfig.BANDS, dtype = np.float32)
+
+        self.audioWindow = np.hanning(WConfig.CHUNK_SIZE).astype(np.float32)
+
+        self.doSmoothing = (WConfig.smoothing > 0)
+        self.postLeftPad = 0
+        self.postRightPad = 0
+        self.postKernel = None
+
+        if self.doSmoothing:
+            kernelSize = WConfig.smoothing + 2
+            self.postKernel = np.hanning(kernelSize).astype(np.float32)
+            self.postKernel /= np.sum(self.postKernel)
+            self.postLeftPad = len(self.postKernel) // 2
+            self.postRightPad = len(self.postKernel) - 1 - self.postLeftPad
+
+            self.paddedBands = np.empty(WConfig.BANDS + self.postLeftPad + self.postRightPad, dtype = np.float32)
+
+        self.needsReinit = False
+
     def run(self):
-        # From this point on, a lot of incomprehensible code begins. Be careful.
         while self.isRunning:
             try:
                 defaultSpeaker = sc.default_speaker()
                 mics = sc.all_microphones(include_loopback = True)
                 mic = next((m for m in mics if defaultSpeaker.name in m.name), mics[0])
 
-                MakeLog(f"[SpectrumWidget] Connected: {mic.name}")
+                MakeLog(f"[SpectrumAudioThread] | Connected: {mic.name}")
 
                 if self.needsReinit:
-                    if WConfig.scale == "linear":
-                        edges = np.linspace(WConfig.MIN_FREQ, WConfig.MAX_FREQ, WConfig.BANDS + 1)
-                        self.bandFreqs = np.linspace(WConfig.MIN_FREQ, WConfig.MAX_FREQ, WConfig.BANDS)
-                    else:
-                        edges = np.logspace(np.log10(WConfig.MIN_FREQ), np.log10(WConfig.MAX_FREQ), WConfig.BANDS + 1)
-                        self.bandFreqs = np.logspace(np.log10(WConfig.MIN_FREQ), np.log10(WConfig.MAX_FREQ), WConfig.BANDS)
-
-                    self.FFTFreqs = np.fft.rfftfreq(WConfig.CHUNK_SIZE, 1.0 / WConfig.SAMPLE_RATE)
-                    self.bandIndices = [np.searchsorted(self.FFTFreqs, edge) for edge in edges]
-                    self.EQCurve = np.array([WConfig.EQStartCoef + (i / WConfig.BANDS) * WConfig.EQEndCoef for i in range(WConfig.BANDS)])
-
-                    self.weightMatrix = np.zeros((WConfig.BANDS, len(self.FFTFreqs)))
-
-                    for i in range(WConfig.BANDS):
-                        startIDx = self.bandIndices[i]
-                        endIDx = self.bandIndices[i + 1]
-
-                        if endIDx > startIDx + 1:
-                            self.weightMatrix[i, startIDx:endIDx] = 1.0 / (endIDx - startIDx)
-                        else:
-                            targetFrequency = self.bandFreqs[i]
-                            idx = np.searchsorted(self.FFTFreqs, targetFrequency)
-
-                            if idx == 0:
-                                self.weightMatrix[i, 0] = 1.0
-                            elif idx >= len(self.FFTFreqs):
-                                self.weightMatrix[i, -1] = 1.0
-                            else:
-                                x0, x1 = self.FFTFreqs[idx - 1], self.FFTFreqs[idx]
-                                dx = x1 - x0
-
-                                if dx > 0:
-                                    w1 = (targetFrequency - x0) / dx
-                                    self.weightMatrix[i, idx - 1] = 1.0 - w1
-                                    self.weightMatrix[i, idx] = w1
-                                else:
-                                    self.weightMatrix[i, idx] = 1.0
-
-                    self.needsReinit = False
+                    self.BuildMatrices()
 
                 with mic.recorder(samplerate = WConfig.SAMPLE_RATE, channels = 1, blocksize = WConfig.CHUNK_SIZE) as recorder:
                     while self.isRunning:
@@ -79,41 +101,36 @@ class AudioThread(QThread):
 
                         data = recorder.record(numframes = WConfig.CHUNK_SIZE)[:, 0]
 
-                        if np.max(np.abs(data)) == 0:
-                            self.dataReadySignal.emit(np.zeros(WConfig.BANDS))
+                        if not data.any():
+                            self.dataReadySignal.emit(self.zeroArray)
                             continue
 
-                        windowed = data * np.hanning(WConfig.CHUNK_SIZE)
-                        FFTData = np.abs(np.fft.rfft(windowed))
-
-                        if WConfig.smoothing > 0:
-                            preKernel = np.hanning(3)
-                            preKernel = preKernel / np.sum(preKernel)
-                            prePadding = len(preKernel) // 2
-                            paddedFFT = np.pad(FFTData, (prePadding, prePadding), mode = 'edge')
-                            FFTData = np.convolve(paddedFFT, preKernel, mode = 'valid')
+                        data *= self.audioWindow
+                        FFTData = np.abs(np.fft.rfft(data))
 
                         bandValues = self.weightMatrix.dot(FFTData)
-                        bandValues = np.sqrt(bandValues) * self.EQCurve
+                        np.maximum(bandValues, 0, out=bandValues)
+                        np.sqrt(bandValues, out=bandValues)
+                        bandValues *= self.EQCurve
 
-                        if WConfig.smoothing > 2:
-                            kernel = np.hanning(WConfig.smoothing)
-                            kernel = kernel / np.sum(kernel)
-
-                            paddingLeft = len(kernel) // 2
-                            paddingRight = len(kernel) - 1 - paddingLeft
-                            paddedBands = np.pad(bandValues, (paddingLeft, paddingRight), mode = 'edge')
-                            smoothed = np.convolve(paddedBands, kernel, mode = 'valid')
+                        if self.doSmoothing:
+                            if self.postRightPad > 0:
+                                self.paddedBands[self.postLeftPad:-self.postRightPad] = bandValues
+                            else:
+                                self.paddedBands[self.postLeftPad:] = bandValues
+                            self.paddedBands[:self.postLeftPad] = bandValues[0]
+                            self.paddedBands[-self.postRightPad:] = bandValues[-1]
+                            smoothed = np.convolve(self.paddedBands, self.postKernel, mode = 'valid')
                         else:
                             smoothed = bandValues
 
-                        if np.max(smoothed) < 0.01:
-                            smoothed = np.zeros(WConfig.BANDS)
+                        if smoothed.max() < 0.01:
+                            smoothed = self.zeroArray
 
                         self.dataReadySignal.emit(smoothed)
 
             except Exception as e:
-                MakeLog(f"[Spectrum] Audio stream died: {e}\n[Spectrum] Reconnecting in 2 seconds...")
+                MakeLog(f"[SpectrumAudioThread] | Audio stream died: {e}\n[SpectrumAudioThread] Reconnecting in 2 seconds...")
                 self.needsReinit = True
                 self.msleep(2000)
 
@@ -138,11 +155,11 @@ class Widget(QWidget):
         if WConfig.HARDWARE_ACCELERATION:
             from .rendererGL import SpectrumRendererGLEngine
             self.renderer = SpectrumRendererGLEngine(self)
-            MakeLog("[Spectrum] Started with GPU (OpenGL) Engine")
+            MakeLog("[SpectrumWidget] Started with GPU (OpenGL) Engine")
         else:
             from .rendererDefault import SpectrumRendererEngine
             self.renderer = SpectrumRendererEngine(self)
-            MakeLog("[Spectrum] Started with CPU (QPainter) Engine")
+            MakeLog("[SpectrumWidget] Started with CPU (QPainter) Engine")
 
         layout.addWidget(self.renderer)
 
