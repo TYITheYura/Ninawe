@@ -4,9 +4,6 @@ from PyQt6.QtGui import QPainter, QColor, QBrush
 from core.utils import MakeBlur
 from core.managers import WidgetManager
 from .config import TBConfig
-from ui.launchpad import Launchpad
-
-lpad = Launchpad()
 
 class Taskbar(QWidget):
     def __init__(self):
@@ -76,7 +73,3 @@ class Taskbar(QWidget):
 
     def closeEvent(self, event):
         event.ignore()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key.Key_Control:
-            lpad.show()

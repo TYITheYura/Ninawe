@@ -21,6 +21,7 @@ from PyQt6.QtWidgets import QApplication
 app = QApplication(sys.argv)
 
 from core.config import config
+from core.managers import HotkeyManager
 from ui.desktop import DesktopWindow
 from ui.taskbar import Taskbar
 from ui.powermenu import PowerMenu
@@ -41,11 +42,14 @@ class NinaweShell:
     ---:::+++#####+++:::---
 ''')
 
+        # What a great manager, I'm proud of him ngl
+        self.hotkeyManager = HotkeyManager()
+
         # Links to the windows
         self.desktop = DesktopWindow()
         self.taskbar = Taskbar()
-        # self.powerMenu = PowerMenu()
-        # self.launchpad = Launchpad()
+        self.powerMenu = PowerMenu()
+        self.launchpad = Launchpad()
 
     def Start(self):
 
@@ -53,8 +57,6 @@ class NinaweShell:
 
         self.desktop.show()
         self.taskbar.show()
-        # self.powerMenu.show()
-        # self.launchpad.show()
 
         sys.exit(app.exec())
 

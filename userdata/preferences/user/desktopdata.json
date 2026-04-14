@@ -2,32 +2,12 @@
     "desktop": [
         {
             "type": "file",
-            "name": "123.png",
-            "path": "C:\\Users\\User\\Desktop\\123.png",
+            "name": "213.png",
+            "path": "C:\\Users\\User\\Desktop\\213.png",
             "icon": "default",
             "position": [
-                0,
-                0
-            ]
-        },
-        {
-            "type": "file",
-            "name": "123.txt",
-            "path": "C:\\Users\\User\\Desktop\\123.txt",
-            "icon": "default",
-            "position": [
-                8,
-                3
-            ]
-        },
-        {
-            "type": "file",
-            "name": "21321321312312.png",
-            "path": "C:\\Users\\User\\Desktop\\21321321312312.png",
-            "icon": "default",
-            "position": [
-                0,
-                1
+                6,
+                4
             ]
         },
         {
@@ -42,42 +22,12 @@
         },
         {
             "type": "file",
-            "name": "fixes 2.txt",
-            "path": "C:\\Users\\User\\Desktop\\fixes 2.txt",
-            "icon": "default",
-            "position": [
-                1,
-                3
-            ]
-        },
-        {
-            "type": "file",
-            "name": "fixes.txt",
-            "path": "C:\\Users\\User\\Desktop\\fixes.txt",
+            "name": "IMG_20260413_115420.jpg",
+            "path": "C:\\Users\\User\\Desktop\\IMG_20260413_115420.jpg",
             "icon": "default",
             "position": [
                 6,
                 3
-            ]
-        },
-        {
-            "type": "folder",
-            "name": "icons",
-            "path": "C:\\Users\\User\\Desktop\\icons",
-            "icon": "default",
-            "position": [
-                16,
-                3
-            ]
-        },
-        {
-            "type": "file",
-            "name": "jic.txt",
-            "path": "C:\\Users\\User\\Desktop\\jic.txt",
-            "icon": "default",
-            "position": [
-                6,
-                4
             ]
         },
         {
@@ -111,32 +61,12 @@
             ]
         },
         {
-            "type": "file",
-            "name": "test.txt",
-            "path": "C:\\Users\\User\\Desktop\\test.txt",
-            "icon": "default",
-            "position": [
-                7,
-                3
-            ]
-        },
-        {
-            "type": "file",
-            "name": "tz.txt",
-            "path": "C:\\Users\\User\\Desktop\\tz.txt",
-            "icon": "default",
-            "position": [
-                5,
-                2
-            ]
-        },
-        {
             "type": "folder",
             "name": "uhhhhhhh",
             "path": "C:\\Users\\User\\Desktop\\uhhhhhhh",
             "icon": "default",
             "position": [
-                15,
+                16,
                 3
             ]
         },
@@ -171,6 +101,16 @@
             ]
         },
         {
+            "type": "file",
+            "name": "МПІ3.docx",
+            "path": "C:\\Users\\User\\Desktop\\МПІ3.docx",
+            "icon": "default",
+            "position": [
+                0,
+                0
+            ]
+        },
+        {
             "type": "folder_shortcut",
             "name": "Музыка.lnk",
             "path": "C:\\Users\\User\\Desktop\\Музыка.lnk",
@@ -178,36 +118,6 @@
             "position": [
                 22,
                 1
-            ]
-        },
-        {
-            "type": "file",
-            "name": "нужное.txt",
-            "path": "C:\\Users\\User\\Desktop\\нужное.txt",
-            "icon": "default",
-            "position": [
-                6,
-                5
-            ]
-        },
-        {
-            "type": "file",
-            "name": "тервер_тема_5.zip",
-            "path": "C:\\Users\\User\\Desktop\\тервер_тема_5.zip",
-            "icon": "default",
-            "position": [
-                5,
-                5
-            ]
-        },
-        {
-            "type": "file",
-            "name": "тервер_тема_6.zip",
-            "path": "C:\\Users\\User\\Desktop\\тервер_тема_6.zip",
-            "icon": "default",
-            "position": [
-                8,
-                2
             ]
         },
         {

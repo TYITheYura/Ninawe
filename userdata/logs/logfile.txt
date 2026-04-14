@@ -11,9 +11,13 @@
 [Log] [ConfigUpdateChecker] | Connected: ['Taskbar']
 [Log] [ConfigUpdateChecker] | Connected: ['Launchpad']
 [Log] [ConfigUpdateChecker] | Connected: ['Launchpad.Item']
+[Log] [Hotkeys] | Registering global hotkeys...
 [Log] [WallpaperManager] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers (Mode: cover)
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
 [SpectrumWidget] Started with GPU (OpenGL) Engine
+[Log] [ConfigUpdateChecker] | Connected: ['Taskbar.Clock']
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: defaultClock
+[Log] [ConfigUpdateChecker] | Connected: ['Taskbar.LaunchpadButton']
+[Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: launchpadButton
 [SpectrumAudioThread] | Connected: Динамики / головные телефоны (Realtek Audio)

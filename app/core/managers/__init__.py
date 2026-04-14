@@ -5,3 +5,4 @@ from .wallpapermanager import WallpaperManager
 from .widgetmanager import WidgetManager
 from .langmanager import LangManager
 from .configmanager import ConfigManager
+from .hotkeymanager import HotkeyManager, shellSignals

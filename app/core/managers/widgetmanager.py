@@ -145,8 +145,8 @@ class WidgetManager:
     def ReloadStyles(self, changedSections = None):
         # Reloading winget props (all)
         for widget in self.widgets:
-            if hasattr(widget, "Updater"):
-                widget.Updater(changedSections)
+            if hasattr(widget, "UpdateStyles"):
+                widget.UpdateStyles(changedSections)
 
     def InitLayout(self):
         # Reinitializating widget (all)

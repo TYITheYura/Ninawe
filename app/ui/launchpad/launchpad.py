@@ -10,13 +10,14 @@ from core.utils import MakeBlur, WSHELL
 from ui.components import PowerButton
 from .item import LaunchpadItem
 from .config import LConfig
-from core.managers import LaunchpadStateManager
+from core.managers import LaunchpadStateManager, shellSignals
 
 class Launchpad(QWidget):
     def __init__(self):
         super().__init__()
         LConfig.configUpdated.connect(self.UpdateStyles)
         self.manager = LaunchpadStateManager(LConfig.launchpadInfoFile)
+        shellSignals.toggleLaunchpad.connect(self.ToggleLaunchpad)
         self.Init()
         self.LoadApps()
         self.ApplyGeometry()
@@ -128,12 +129,18 @@ class Launchpad(QWidget):
         self.searchBar.setFocus()
         self.BuildVisualGrid()
 
+    def ToggleLaunchpad(self):
+        if self.isVisible():
+            self.close()
+        else:
+            self.show()
+
     def paintEvent(self, event):
-        if LConfig.blurEnabled and LConfig.isFullscreen and LConfig.blurMode != 1:
+        if LConfig.isFullscreen:
             painter = QPainter(self)
             painter.setBrush(QColor(LConfig.fullscreenColor))
-            painter.setPen(Qt.PenStyle.NoPen)
             painter.drawRect(self.rect())
+            painter.setPen(Qt.PenStyle.NoPen)
 
     def BuildVisualGrid(self):
         self.visualGrid = []
@@ -441,7 +448,7 @@ class Launchpad(QWidget):
         elif event.key() == Qt.Key.Key_Up:
             self.searchBar.setFocus()
 
-        elif event.key() == Qt.Key.Key_Escape or Qt.Key.Key_Control:
+        elif event.key() == Qt.Key.Key_Escape:
             self.close()
 
         else:
