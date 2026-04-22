@@ -6,7 +6,7 @@ from PyQt6.QtGui import (
     QPainter, QColor, QCursor,
 )
 from PyQt6.QtCore import (
-    Qt, QRect, QFileSystemWatcher
+    Qt, QRect, QFileSystemWatcher, pyqtSignal, QTimer
 )
 import subprocess
 from core.utils import MakeLog
@@ -14,13 +14,15 @@ from ui.components import ContextMenu, GridHintWidget
 from ui.powermenu import PowerMenu
 from .config import DConfig, IConfig
 from .items import SystemItem, FileItem, WidgetItem
-from core.utils import FO_COPY, FO_MOVE, FOF_NOCONFIRMATION, WSHELL
+from core.utils import FO_COPY, FO_MOVE, FOF_NOCONFIRMATION, GetRealTargetPath
 from core.managers import GridManager, DesktopStateManager, WallpaperManager, WidgetManager
-from core.workers import FileOperationThread
+from core.workers import FileOperationThread, DesktopWatcher
 import math
 import uuid
 
 class DesktopWindow(QMainWindow):
+    globalFolderUpdated = pyqtSignal()
+
     def __init__(self):
         super().__init__()
 
@@ -49,7 +51,23 @@ class DesktopWindow(QMainWindow):
 
         # ahhhhh I'm too lazy to comment all the code :(
         # i think I'll do it next time
+
+        self.recursiveWatcher = DesktopWatcher(DConfig.desktopPath)
+        self.recursiveWatcher.systemChanged.connect(self.OnFolderActivity)
+        self.recursiveWatcher.start()
+
+        self.folderUpdateTimer = QTimer()
+        self.folderUpdateTimer.setSingleShot(True)
+        self.folderUpdateTimer.timeout.connect(self.globalFolderUpdated.emit)
+
         self.Init()
+
+    def OnFolderActivity(self):
+        self.folderUpdateTimer.start(250)
+
+    def __del__(self):
+        if hasattr(self, 'recursiveWatcher'):
+            self.recursiveWatcher.stop()
 
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Main
 
@@ -130,50 +148,33 @@ class DesktopWindow(QMainWindow):
                     occupiedPositions.add((pos[0] + x, pos[1] + y))
 
         validFilepaths = []
+
         for filename in os.listdir(DConfig.desktopPath):
             if filename.startswith('.') or filename.lower() == 'desktop.ini':
                 continue
-            filepath = os.path.normpath(os.path.join(DConfig.desktopPath, filename))
-            validFilepaths.append(filepath)
+
+            validFilepaths.append(os.path.normpath(os.path.join(DConfig.desktopPath, filename)))
 
         updatedDesktopData = []
 
         for filepath in validFilepaths:
-            if self.pendingDropPositions and filepath in self.pendingDropPositions:
-                desiredPosition = self.pendingDropPositions.pop(filepath)
+            if filepath in savedItems:
+                itemData = savedItems[filepath]
 
-                if tuple(desiredPosition) not in occupiedPositions and desiredPosition[1] < maxRows:
-                    newPosition = desiredPosition
-                else:
-                    newPosition = GridManager.GetFirstFreePosition(occupiedPositions, maxRows)
+                if self.pendingDropPositions and filepath in self.pendingDropPositions:
+                    desiredPos = self.pendingDropPositions.pop(filepath)
 
-                occupiedPositions.add(tuple(newPosition))
+                    if tuple(desiredPos) not in occupiedPositions and desiredPos[1] < maxRows:
+                        itemData["position"] = desiredPos
+                    else:
+                        itemData["position"] = GridManager.GetFirstFreePosition(occupiedPositions, maxRows)
 
-                if filepath in savedItems:
-                    itemData = savedItems[filepath]
-                    itemData["position"] = newPosition
-                    updatedDesktopData.append(itemData)
-                    continue
+                    occupiedPositions.add(tuple(itemData["position"]))
 
-            elif filepath in savedItems:
-                updatedDesktopData.append(savedItems[filepath])
-                continue
+                updatedDesktopData.append(itemData)
             else:
-                newPosition = GridManager.GetFirstFreePosition(occupiedPositions, maxRows)
-                occupiedPositions.add(tuple(newPosition))
-
-            # actualPath = self.GetRealTargetPath(filepath)
-
-            itemType = self.ResolveItemType(filepath)
-
-            newItem = {
-                "type": itemType,
-                "name": os.path.basename(filepath),
-                "path": filepath,
-                "icon": "default",
-                "position": newPosition
-            }
-            updatedDesktopData.append(newItem)
+                newItemData = self.AddNewItemToGrid(filepath, occupiedPositions, maxRows, renderInstantly=False)
+                updatedDesktopData.append(newItemData)
 
         for vItem in virtualItems:
             updatedDesktopData.append(vItem)
@@ -216,47 +217,55 @@ class DesktopWindow(QMainWindow):
 
                 occupiedPositions = set()
                 for item in self.desktopItems:
-                    for x in range(item.spanX):
-                        for y in range(item.spanY):
+                    for x in range(getattr(item, 'spanX', 1)):
+                        for y in range(getattr(item, 'spanY', 1)):
                             occupiedPositions.add((item.gridX + x, item.gridY + y))
 
                 maxRows = max(1, (self.height() - DConfig.windowMarginY * 2) // (IConfig.itemHeight + IConfig.spacingY))
 
-                if self.pendingDropPositions and filepath in self.pendingDropPositions:
-                    newPosition = self.pendingDropPositions.pop(filepath)
-                    if tuple(newPosition) in occupiedPositions or newPosition[1] >= maxRows:
-                        newPosition = GridManager.GetFirstFreePosition(occupiedPositions, maxRows)
-                else:
-                    newPosition = GridManager.GetFirstFreePosition(occupiedPositions, maxRows)
+                newItemData, _ = self.AddNewItemToGrid(filepath, occupiedPositions, maxRows, renderInstantly = True)
 
-                occupiedPositions.add(tuple(newPosition))
-
-                # actualPath = self.GetRealTargetPath(filepath)
-
-                itemType = self.ResolveItemType(filepath)
-
-                newItemData = {
-                    "type": itemType,
-                    "name": os.path.basename(filepath),
-                    "path": filepath,
-                    "icon": "default",
-                    "position": newPosition
-                }
                 desktopData.setdefault("desktop", []).append(newItemData)
                 newItemsAdded = True
 
-                item = self.CreateItemNode(filepath, itemType)
-                positionX = DConfig.windowMarginX + newPosition[0] * (IConfig.itemWidth + IConfig.spacingX)
-                positionY = DConfig.windowMarginY + newPosition[1] * (IConfig.itemHeight + IConfig.spacingY)
-
-                item.gridX = newPosition[0]
-                item.gridY = newPosition[1]
-                item.move(positionX, positionY)
-                item.show()
-                self.desktopItems.append(item)
-
         if newItemsAdded:
             self.stateManager.Save()
+
+    def AddNewItemToGrid(self, filepath, occupiedPositions, maxRows, renderInstantly = False):
+        if self.pendingDropPositions and filepath in self.pendingDropPositions:
+            desiredPosition = self.pendingDropPositions.pop(filepath)
+            if tuple(desiredPosition) not in occupiedPositions and desiredPosition[1] < maxRows:
+                newPosition = desiredPosition
+            else:
+                newPosition = GridManager.GetFirstFreePosition(occupiedPositions, maxRows)
+        else:
+            newPosition = GridManager.GetFirstFreePosition(occupiedPositions, maxRows)
+
+        occupiedPositions.add(tuple(newPosition))
+        itemType = self.ResolveItemType(filepath)
+
+        itemData = {
+            "type": itemType,
+            "name": os.path.basename(filepath),
+            "path": filepath,
+            "icon": "default",
+            "position": newPosition
+        }
+
+        if renderInstantly:
+            item = self.CreateItemNode(filepath, itemType, widgetData=itemData)
+            item.gridX = newPosition[0]
+            item.gridY = newPosition[1]
+
+            positionX = DConfig.windowMarginX + newPosition[0] * (IConfig.itemWidth + IConfig.spacingX)
+            positionY = DConfig.windowMarginY + newPosition[1] * (IConfig.itemHeight + IConfig.spacingY)
+
+            item.move(positionX, positionY)
+            item.show()
+            self.desktopItems.append(item)
+            return itemData, item
+
+        return itemData
 
     def UpdateStyles(self, source = None, changedSections = None):
         if "ALL" in changedSections or "Desktop" in changedSections or source == "init":
@@ -715,22 +724,12 @@ class DesktopWindow(QMainWindow):
             if self.cutItems and itemToRemove in self.cutItems:
                 self.cutItems.remove(itemToRemove)
 
-            self.stateManager.RemoveItem(itemToRemove.filepath)
             itemToRemove.deleteLater()
-
-    def GetRealTargetPath(self, filepath):
-        if filepath.lower().endswith('.lnk'):
-            try:
-                shortcut = WSHELL.CreateShortCut(filepath)
-                target = shortcut.Targetpath
-                if target and os.path.exists(target):
-                    return target
-            except Exception as e:
-                MakeLog("[Log] [Desktop]", f"Failed to resolve shortcut {filepath}: {e}")
-        return filepath
+            itemToRemove.Cleanup()
+            self.stateManager.RemoveItem(itemToRemove.filepath)
 
     def ResolveItemType(self, filepath):
-        actualPath = self.GetRealTargetPath(filepath)
+        actualPath = GetRealTargetPath(filepath)
         if os.path.isdir(actualPath):
             return "folder_shortcut" if filepath.lower().endswith('.lnk') else "folder"
         elif actualPath.lower().endswith('.exe'):

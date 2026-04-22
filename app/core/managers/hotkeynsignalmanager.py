@@ -1,4 +1,3 @@
-# core/managers/hotkeys.py
 from PyQt6.QtCore import QObject, pyqtSignal
 import keyboard
 from core.utils import MakeLog
@@ -11,7 +10,7 @@ class HotkeyManager:
         MakeLog("[Log] [Hotkeys]", "Registering global hotkeys...")
 
         # Launchpad
-        keyboard.add_hotkey('f10', shellSignals.toggleLaunchpad.emit)
+        keyboard.add_hotkey('win', shellSignals.toggleLaunchpad.emit)
 
 class UISignalManager(QObject):
     toggleLaunchpad = pyqtSignal()

@@ -17,12 +17,18 @@ class Taskbar(QWidget):
 
         # =[> Window flags
         self.setWindowFlags(
-            Qt.WindowType.FramelessWindowHint |  # No borders
-            Qt.WindowType.Tool |                 # No alt+tab
-            Qt.WindowType.WindowStaysOnTopHint   # always on top
+            Qt.WindowType.FramelessWindowHint |    # No borders
+            Qt.WindowType.Tool |                   # No alt+tab
+            Qt.WindowType.WindowStaysOnTopHint |   # always on top
+            Qt.WindowType.WindowDoesNotAcceptFocus # no focus
         )
         #  [> Transperent bg attribute
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
+
+
+    def closeEvent(self, event):
+        event.ignore()
 
     def UpdateStyles(self, source, changedSections = None):
         # Reloading widgets if full update

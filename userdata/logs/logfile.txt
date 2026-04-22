@@ -11,13 +11,55 @@
 [Log] [ConfigUpdateChecker] | Connected: ['Taskbar']
 [Log] [ConfigUpdateChecker] | Connected: ['Launchpad']
 [Log] [ConfigUpdateChecker] | Connected: ['Launchpad.Item']
+[Log] [SetWorkArea] | A new working area of 1030 pixels has been set
+[Log] [WinAPI.SetWindowAnimations] | Minimizing animations is turned on
 [Log] [Hotkeys] | Registering global hotkeys...
+[Log] [AdminPipe] | Starting admin daemon...
 [Log] [WallpaperManager] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers (Mode: cover)
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
+[Log] [AdminPipe] | Starting admin daemon...
+[Log] [AdminPipe] | Admin pipe started and waiting for tasks...
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
 [SpectrumWidget] Started with GPU (OpenGL) Engine
 [Log] [ConfigUpdateChecker] | Connected: ['Taskbar.Clock']
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: defaultClock
 [Log] [ConfigUpdateChecker] | Connected: ['Taskbar.LaunchpadButton']
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: launchpadButton
+[Log] [ConfigUpdateChecker] | Connected: ['Taskbar.AppList']
 [SpectrumAudioThread] | Connected: Динамики / головные телефоны (Realtek Audio)
+[Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: appList
+[Log] [SetShellWindow] | Ninawe Desktop is registered in the system as a shell
+[Log] [Starter] | Trying so hard to start something...
+[Log] [DesktopMenu] [ExecuteMenuCommand] | Executing command: create_folder
+[Log] [Desktop] | Created item: C:\Users\User\Desktop\New folder
+[Log] [Desktop] [OnDirectoryChanged] | New file detected: C:\Users\User\Desktop\New folder
+[Log] [Desktop] [OnDirectoryChanged] | File removed externally: C:\Users\User\Desktop\New folder
+[Log] [DesktopMenu] [ExecuteMenuCommand] | Executing command: create_folder
+[Log] [Desktop] | Created item: C:\Users\User\Desktop\New folder
+[Log] [Desktop] [OnDirectoryChanged] | New file detected: C:\Users\User\Desktop\New folder
+[Log] [DesktopMenu] [ExecuteMenuCommand] | Executing command: create_folder
+[Log] [Desktop] | Created item: C:\Users\User\Desktop\New folder (3)
+[Log] [Desktop] [OnDirectoryChanged] | New file detected: C:\Users\User\Desktop\New folder (3)
+[Log] [Desktop] [OnDirectoryChanged] | File removed externally: C:\Users\User\Desktop\New folder (3)
+[Log] [DesktopItem] | Changes in C:\Users\User\Desktop\New folder
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\New folder
+[Log] [ExplorerGlobalWatcher] | Changes in C:\Users\User\Desktop\New folder
+[Log] [DesktopItem] | Changes in C:\Users\User\Desktop\New folder
+[Log] [ExplorerGlobalWatcher] | Changes in C:\Users\User\Desktop\New folder
+[Log] [DesktopItem] | Changes in C:\Users\User\Desktop\New folder
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\New folder is over
+[Log] [Desktop] [OnDirectoryChanged] | File removed externally: C:\Users\User\Desktop\New folder
+[Log] [DesktopMenu] [ExecuteMenuCommand] | Executing command: refresh
+[Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
+[Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
+[SpectrumWidget] Started with GPU (OpenGL) Engine
+[SpectrumAudioThread] | Connected: Динамики / головные телефоны (Realtek Audio)
+[Log] [Taskbar] | Intercepted explorer.exe. Forcing File Browser mode.
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Videos
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Downloads
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Videos is over
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Documents
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Downloads is over
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Pictures
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Documents is over
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Pictures is over

@@ -1,12 +1,12 @@
 import ctypes
 from ctypes import Structure
 from ctypes import wintypes
-from PyQt6.QtGui import QImage, QPixmap
+from PyQt6.QtGui import QImage
 import os
 from PyQt6.QtCore import QThread, pyqtSignal, QSemaphore
 from core.utils.logger import MakeLog
 
-# queue
+# queue (куеуе)))
 GLOBAL_THUMBNAIL_SEMAPHORE = QSemaphore(1)
 
 ole32 = ctypes.windll.ole32
@@ -30,7 +30,6 @@ class BITMAP(Structure):
         ("bmBits", ctypes.c_void_p),
     ]
 
-
 # Magic "mysterious" numbers (no joke)
 IID_IShellItemImageFactory = GUID(0xBCC18B79, 0xBA16, 0x442F, (ctypes.c_ubyte * 8)(0x80, 0xC4, 0x8A, 0x59, 0xC3, 0x0C, 0x46, 0x3B))
 
@@ -40,7 +39,6 @@ shell32.SHCreateItemFromParsingName.argtypes = [
     ctypes.POINTER(GUID),
     ctypes.POINTER(ctypes.c_void_p)
 ]
-
 shell32.SHCreateItemFromParsingName.restype = ctypes.c_long
 
 def GetWindowsThumbnail(filepath, size = 256):
@@ -51,47 +49,38 @@ def GetWindowsThumbnail(filepath, size = 256):
     ole32.CoInitialize(None)
 
     pFactory = ctypes.c_void_p()
-
-    res = shell32.SHCreateItemFromParsingName(
-        filepath,
-        None,
-        ctypes.byref(IID_IShellItemImageFactory),
-        ctypes.byref(pFactory)
-    )
-
-    if res != 0 or not pFactory:
-        ole32.CoUninitialize()
-        return None
-
     hbitmap = wintypes.HBITMAP()
-    sizeStruct = SIZE(size, size)
-
-    # info for future:
-    # 0x00 (RESIZETOFIT) | 0x04 (ICONONLY) | 0x100 (SCALEUP)
-    flags = 0x00
 
     try:
+        res = shell32.SHCreateItemFromParsingName(
+            filepath,
+            None,
+            ctypes.byref(IID_IShellItemImageFactory),
+            ctypes.byref(pFactory)
+        )
+
+        if res != 0 or not pFactory:
+            return None
+
         vtable = ctypes.cast(pFactory, ctypes.POINTER(ctypes.POINTER(ctypes.c_void_p)))
 
-        # index 3 = GetImage
         GetImage = ctypes.WINFUNCTYPE(
             ctypes.c_long, ctypes.c_void_p, SIZE, ctypes.c_int, ctypes.POINTER(wintypes.HBITMAP)
         )(vtable[0][3])
 
-        # index 2 = Release
         Release = ctypes.WINFUNCTYPE(
             ctypes.c_ulong, ctypes.c_void_p
         )(vtable[0][2])
 
         sizeStruct = SIZE(size, size)
-        res = GetImage(pFactory, sizeStruct, flags, ctypes.byref(hbitmap))
+        flags = 0x00
 
+        res = GetImage(pFactory, sizeStruct, flags, ctypes.byref(hbitmap))
         Release(pFactory)
 
         if res != 0 or not hbitmap:
             return None
 
-        # C++ HBITMAP to QPixmap converter 7000
         bm = BITMAP()
         gdi32.GetObjectW(hbitmap, ctypes.sizeof(BITMAP), ctypes.byref(bm))
 
@@ -101,19 +90,20 @@ def GetWindowsThumbnail(filepath, size = 256):
         image = QImage(buffer, bm.bmWidth, bm.bmHeight, bm.bmWidthBytes, QImage.Format.Format_ARGB32)
         image = image.copy()
 
-        pixmap = QPixmap.fromImage(image)
-
-        gdi32.DeleteObject(hbitmap)
-
-        return pixmap
+        return image
 
     except Exception:
         return None
     finally:
+        if hbitmap:
+            try:
+                gdi32.DeleteObject(hbitmap)
+            except:
+                pass
         ole32.CoUninitialize()
 
 class ThumbnailLoaderThread(QThread):
-    loadedSignal = pyqtSignal(QPixmap)
+    loadedSignal = pyqtSignal(QImage)
 
     def __init__(self, filepath, size, parent = None):
         super().__init__(parent)
@@ -123,9 +113,9 @@ class ThumbnailLoaderThread(QThread):
     def run(self):
         GLOBAL_THUMBNAIL_SEMAPHORE.acquire()
         try:
-            pixmap = GetWindowsThumbnail(self.filepath, self.size)
-            if pixmap and not pixmap.isNull():
-                self.loadedSignal.emit(pixmap)
+            image = GetWindowsThumbnail(self.filepath, self.size)
+            if image and not image.isNull():
+                self.loadedSignal.emit(image)
         except Exception as e:
             MakeLog("[Log] [Thumbnail]", f"Failed to load thumbnail for {self.filepath}: {e}")
         finally:

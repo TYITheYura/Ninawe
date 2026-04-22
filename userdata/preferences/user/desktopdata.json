@@ -1,13 +1,13 @@
 {
     "desktop": [
         {
-            "type": "file",
-            "name": "213.png",
-            "path": "C:\\Users\\User\\Desktop\\213.png",
+            "type": "folder",
+            "name": "anything but work",
+            "path": "C:\\Users\\User\\Desktop\\anything but work",
             "icon": "default",
             "position": [
                 6,
-                4
+                5
             ]
         },
         {
@@ -22,12 +22,22 @@
         },
         {
             "type": "file",
-            "name": "IMG_20260413_115420.jpg",
-            "path": "C:\\Users\\User\\Desktop\\IMG_20260413_115420.jpg",
+            "name": "fixes.txt",
+            "path": "C:\\Users\\User\\Desktop\\fixes.txt",
             "icon": "default",
             "position": [
                 6,
-                3
+                4
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "New folder (2)",
+            "path": "C:\\Users\\User\\Desktop\\New folder (2)",
+            "icon": "default",
+            "position": [
+                8,
+                1
             ]
         },
         {
@@ -71,6 +81,16 @@
             ]
         },
         {
+            "type": "file",
+            "name": "Unit 2 text.docx",
+            "path": "C:\\Users\\User\\Desktop\\Unit 2 text.docx",
+            "icon": "default",
+            "position": [
+                8,
+                3
+            ]
+        },
+        {
             "type": "folder_shortcut",
             "name": "Видео.lnk",
             "path": "C:\\Users\\User\\Desktop\\Видео.lnk",
@@ -106,8 +126,8 @@
             "path": "C:\\Users\\User\\Desktop\\МПІ3.docx",
             "icon": "default",
             "position": [
-                0,
-                0
+                7,
+                3
             ]
         },
         {
@@ -118,6 +138,16 @@
             "position": [
                 22,
                 1
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "теми",
+            "path": "C:\\Users\\User\\Desktop\\теми",
+            "icon": "default",
+            "position": [
+                6,
+                3
             ]
         },
         {

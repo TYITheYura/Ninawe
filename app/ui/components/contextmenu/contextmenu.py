@@ -15,6 +15,7 @@ class ContextMenu(QMenu):
         self.customPath = customPath
 
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.setWindowFlags(
             self.windowFlags() |
             Qt.WindowType.FramelessWindowHint |

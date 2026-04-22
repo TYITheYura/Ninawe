@@ -1,12 +1,13 @@
 import os
 from PyQt6.QtWidgets import QApplication, QFileIconProvider
 from PyQt6.QtCore import Qt, QFileInfo, QMimeData, QUrl
-from core.utils import MakeLog, FO_MOVE, FOF_ALLOWUNDO, FO_DELETE, WSHELL
+from core.utils import MakeLog, FO_MOVE, FOF_ALLOWUNDO, FO_DELETE, WSHELL, GetRealTargetPath
 from ui.components import ContextMenu
 from ui.desktop.config import IConfig
-from core.workers import ThumbnailLoaderThread, FileOperationThread
+from core.workers import ThumbnailLoaderThread, FileOperationThread, StartFileThread
 from .base import BaseDesktopItem
 import subprocess
+from PyQt6.QtGui import QPixmap
 
 class FileItem(BaseDesktopItem):
     def __init__(self, filepath, itemType, desktop):
@@ -18,6 +19,10 @@ class FileItem(BaseDesktopItem):
         if self.itemType in ["folder", "folder_shortcut", "executable", "exe_shortcut"]:
             self.setAcceptDrops(True)
 
+        if self.itemType in ["folder", "folder_shortcut"]:
+            self.lastmTime = os.path.getmtime(self.filepath)
+            self.desktop.globalFolderUpdated.connect(self.ContentChanged)
+
         self.LoadNativeIcon()
         self.SetDisplayName(displayName)
 
@@ -27,7 +32,22 @@ class FileItem(BaseDesktopItem):
         self.thumbnailThread.finished.connect(self.thumbnailThread.deleteLater)
         self.thumbnailThread.start()
 
-    def ApplyThumbnail(self, pixmap):
+    def ContentChanged(self):
+        if getattr(self, 'isDying', False):
+            return
+
+        try:
+            currentmTime = os.path.getmtime(self.filepath)
+            if currentmTime != self.lastmTime:
+                from core.utils import MakeLog
+                MakeLog("[Log] [DesktopItem]", f"Changes in {self.filepath}")
+                self.lastmTime = currentmTime
+                self.ReloadThumbnail()
+        except Exception:
+            pass
+
+    def ApplyThumbnail(self, image):
+        pixmap = QPixmap.fromImage(image)
         scaledPixmap = pixmap.scaled(
             IConfig.bitmapSize, IConfig.bitmapSize,
             Qt.AspectRatioMode.KeepAspectRatio,
@@ -44,8 +64,8 @@ class FileItem(BaseDesktopItem):
                 target = shortcut.Targetpath
                 if target and os.path.exists(target):
                     actualIconPath = target
-            except Exception as exc:
-                MakeLog(f"[Log] [DesktopItem]", f"Failed to resolve shortcut {self.filepath}: {exc}")
+            except Exception as e:
+                MakeLog("[Log] [DesktopItem]", f"Failed to resolve shortcut {self.filepath}: {e}")
 
         provider = QFileIconProvider()
         fileInfo = QFileInfo(actualIconPath)
@@ -66,7 +86,9 @@ class FileItem(BaseDesktopItem):
         self.thumbnailThread.start()
 
     def ExecuteDoubleClick(self):
-        os.startfile(self.filepath)
+        self.startThread = StartFileThread(self.filepath)
+        self.startThread.finishedSignal.connect(self.startThread.deleteLater)
+        self.startThread.start()
 
     def AddExternalMimeData(self, mimeData):
         urls = [QUrl.fromLocalFile(self.filepath)]
@@ -100,13 +122,12 @@ class FileItem(BaseDesktopItem):
             return
 
         filepaths = [url.toLocalFile() for url in urls]
-        targetPath = self.desktop.GetRealTargetPath(self.filepath)
+        targetPath = GetRealTargetPath(self.filepath)
 
         if self.itemType in ["folder", "folder_shortcut"]:
             winHandle = int(self.desktop.winId()) if self.desktop else 0
             operationThread = FileOperationThread(winHandle, FO_MOVE, filepaths, targetPath, 0, self.desktop)
             operationThread.finished.connect(operationThread.deleteLater)
-            operationThread.finished.connect(self.ReloadThumbnail)
             operationThread.start()
         elif self.itemType in ["executable", "exe_shortcut"]:
             for path in filepaths:
@@ -144,11 +165,15 @@ class FileItem(BaseDesktopItem):
             if filepaths:
                 winHandle = int(self.desktop.winId())
 
+                for item in itemsToDelete:
+                    item.Cleanup()
+
                 operationThread = FileOperationThread(winHandle, FO_DELETE, filepaths, None, FOF_ALLOWUNDO, self.desktop)
                 operationThread.finishedSignal.connect(self.desktop.UpdateRecycleBinIcon)
                 operationThread.finished.connect(operationThread.deleteLater)
 
                 operationThread.start()
+
                 MakeLog("[Log] [DesktopItem]", f"Started async delete for {len(filepaths)} items")
 
             self.desktop.ClearSelection()
@@ -183,7 +208,7 @@ class FileItem(BaseDesktopItem):
 
             mimeData.setUrls(urls)
 
-            # x02 - cut, x05 - copy
+            # x02 (0x2) - cut, x05 (0x5) - copy
             dropEffect = b'\x02\x00\x00\x00' if command == "cut" else b'\x05\x00\x00\x00'
             mimeData.setData("Preferred DropEffect", dropEffect)
 
@@ -191,3 +216,11 @@ class FileItem(BaseDesktopItem):
             MakeLog("[Log] [DesktopItem]", f"Items {command}ed to clipboard")
         elif command == "rename":
             self.StartRename()
+
+    def Cleanup(self):
+        self.isDying = True
+        if self.itemType in ["folder", "folder_shortcut"]:
+            try:
+                self.desktop.globalFolderUpdated.disconnect(self.ContentChanged)
+            except TypeError:
+                pass

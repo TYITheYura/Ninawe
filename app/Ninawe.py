@@ -2,10 +2,11 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#                Version: Medium v1.1
+#              Version: Medium Well v0.1
 # And remember guys: Ninawe is not a windows explorer
 
 import os
+import subprocess
 import ctypes
 import sys
 
@@ -26,6 +27,8 @@ from ui.desktop import DesktopWindow
 from ui.taskbar import Taskbar
 from ui.powermenu import PowerMenu
 from ui.launchpad import Launchpad
+from core.utils import SetGlobalAnimations, SetWorkArea, SetShellWindow, MakeLog
+from core.workers import SystemWindowManager, ExplorerGlobalWatcher
 
 class NinaweShell:
     def __init__(self):
@@ -42,6 +45,27 @@ class NinaweShell:
     ---:::+++#####+++:::---
 ''')
 
+        os.system("taskkill /f /im explorer.exe")
+
+        # Admin pipe for commands, that working only with admin previlegies
+        adminPipeWorkerPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "core", "workers", "adminpipeworker.py"))
+        subprocess.Popen([sys.executable, adminPipeWorkerPath])
+
+        screen = QApplication.primaryScreen().geometry()
+
+        # Recalculating the available area on the screen
+        SetWorkArea(screen.width(), screen.height())
+
+        # Enabling minimize/maximize animations
+        SetGlobalAnimations(True)
+
+        # Window hook
+        app.windowManager = SystemWindowManager()
+        app.windowManager.start()
+
+        # Explorer watcher
+        self.globalWatcher = ExplorerGlobalWatcher()
+
         # What a great manager, I'm proud of him ngl
         self.hotkeyManager = HotkeyManager()
 
@@ -51,9 +75,12 @@ class NinaweShell:
         self.powerMenu = PowerMenu()
         self.launchpad = Launchpad()
 
+        # Set desktop as a shell window
+        SetShellWindow(self.desktop.winId())
+
     def Start(self):
 
-        print("[Log] [Starter] | Trying so hard to start something...")
+        MakeLog("[Log] [Starter]", "We are moving into space...")
 
         self.desktop.show()
         self.taskbar.show()

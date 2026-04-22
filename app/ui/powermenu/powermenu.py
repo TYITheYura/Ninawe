@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget, QBoxLayout, QPushButton, QApplication, QFra
 from PyQt6.QtCore import Qt, QSize, QFileSystemWatcher, QRectF
 from PyQt6.QtGui import QColor, QIcon, QPainter, QBrush
 from core.config import config as configurator
-from core.utils import MakeBlur, MakeLog
+from core.utils import MakeBlur, MakeLog, InternalWindowFader
 from .config import PMConfig
 import subprocess
 import json
@@ -47,6 +47,9 @@ class PowerMenu(QWidget):
         if os.path.exists(PMConfig.userPreferencesPath):
             self.powerMenuUserPropertiesWatcher.addPath(PMConfig.userPreferencesPath)
             self.powerMenuUserPropertiesWatcher.fileChanged.connect(self.LoadUserPreferences)
+
+        # Window fader
+        self.internalWindowFader = InternalWindowFader(self)
 
         self.LoadUserPreferences()
 
@@ -266,31 +269,30 @@ class PowerMenu(QWidget):
             MakeBlur(self.winId(), False)
 
         # Draw powermenu
-        super().showEvent(event)
+        self.internalWindowFader.FadeIn()
         self.activateWindow()
         self.setFocus()
 
     # Closing with ESC
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
-            self.close()
+            self.internalWindowFader.FadeOut(self.close)
 
     def mousePressEvent(self, event):
         # Working only when background not transperent sadly.
         if self.childAt(event.pos()) is None:
-            self.close()
+            self.internalWindowFader.FadeOut(self.close)
 
     def RunCommand(self, type, action):
         # Build-in commands
         if type == "integrated":
             if action == "close":
-                self.close()
+                pass
 
         # Console commands
         elif type == "console":
             try:
                 os.system(action)
-                self.close()
             except Exception as e:
                 MakeLog(f"[Log] [PowerMenu] [RunCommand] | CMD failed: {e}")
 
@@ -298,6 +300,7 @@ class PowerMenu(QWidget):
         elif type == "program":
             try:
                 subprocess.Popen(action, shell=True)
-                self.close()
             except Exception as e:
                 MakeLog(f"[Log] [PowerMenu] [RunCommand] | Exec failed: {e}")
+
+        self.internalWindowFader.FadeOut(self.close)

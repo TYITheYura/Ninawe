@@ -8,6 +8,7 @@ from ui.components import ContextMenu
 from PyQt6.QtGui import QDrag
 from PyQt6.QtCore import QMimeData
 from .config import IConfig
+from PyQt6.QtGui import QPixmap
 
 class LaunchpadItem(QWidget):
     def __init__(self, parent, name, path, iconPath = None):
@@ -75,7 +76,8 @@ class LaunchpadItem(QWidget):
         self.thumbnailThread.finished.connect(self.thumbnailThread.deleteLater)
         self.thumbnailThread.start()
 
-    def ApplyThumbnail(self, pixmap):
+    def ApplyThumbnail(self, image):
+        pixmap = QPixmap.fromImage(image)
         scaledPixmap = pixmap.scaled(
             IConfig.iconSize, IConfig.iconSize,
             Qt.AspectRatioMode.KeepAspectRatio,

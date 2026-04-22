@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QPainter
-from core.utils import MakeBlur, WSHELL
+from core.utils import MakeBlur, WSHELL, InternalWindowFader
 from ui.components import PowerButton
 from .item import LaunchpadItem
 from .config import LConfig
@@ -15,9 +15,12 @@ from core.managers import LaunchpadStateManager, shellSignals
 class Launchpad(QWidget):
     def __init__(self):
         super().__init__()
-        LConfig.configUpdated.connect(self.UpdateStyles)
         self.manager = LaunchpadStateManager(LConfig.launchpadInfoFile)
+        self.internalWindowFader = InternalWindowFader(self)
+
+        LConfig.configUpdated.connect(self.UpdateStyles)
         shellSignals.toggleLaunchpad.connect(self.ToggleLaunchpad)
+
         self.Init()
         self.LoadApps()
         self.ApplyGeometry()
@@ -118,29 +121,32 @@ class Launchpad(QWidget):
         self.ApplyGeometry()
 
     def showEvent(self, event):
+        self.searchBar.clear()
+        self.scrollArea.verticalScrollBar().setValue(0)
         if LConfig.blurEnabled:
             MakeBlur(self.winId(), True, LConfig.blurMode, LConfig.fullscreenColor)
         else:
             MakeBlur(self.winId(), False)
 
-        super().showEvent(event)
+        self.internalWindowFader.FadeIn()
         self.activateWindow()
         self.raise_()
+        self.setFocus()
         self.searchBar.setFocus()
         self.BuildVisualGrid()
 
     def ToggleLaunchpad(self):
         if self.isVisible():
-            self.close()
+            self.internalWindowFader.FadeOut(self.close)
         else:
-            self.show()
+            self.internalWindowFader.FadeIn()
 
     def paintEvent(self, event):
         if LConfig.isFullscreen:
             painter = QPainter(self)
+            painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(QColor(LConfig.fullscreenColor))
             painter.drawRect(self.rect())
-            painter.setPen(Qt.PenStyle.NoPen)
 
     def BuildVisualGrid(self):
         self.visualGrid = []
@@ -411,7 +417,7 @@ class Launchpad(QWidget):
             if item.isVisible():
                 self.close()
                 try:
-                    os.startfile(self.path)
+                    os.startfile(item.path)
                 except OSError:
                     pass
 
@@ -427,7 +433,7 @@ class Launchpad(QWidget):
 
     def mousePressEvent(self, event):
         if not self.container.geometry().contains(event.pos()):
-            self.close()
+            self.internalWindowFader.FadeOut(self.close)
         else:
             self.setFocus()
         super().mousePressEvent(event)
@@ -435,7 +441,7 @@ class Launchpad(QWidget):
     def changeEvent(self, event):
         if event.type() == event.Type.ActivationChange:
             if not self.isActiveWindow():
-                self.close()
+                self.internalWindowFader.FadeOut(self.close)
         super().changeEvent(event)
 
     def keyPressEvent(self, event):
@@ -449,7 +455,7 @@ class Launchpad(QWidget):
             self.searchBar.setFocus()
 
         elif event.key() == Qt.Key.Key_Escape:
-            self.close()
+            self.internalWindowFader.FadeOut(self.close)
 
         else:
             super().keyPressEvent(event)

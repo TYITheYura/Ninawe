@@ -1,4 +1,5 @@
 from PyQt6.QtGui import QFontDatabase
+from . import MakeLog
 import os
 
 def LoadFont(fontFromConfig, path=""):
@@ -15,7 +16,19 @@ def LoadFont(fontFromConfig, path=""):
                 if families:
                     return families[0]
             else:
-                print(f"[Log] [FontLoader] Could not load font from file: {fontFullPath}")
+                MakeLog("[Log] [FontLoader]", f"Could not load font from file: {fontFullPath}")
         else:
-            print(f"[Log] [FontLoader] Font file not found: {fontFullPath}")
+            MakeLog("[Log] [FontLoader]", f"Font file not found: {fontFullPath}")
     return fontStr
+
+def GetRealTargetPath(filepath):
+    if filepath.lower().endswith('.lnk'):
+        try:
+            from . import WSHELL
+            shortcut = WSHELL.CreateShortCut(filepath)
+            target = shortcut.Targetpath
+            if target and os.path.exists(target):
+                return target
+        except Exception as e:
+            MakeLog("[Log] [GetRealTargetPath]", f"Failed to resolve shortcut {filepath}: {e}")
+    return filepath
