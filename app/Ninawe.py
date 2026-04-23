@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#              Version: Medium Well v0.1
+#              Version: Medium Well v0.2
 # And remember guys: Ninawe is not a windows explorer
 
 import os
@@ -33,7 +33,7 @@ from core.workers import SystemWindowManager, ExplorerGlobalWatcher
 class NinaweShell:
     def __init__(self):
 
-        print('''
+        MakeLog('''
                                                                                              ---:::+++#####+++:::---
                       ::: :: :  ::::    ::: ::::::::::: ::::    :::     :::     :::       ::: ::::::::::
                      :+: :: :  :+:+:   :+:     :+:     :+:+:   :+:   :+: :+:   :+:       :+: :+:

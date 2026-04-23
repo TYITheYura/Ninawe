@@ -2,6 +2,7 @@ import win32gui
 import win32process
 import ctypes
 import ctypes.wintypes as wintypes
+import win32con
 
 def GetWindowGroupKey(hwnd):
     #
@@ -26,7 +27,7 @@ def GetWindowGroupKey(hwnd):
             _, pid = win32process.GetWindowThreadProcessId(hwnd)
 
         # Path to .exe via PID
-        handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+        handle = ctypes.windll.kernel32.OpenProcess(win32con.PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
         if handle:
             buffer = ctypes.create_unicode_buffer(260)
             size = wintypes.DWORD(260)

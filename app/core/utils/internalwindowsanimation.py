@@ -5,7 +5,7 @@ class InternalWindowFader(QObject):
     #   A universal transparency controller for any in-program window.
     #   Creates beautiful fade-in and fade-out effects.
     #
-    def __init__(self, targetWidget, durationIn = 250, durationOut = 150):
+    def __init__(self, targetWidget, durationIn = 250, durationOut = 250):
         super().__init__(targetWidget)
 
         self.target = targetWidget

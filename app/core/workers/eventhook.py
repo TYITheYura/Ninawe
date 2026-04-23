@@ -1,18 +1,10 @@
 import ctypes
 import ctypes.wintypes
+import win32con
 from PyQt6.QtCore import QThread, pyqtSignal, QTimer
 
 user32 = ctypes.windll.user32
 ole32 = ctypes.windll.ole32
-
-EVENT_OBJECT_CREATE = 0x8000
-EVENT_OBJECT_DESTROY = 0x8001
-EVENT_SYSTEM_MINIMIZESTART = 0x0016
-EVENT_SYSTEM_MINIMIZEEND = 0x0017
-EVENT_SYSTEM_FOREGROUND = 0x0003
-EVENT_OBJECT_NAMECHANGE = 0x800C
-OBJID_WINDOW = 0
-CHILDID_SELF = 0
 
 WinEventProcType = ctypes.WINFUNCTYPE(
     None,
@@ -45,15 +37,14 @@ class SystemWindowManager(QThread):
         self.stateTimer.setSingleShot(True)
         self.stateTimer.timeout.connect(self.windowsStateChanged.emit)
 
-        flags = 0   # WINEVENT_OUTOFCONTEXT
-        events_to_hook = [
-            EVENT_OBJECT_CREATE, EVENT_OBJECT_DESTROY,
-            EVENT_SYSTEM_MINIMIZESTART, EVENT_SYSTEM_MINIMIZEEND,
-            EVENT_SYSTEM_FOREGROUND, EVENT_OBJECT_NAMECHANGE
+        eventsToHook = [
+            win32con.EVENT_OBJECT_CREATE, win32con.EVENT_OBJECT_DESTROY,
+            win32con.EVENT_SYSTEM_MINIMIZESTART, win32con.EVENT_SYSTEM_MINIMIZEEND,
+            win32con.EVENT_SYSTEM_FOREGROUND, win32con.EVENT_OBJECT_NAMECHANGE
         ]
 
-        for event in events_to_hook:
-            hook = user32.SetWinEventHook(event, event, 0, self.callback, 0, 0, flags)
+        for event in eventsToHook:
+            hook = user32.SetWinEventHook(event, event, 0, self.callback, 0, 0, win32con.WINEVENT_OUTOFCONTEXT)
             self.hooks.append(hook)
 
         self.exec()
@@ -63,8 +54,8 @@ class SystemWindowManager(QThread):
         ole32.CoUninitialize()
 
     def EventCallback(self, hWinEventHook, event, hwnd, idObject, idChild, dwEventThread, dwmsEventTime):
-        if idObject == OBJID_WINDOW and idChild == CHILDID_SELF:
-            if event in [EVENT_OBJECT_CREATE, EVENT_OBJECT_DESTROY]:
+        if idObject == win32con.OBJID_WINDOW and idChild == win32con.CHILDID_SELF:
+            if event in [win32con.EVENT_OBJECT_CREATE, win32con.EVENT_OBJECT_DESTROY]:
                 self.structureEventCount += 1
 
                 if self.structureEventCount > 25:
@@ -73,7 +64,7 @@ class SystemWindowManager(QThread):
                 else:
                     self.structureTimer.start(15)
 
-            elif event in [EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_MINIMIZESTART, EVENT_SYSTEM_MINIMIZEEND, EVENT_OBJECT_NAMECHANGE]:
+            elif event in [win32con.EVENT_SYSTEM_FOREGROUND, win32con.EVENT_SYSTEM_MINIMIZESTART, win32con.EVENT_SYSTEM_MINIMIZEEND, win32con.EVENT_OBJECT_NAMECHANGE]:
                 self.stateTimer.start(10)
 
     def OnStructureTimeout(self):

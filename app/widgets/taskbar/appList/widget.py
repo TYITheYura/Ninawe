@@ -176,10 +176,7 @@ class Widget(QWidget):
 
                 isMinimized = win32gui.IsIconic(firstHWND)
 
-                if isMinimized:
-                    PickWindowOpacity(firstHWND, True)
-                else:
-                    PickWindowOpacity(firstHWND, False)
+                PickWindowOpacity(firstHWND, isMinimized)
 
                 isGroup = len(windowsList) > 1
                 isActive = any(w["hwnd"] == fgHWND for w in windowsList) and not isMinimized
@@ -312,25 +309,26 @@ class Widget(QWidget):
 
             if isOpen:
                 windowsList = self.currentGroups[groupKey]
-                firstHWND = windowsList[0]["hwnd"]
-
-                isMinimized = win32gui.IsIconic(firstHWND)
-
-                # Buggy shit that shouldn't even be here, but it works.
-                if isMinimized:
-                    PickWindowOpacity(firstHWND, True)
-                else:
-                    PickWindowOpacity(firstHWND, False)
-
                 isGroup = len(windowsList) > 1
+
+                allMinimized = True
+                for w in windowsList:
+                    hwnd = w["hwnd"]
+                    minimized = win32gui.IsIconic(hwnd)
+                    PickWindowOpacity(hwnd, minimized)
+                    if not minimized:
+                        allMinimized = False
+
+                isMinimized = allMinimized
 
                 fgHWND = win32gui.GetForegroundWindow()
                 isActive = any(w["hwnd"] == fgHWND for w in windowsList) and not isMinimized
 
+                firstHWND = windowsList[0]["hwnd"]
                 freshPixmap = GetWindowIcon(firstHWND)
+
                 if IsPixmapEmpty(freshPixmap):
                     freshPixmap = GetIconFromFile(groupKey)
-
                 if freshPixmap:
                     freshHash = self.GetPixmapHash(freshPixmap)
                     if self.iconHashes.get(groupKey) != freshHash:
@@ -377,8 +375,8 @@ class Widget(QWidget):
 
         if isOpen:
             menu.addSeparator()
-            close_action = menu.addAction(configurator.lang.Translate("ContextMenu", "close", fallback = "Close"))
-            close_action.setData("close")
+            closeAction = menu.addAction(configurator.lang.Translate("ContextMenu", "close", fallback = "Close"))
+            closeAction.setData("close")
 
         menu.commandClicked.connect(lambda cmd: self.HandleMenuCommand(cmd, button.groupKey))
 

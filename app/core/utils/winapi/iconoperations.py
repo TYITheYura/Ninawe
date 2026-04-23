@@ -151,7 +151,7 @@ def GetWindowIcon(hwnd):
                     pixmap = HiconToPixmap(shfi.hIcon)
                     win32gui.DestroyIcon(shfi.hIcon)
 
-                    if pixmap and not IsPixmapEmpty(pixmap): 
+                    if pixmap and not IsPixmapEmpty(pixmap):
                         ctypes.windll.kernel32.CloseHandle(handle)
                         return pixmap
 

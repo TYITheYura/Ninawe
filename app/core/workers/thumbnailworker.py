@@ -5,6 +5,7 @@ from PyQt6.QtGui import QImage
 import os
 from PyQt6.QtCore import QThread, pyqtSignal, QSemaphore
 from core.utils.logger import MakeLog
+from core.utils import SIIGBF_RESIZETOFIT
 
 # queue (куеуе)))
 GLOBAL_THUMBNAIL_SEMAPHORE = QSemaphore(1)
@@ -73,9 +74,8 @@ def GetWindowsThumbnail(filepath, size = 256):
         )(vtable[0][2])
 
         sizeStruct = SIZE(size, size)
-        flags = 0x00
 
-        res = GetImage(pFactory, sizeStruct, flags, ctypes.byref(hbitmap))
+        res = GetImage(pFactory, sizeStruct, SIIGBF_RESIZETOFIT, ctypes.byref(hbitmap))
         Release(pFactory)
 
         if res != 0 or not hbitmap:

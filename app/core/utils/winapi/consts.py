@@ -1,5 +1,3 @@
-import win32con
-
 # PrintWindow
 
 PW_RENDERFULLCONTENT = 2
@@ -23,6 +21,7 @@ FOF_ALLOWUNDO = 0x0040
 FOF_NOCONFIRMATION = 0x0010
 
 # Shell get file info
+
 SHGFI_ICON = 0x100
 SHGFI_LARGEICON = 0x0
 
@@ -34,3 +33,16 @@ SHCNRF_ShellLevel = 0x0002
 SHCNE_ALLEVENTS = 0x7FFFFFFF
 WM_SHELL_NOTIFY = 0x0400 + 42
 SHCNRF_NewDelivery = 0x8000
+
+ERROR_ALREADY_EXISTS = 183
+SIIGBF_RESIZETOFIT = 0x0
+
+
+# ! FOCUS !
+#   🗝 🗝
+#   🗝 🗝
+#   🗝 🗝
+#   🗝 🗝
+
+LSFW_LOCK = 1
+LSFW_UNLOCK = 2

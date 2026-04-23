@@ -5,14 +5,14 @@ from .. import MakeLogExtra
 
 def PickWindowOpacityMain(hwnd, setZeroAlpha):
     #
-    #   Makes window transparent (1) or remove transperent (100), depending on the given setZeroAlpha.
+    #   Makes window transparent and CLICK-THROUGH (1) or restores it.
     #   Returns True if state was changed, False otherwise.
     #
     exStyle = win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE)
 
     if setZeroAlpha:
-        if not (exStyle & win32con.WS_EX_LAYERED):
-            win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, exStyle | win32con.WS_EX_LAYERED)
+        newStyle = exStyle | win32con.WS_EX_LAYERED | win32con.WS_EX_TRANSPARENT
+        win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, newStyle)
 
         ctypes.windll.user32.SetLayeredWindowAttributes(hwnd, 0, 1, win32con.LWA_ALPHA)
 
@@ -25,7 +25,7 @@ def PickWindowOpacityMain(hwnd, setZeroAlpha):
 
     else:
         if exStyle & win32con.WS_EX_LAYERED:
-            newStyle = exStyle & ~win32con.WS_EX_LAYERED
+            newStyle = exStyle & ~win32con.WS_EX_LAYERED & ~win32con.WS_EX_TRANSPARENT
             win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE, newStyle)
 
             win32gui.SetWindowPos(
@@ -44,9 +44,4 @@ def PickWindowOpacity(hwnd, setZeroAlpha):
         return PickWindowOpacityMain(hwnd, setZeroAlpha)
     except Exception:
         from core.workers import CallInPipe
-        try:
-            CallInPipe("winapi", "PickWindowOpacityMain", hwnd, setZeroAlpha)
-            return True
-        except Exception as e:
-            MakeLogExtra("[Log] [PickWindowOpacityPipe]", f"Error: {e}")
-            return False
+        CallInPipe("winapi", "PickWindowOpacityMain", hwnd, setZeroAlpha)

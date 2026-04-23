@@ -16,7 +16,7 @@ appRootDir = os.path.dirname(os.path.dirname(currentDir))
 if appRootDir not in sys.path:
     sys.path.insert(0, appRootDir)
 
-from core.utils import MakeLog
+from core.utils import MakeLog, ERROR_ALREADY_EXISTS
 import core.utils.winapi as shellWinapiModule
 
 ALLOWED_MODULES = {
@@ -133,7 +133,7 @@ def CallInPipe(moduleName, functionName, *args):
 def StartPipe():
     MakeLog("[Log] [AdminPipe]", "Starting admin daemon...")
     iHateGarbageCollectorSoThereIsMutexVariable = ctypes.windll.kernel32.CreateMutexW(None, False, "NinaweAdminMutex")
-    if ctypes.windll.kernel32.GetLastError() == 183:  # 183 "already exists"
+    if ctypes.windll.kernel32.GetLastError() == ERROR_ALREADY_EXISTS:
         MakeLog("[Log] [AdminPipe]", "Daemon is already running.")
         sys.exit()
 

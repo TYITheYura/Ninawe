@@ -1,6 +1,16 @@
 {
     "desktop": [
         {
+            "type": "file",
+            "name": "123123123.png",
+            "path": "C:\\Users\\User\\Desktop\\123123123.png",
+            "icon": "default",
+            "position": [
+                0,
+                1
+            ]
+        },
+        {
             "type": "folder",
             "name": "anything but work",
             "path": "C:\\Users\\User\\Desktop\\anything but work",
@@ -31,13 +41,13 @@
             ]
         },
         {
-            "type": "folder",
-            "name": "New folder (2)",
-            "path": "C:\\Users\\User\\Desktop\\New folder (2)",
+            "type": "file",
+            "name": "New text document.txt",
+            "path": "C:\\Users\\User\\Desktop\\New text document.txt",
             "icon": "default",
             "position": [
-                8,
-                1
+                7,
+                4
             ]
         },
         {
@@ -48,6 +58,16 @@
             "position": [
                 17,
                 3
+            ]
+        },
+        {
+            "type": "file",
+            "name": "PLASTIC ガール.mp3",
+            "path": "C:\\Users\\User\\Desktop\\PLASTIC ガール.mp3",
+            "icon": "default",
+            "position": [
+                1,
+                6
             ]
         },
         {
@@ -88,6 +108,16 @@
             "position": [
                 8,
                 3
+            ]
+        },
+        {
+            "type": "file",
+            "name": "UNIT_1_Brych_Yurii.docx",
+            "path": "C:\\Users\\User\\Desktop\\UNIT_1_Brych_Yurii.docx",
+            "icon": "default",
+            "position": [
+                0,
+                0
             ]
         },
         {

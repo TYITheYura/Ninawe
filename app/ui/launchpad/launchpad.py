@@ -123,17 +123,20 @@ class Launchpad(QWidget):
     def showEvent(self, event):
         self.searchBar.clear()
         self.scrollArea.verticalScrollBar().setValue(0)
+
+        self.BuildVisualGrid()
+
         if LConfig.blurEnabled:
             MakeBlur(self.winId(), True, LConfig.blurMode, LConfig.fullscreenColor)
         else:
             MakeBlur(self.winId(), False)
 
         self.internalWindowFader.FadeIn()
-        self.activateWindow()
+
+        self.showNormal()
         self.raise_()
-        self.setFocus()
+        self.activateWindow()
         self.searchBar.setFocus()
-        self.BuildVisualGrid()
 
     def ToggleLaunchpad(self):
         if self.isVisible():
