@@ -46,6 +46,20 @@ class ConfigWrapper:
         except:
             return fallback
 
+    def GetList(self, section, option, fallback = []):
+        try:
+            rawData = self.parser.get(section, option)
+            return [line.strip() for line in rawData.split('\n') if line.strip()]
+        except:
+            return fallback
+
+    def GetPathList(self, section, option, fallback = []):
+        try:
+            lines = self.GetList(section, option, fallback = fallback)
+            return [os.path.expandvars(line) for line in lines]
+        except:
+            return fallback
+
     def GetSectionStatus(self, section):
         return self.parser.has_section(section)
 

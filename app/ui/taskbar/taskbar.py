@@ -26,23 +26,22 @@ class Taskbar(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
 
-
     def closeEvent(self, event):
         event.ignore()
 
     def UpdateStyles(self, source, changedSections = None):
         # Reloading widgets if full update
+        self.setGeometry(TBConfig.panelX, TBConfig.panelY, TBConfig.panelWidth, TBConfig.panelHeight)
+
+        # Flag for blur redrawing
+        TBConfig.themeUpdatedState = True
+
         if "ALL" in changedSections:
             self.widgetsManager.LoadWidgets()
 
         # Updating widget styles
         if self.widgetsManager.widgets:
             self.widgetsManager.ReloadStyles(changedSections)
-
-        self.setGeometry(TBConfig.panelX, TBConfig.panelY, TBConfig.panelWidth, TBConfig.panelHeight)
-
-        # Flag for blur redrawing
-        TBConfig.themeUpdatedState = True
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -76,6 +75,3 @@ class Taskbar(QWidget):
         # Drawing background & border
         painter.setBrush(QBrush(TBConfig.qtBgColor))
         painter.drawRoundedRect(drawRect, TBConfig.radius, TBConfig.radius)
-
-    def closeEvent(self, event):
-        event.ignore()

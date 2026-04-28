@@ -8,6 +8,8 @@ from core.utils import (
 from core.config import config as configurator
 from ui.components import ContextMenu
 from .config import WConfig
+from ui.taskbar import TBConfig
+from core.workers import CallInPipe
 from .manager import Manager
 from .expose import AppExposeWidget
 from .button import TaskbarButton
@@ -56,7 +58,7 @@ class Widget(QWidget):
             return
 
         self.layout.setSpacing(WConfig.spacing)
-        self.setFixedHeight(WConfig.panelHeight)
+        self.setFixedHeight(TBConfig.panelHeight)
 
         for iconButton in self.buttons.values():
             iconButton.setFixedSize(WConfig.iconSize + WConfig.paddings, WConfig.iconSize + WConfig.paddings)
@@ -66,8 +68,8 @@ class Widget(QWidget):
 
     def UpdateGeometry(self):
         self.adjustSize()
-        positionX = round(WConfig.panelWidth * (WConfig.position / 100) - (self.width() / 2))
-        self.setGeometry(positionX, 0, self.width(), WConfig.panelHeight)
+        positionX = round(TBConfig.panelWidth * (WConfig.position / 100) - (self.width() / 2))
+        self.setGeometry(positionX, 0, self.width(), TBConfig.panelHeight)
 
     def SyncDataModel(self):
         self.currentGroups = GetOpenWindows()
@@ -396,4 +398,7 @@ class Widget(QWidget):
         elif command == "close":
             windowsList = self.currentGroups.get(groupKey, [])
             for w in windowsList:
-                win32gui.PostMessage(w["hwnd"], win32con.WM_CLOSE, 0, 0)
+                try:
+                    win32gui.PostMessage(w["hwnd"], win32con.WM_CLOSE, 0, 0)
+                except:
+                    CallInPipe("win32gui", "PostMessage", w["hwnd"], win32con.WM_CLOSE, 0, 0)

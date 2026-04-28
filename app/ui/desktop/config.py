@@ -2,7 +2,9 @@ import os
 from core.config import config as configurator
 from core.config import ConfigUpdateChecker
 from core.utils import LoadFont
+from ui.taskbar import TBConfig
 from easydict import EasyDict as easyDict
+from PyQt6.QtWidgets import QApplication
 
 class IconConfig(ConfigUpdateChecker):
     def __init__(self):
@@ -106,6 +108,9 @@ class IconConfig(ConfigUpdateChecker):
 class DesktopConfig(ConfigUpdateChecker):
     def __init__(self):
         self.section = "Desktop"
+
+        super().__init__([self.section])
+
         self.desktopInfoFile = configurator.theme.GetPath("userdata\\preferences\\user\\desktopdata.json")
         self.desktopPath = os.path.normpath(os.path.expanduser("~/Desktop"))
         self.wallpaperList = []
@@ -122,7 +127,6 @@ class DesktopConfig(ConfigUpdateChecker):
         self.groupSelectionBorderWidth = 0
         self.selectionStyleSheet = ""
 
-        super().__init__([self.section])
         self.Updater()
 
     def Updater(self):
@@ -145,6 +149,45 @@ class DesktopConfig(ConfigUpdateChecker):
             border-radius: {self.groupSelectionBorderRadius}px;
         """
 
+class WorkAreaConfig(ConfigUpdateChecker):
+    def __init__(self):
+        self.section = "Desktop.System"
 
+        super().__init__([self.section])
+
+        self.workArea = easyDict(
+            {
+                "top": {},
+                "right": {},
+                "bottom": {},
+                "left": {}
+            }
+        )
+
+        self.taskbarMarginX = 0
+        self.taskbarMarginY = 0
+
+        self.sw = 0
+        self.sh = 0
+
+        self.Updater()
+
+    def Updater(self):
+        screen = QApplication.primaryScreen().geometry()
+        self.sw, self.sh = screen.width(), screen.height()
+
+        self.workArea.top = configurator.theme.GetInt(self.section, "work_area_padding_top", fallback = 0)
+        self.workArea.right = configurator.theme.GetInt(self.section, "work_area_padding_right", fallback = 0)
+        self.workArea.bottom = configurator.theme.GetInt(self.section, "work_area_padding_bottom", fallback = 0)
+        self.workArea.left = configurator.theme.GetInt(self.section, "work_area_padding_left", fallback = 0)
+
+        # Horizontal
+        self.taskbarMarginY = TBConfig.panelY + TBConfig.panelHeight
+
+        # Vertical
+        self.taskbarMarginX = TBConfig.panelX + TBConfig.panelWidth
+
+
+WAConfig = WorkAreaConfig()
 DConfig = DesktopConfig()
 IConfig = IconConfig()

@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QLabel
 from PyQt6.QtCore import Qt
 from core.managers import shellSignals
 from .config import WConfig
+from ui.taskbar import TBConfig
 
 class Widget(QLabel):
 	def __init__(self, parent = None):
@@ -25,10 +26,10 @@ class Widget(QLabel):
 
 		self.setStyleSheet("background-color: transparent;")
 
-		size = WConfig.panelHeight - (WConfig.padding * 2)
+		size = TBConfig.panelHeight - (WConfig.padding * 2)
 		self.setFixedSize(size, size)
 
-		positionX = round(WConfig.panelWidth * (WConfig.position / 100) - (size / 2))
+		positionX = round(TBConfig.panelWidth * (WConfig.position / 100) - (size / 2))
 
 		self.setGeometry(positionX, WConfig.padding, size, size)
 

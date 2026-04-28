@@ -36,13 +36,3 @@ SHCNRF_NewDelivery = 0x8000
 
 ERROR_ALREADY_EXISTS = 183
 SIIGBF_RESIZETOFIT = 0x0
-
-
-# ! FOCUS !
-#   🗝 🗝
-#   🗝 🗝
-#   🗝 🗝
-#   🗝 🗝
-
-LSFW_LOCK = 1
-LSFW_UNLOCK = 2

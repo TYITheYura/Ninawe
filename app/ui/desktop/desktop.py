@@ -14,6 +14,7 @@ from ui.components import ContextMenu, GridHintWidget
 from ui.powermenu import PowerMenu
 from .config import DConfig, IConfig
 from .items import SystemItem, FileItem, WidgetItem
+from core.config import config as configurator
 from core.utils import FO_COPY, FO_MOVE, FOF_NOCONFIRMATION, GetRealTargetPath
 from core.managers import GridManager, DesktopStateManager, WallpaperManager, WidgetManager
 from core.workers import FileOperationThread, DesktopWatcher
@@ -301,12 +302,6 @@ class DesktopWindow(QMainWindow):
     def closeEvent(self, event):
         event.ignore()
 
-        if not self.powerMenuWindow:
-            self.powerMenuWindow = PowerMenu()
-
-        if not self.powerMenuWindow.isVisible():
-            self.powerMenuWindow.show()
-
     # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Selection
 
     def ClearSelection(self):
@@ -487,9 +482,9 @@ class DesktopWindow(QMainWindow):
         if command == "refresh":
             self.ScanDesktop()
         elif command == "create_folder":
-            self.CreateDesktopItem("New folder", isFolder = True)
+            self.CreateDesktopItem(configurator.lang.Translate("DefaultItems", "new_folder", fallback = "New folder"), isFolder = True)
         elif command == "create_text":
-            self.CreateDesktopItem("New text document.txt")
+            self.CreateDesktopItem(configurator.lang.Translate("DefaultItems", "new_text_document", fallback = "New text document") + ".txt")
         elif command == "paste":
             self.PasteCommand()
         elif command.startswith("create:"):

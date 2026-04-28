@@ -1,16 +1,6 @@
 {
     "desktop": [
         {
-            "type": "file",
-            "name": "123123123.png",
-            "path": "C:\\Users\\User\\Desktop\\123123123.png",
-            "icon": "default",
-            "position": [
-                0,
-                1
-            ]
-        },
-        {
             "type": "folder",
             "name": "anything but work",
             "path": "C:\\Users\\User\\Desktop\\anything but work",
@@ -32,21 +22,11 @@
         },
         {
             "type": "file",
-            "name": "fixes.txt",
-            "path": "C:\\Users\\User\\Desktop\\fixes.txt",
-            "icon": "default",
-            "position": [
-                6,
-                4
-            ]
-        },
-        {
-            "type": "file",
             "name": "New text document.txt",
             "path": "C:\\Users\\User\\Desktop\\New text document.txt",
             "icon": "default",
             "position": [
-                7,
+                6,
                 4
             ]
         },
@@ -58,16 +38,6 @@
             "position": [
                 17,
                 3
-            ]
-        },
-        {
-            "type": "file",
-            "name": "PLASTIC ガール.mp3",
-            "path": "C:\\Users\\User\\Desktop\\PLASTIC ガール.mp3",
-            "icon": "default",
-            "position": [
-                1,
-                6
             ]
         },
         {
@@ -108,16 +78,6 @@
             "position": [
                 8,
                 3
-            ]
-        },
-        {
-            "type": "file",
-            "name": "UNIT_1_Brych_Yurii.docx",
-            "path": "C:\\Users\\User\\Desktop\\UNIT_1_Brych_Yurii.docx",
-            "icon": "default",
-            "position": [
-                0,
-                0
             ]
         },
         {
@@ -171,6 +131,16 @@
             ]
         },
         {
+            "type": "file",
+            "name": "Новый текстовый документ.txt",
+            "path": "C:\\Users\\User\\Desktop\\Новый текстовый документ.txt",
+            "icon": "default",
+            "position": [
+                7,
+                4
+            ]
+        },
+        {
             "type": "folder",
             "name": "теми",
             "path": "C:\\Users\\User\\Desktop\\теми",
@@ -182,7 +152,7 @@
         },
         {
             "type": "system_icon",
-            "name": "Этот компьютер",
+            "name": "computer",
             "path": "shell:::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
             "system_type": "computer",
             "position": [
@@ -192,7 +162,7 @@
         },
         {
             "type": "system_icon",
-            "name": "Корзина",
+            "name": "recycle_bin",
             "path": "shell:::{645FF040-5081-101B-9F08-00AA002F954E}",
             "system_type": "recycle_bin",
             "position": [

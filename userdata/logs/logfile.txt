@@ -6,18 +6,32 @@
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\themeconfig.ini
 [Log] [ConfigUpdateChecker] | Connected: ['PowerMenu']
+[Log] [ConfigUpdateChecker] | Connected: ['Taskbar']
+[Log] [ConfigUpdateChecker] | Connected: ['Desktop.System']
 [Log] [ConfigUpdateChecker] | Connected: ['Desktop']
 [Log] [ConfigUpdateChecker] | Connected: ['Desktop.Icon']
-[Log] [ConfigUpdateChecker] | Connected: ['Taskbar']
-[Log] [ConfigUpdateChecker] | Connected: ['Launchpad']
+[Log] [ConfigUpdateChecker] | Connected: ['Launchpad.Directories', 'Launchpad.IgnoreNames', 'Launchpad.RetranslateLayouts']
+[Log] [ConfigUpdateChecker] | Connected: ['Launchpad', 'Launchpad.Directories']
 [Log] [ConfigUpdateChecker] | Connected: ['Launchpad.Item']
-[Log] [AdminPipe] | Starting admin daemon...
-[Log] [SetWorkArea] | A new working area of 1030 pixels has been set
+
+                                                                                             ---:::+++#####+++:::---
+                      ::: :: :  ::::    ::: ::::::::::: ::::    :::     :::     :::       ::: ::::::::::
+                     :+: :: :  :+:+:   :+:     :+:     :+:+:   :+:   :+: :+:   :+:       :+: :+:
+                    :+: :+ :  :+:+:+  +:+     +:+     :+:+:+  +:+  +:+   +:+  +:+       +:+ +:+
+                   +#+ #+ +  +#+ +:+ +#+     +#+     +#+ +:+ +#+ +#++:++#++: +#+  +:+  +#+ +#++:++#
+                  +#+ +# +  +#+  +#+#+#     +#+     +#+  +#+#+# +#+     +#+ +#+ +#+#+ +#+ +#+
+                 #+# ## #  #+#   #+#+#     #+#     #+#   #+#+# #+#     #+#  #+#+# #+#+#  #+#
+                ### ## #  ###    #### ########### ###    #### ###     ###   ###   ###   ##########
+    ---:::+++#####+++:::---
+
+[Log] [SetWorkArea] | A new working area of 3790x2068 pixels has been set
 [Log] [WinAPI.SetWindowAnimations] | Minimizing animations is turned on
-[Log] [Hotkeys] | Registering global hotkeys...
-[Log] [WallpaperManager] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers (Mode: cover)
+[Log] [Hotkeys] | Initializing hotkeys...
+[Log] [Hotkeys] | Registered Solo key: ['windows', 'left windows', 'right windows']
 [Log] [AdminPipe] | Starting admin daemon...
-[Log] [AdminPipe] | Admin pipe started and waiting for tasks...
+[Log] [AdminPipe] | Daemon is already running.
+[Log] [Hotkeys] | Registered Combo: win+q
+[Log] [WallpaperManager] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers (Mode: cover)
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
 [SpectrumWidget] Started with GPU (OpenGL) Engine
@@ -30,11 +44,8 @@
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: appList
 [Log] [SetShellWindow] | Ninawe Desktop is registered in the system as a shell
 [Log] [Starter] | We are moving into space...
-[Log] [ExplorerGlobalWatcher] | Spying at C:\
-[Log] [ExplorerGlobalWatcher] | Changes in C:\
-[Log] [ExplorerGlobalWatcher] | Spying on C:\ is over
-[Log] [DesktopMenu] [ExecuteMenuCommand] | Executing command: refresh
-[Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
-[Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
-[SpectrumWidget] Started with GPU (OpenGL) Engine
-[SpectrumAudioThread] | Connected: Динамики / головные телефоны (Realtek Audio)
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Ninawe
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Poweramp Equalizer Mixer
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\Poweramp Equalizer Mixer is over
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\Ninawe is over
+[Log] [Taskbar] | Starting pinned app: c:\program files\mozilla firefox\firefox.exe

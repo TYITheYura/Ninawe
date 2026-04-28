@@ -32,9 +32,6 @@ class WidgetConfig(ConfigUpdateChecker):
         self.clockAlign = 50
         self.timeFormat = "HH:mm"
 
-        self.panelWidth = 0
-        self.panelHeight = 0
-
         self.buildInWidgetConfigWatcher = QFileSystemWatcher()
         if os.path.exists(self.configPath):
             self.buildInWidgetConfigWatcher.addPath(self.configPath)
@@ -65,9 +62,6 @@ class WidgetConfig(ConfigUpdateChecker):
         self.clockAlign = self.selectedConfig.GetInt(self.section, "align", fallback = 50)
 
         self.timeFormat = self.selectedConfig.Get(self.section, "time_format", fallback = "HH:mm").replace('\\n', '\n')
-
-        self.panelWidth = TBConfig.panelWidth
-        self.panelHeight = TBConfig.panelHeight
 
     def BuildInConfigFileChanged(self, path):
         MakeLog(f"[Log] [{self.section}]", f"Local config changed: {path}.")

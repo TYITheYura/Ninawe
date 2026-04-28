@@ -76,6 +76,18 @@ class LaunchpadItem(QWidget):
         self.thumbnailThread.finished.connect(self.thumbnailThread.deleteLater)
         self.thumbnailThread.start()
 
+    def deleteLater(self):
+        if self.thumbnailThread:
+            try:
+                self.thumbnailThread.loadedSignal.disconnect()
+                self.thumbnailThread.requestInterruption()
+                self.thumbnailThread.quit()
+                self.thumbnailThread.wait()
+            except Exception:
+                pass
+
+        super().deleteLater()
+
     def ApplyThumbnail(self, image):
         pixmap = QPixmap.fromImage(image)
         scaledPixmap = pixmap.scaled(

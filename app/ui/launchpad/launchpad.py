@@ -6,11 +6,12 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QPainter
-from core.utils import MakeBlur, WSHELL, InternalWindowFader
+from core.utils import MakeBlur, WSHELL, InternalWindowFader, SetFocus
 from ui.components import PowerButton
 from .item import LaunchpadItem
-from .config import LConfig
+from .config import LConfig, LAConfig
 from core.managers import LaunchpadStateManager, shellSignals
+from core.config import config as configurator
 
 class Launchpad(QWidget):
     def __init__(self):
@@ -19,7 +20,10 @@ class Launchpad(QWidget):
         self.internalWindowFader = InternalWindowFader(self)
 
         LConfig.configUpdated.connect(self.UpdateStyles)
+        LAConfig.configUpdated.connect(self.AppConfigChanged)
         shellSignals.toggleLaunchpad.connect(self.ToggleLaunchpad)
+
+        self.appWidgets = []
 
         self.Init()
         self.LoadApps()
@@ -49,7 +53,7 @@ class Launchpad(QWidget):
         containerLayout.setSpacing(20)
 
         self.searchBar = QLineEdit()
-        self.searchBar.setPlaceholderText("Search...")
+        self.searchBar.setPlaceholderText(configurator.lang.Translate("Launchpad", "search", fallback = "Search..."))
         self.searchBar.setFixedHeight(45)
         self.searchBar.setStyleSheet(LConfig.searchbarStyle)
         containerLayout.addWidget(self.searchBar)
@@ -69,14 +73,14 @@ class Launchpad(QWidget):
 
         labelStyle = "color: rgba(255, 255, 255, 150); font-size: 14px; font-weight: bold; margin-bottom: 5px;"
 
-        self.pinnedLabel = QLabel("Pinned")
+        self.pinnedLabel = QLabel(configurator.lang.Translate("Launchpad", "pinned", fallback = "Pinned"))
         self.pinnedLabel.setStyleSheet(labelStyle)
         self.pinnedGrid = QGridLayout()
         self.pinnedGrid.setSpacing(15)
         self.scrollLayout.addWidget(self.pinnedLabel)
         self.scrollLayout.addLayout(self.pinnedGrid)
 
-        self.allAppsLabel = QLabel("All Programs")
+        self.allAppsLabel = QLabel(configurator.lang.Translate("Launchpad", "all_programs", fallback = "All Programs"))
         self.allAppsLabel.setStyleSheet(labelStyle)
         self.allAppsGrid = QGridLayout()
         self.allAppsGrid.setSpacing(15)
@@ -120,6 +124,22 @@ class Launchpad(QWidget):
 
         self.ApplyGeometry()
 
+    def AppConfigChanged(self, source = None, changedSections = None):
+        if source == "app" and (
+            "App" in changedSections or
+            "ALL" in changedSections
+        ):
+            self.searchBar.setPlaceholderText(configurator.lang.Translate("Launchpad", "search", fallback = "Search..."))
+            self.allAppsLabel.setText(configurator.lang.Translate("Launchpad", "all_programs", fallback = "All Programs"))
+            self.pinnedLabel.setText(configurator.lang.Translate("Launchpad", "pinned", fallback = "Pinned"))
+
+        if source == "app" and (
+            "Launchpad.Directories" in changedSections or
+            "Launchpad.IgnoreNames" in changedSections or
+            "ALL" in changedSections
+        ):
+            self.LoadApps()
+
     def showEvent(self, event):
         self.searchBar.clear()
         self.scrollArea.verticalScrollBar().setValue(0)
@@ -132,6 +152,8 @@ class Launchpad(QWidget):
             MakeBlur(self.winId(), False)
 
         self.internalWindowFader.FadeIn()
+
+        SetFocus(self.winId())
 
         self.showNormal()
         self.raise_()
@@ -147,8 +169,8 @@ class Launchpad(QWidget):
     def paintEvent(self, event):
         if LConfig.isFullscreen:
             painter = QPainter(self)
-            painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(QColor(LConfig.fullscreenColor))
+            painter.setPen(Qt.PenStyle.NoPen)
             painter.drawRect(self.rect())
 
     def BuildVisualGrid(self):
@@ -188,20 +210,29 @@ class Launchpad(QWidget):
                 self.visualGrid.append(allRow)
 
     def LoadApps(self):
-        pathsToScan = [
-            os.path.join(os.environ.get("ProgramData", "C:\\ProgramData"), r"Microsoft\Windows\Start Menu\Programs"),
-            os.path.join(os.environ.get("APPDATA", ""), r"Microsoft\Windows\Start Menu\Programs")
-        ]
+        if len(self.appWidgets) > 0:
+            for item in self.appWidgets:
+                self.pinnedGrid.removeWidget(item)
+                self.allAppsGrid.removeWidget(item)
 
+                item.hide()
+                item.deleteLater()
+
+        self.appWidgets = []
         foundApps = []
+        foundNames = set()
 
-        for scanPath in pathsToScan:
+        for scanPath in LAConfig.launchpadPaths:
             if not os.path.exists(scanPath):
                 continue
             for root, dirs, files in os.walk(scanPath):
                 for file in files:
                     if file.lower().endswith('.lnk'):
-                        if "uninstall" in file.lower() or "удалить" in file.lower():  # how tf can i except ts 😭
+                        name = os.path.splitext(file)[0]
+                        if any(word in name.lower().split() for word in LAConfig.ignoredNames):
+                            continue
+
+                        if name in foundNames:
                             continue
 
                         fullPath = os.path.join(root, file)
@@ -218,10 +249,9 @@ class Launchpad(QWidget):
 
                         name = os.path.splitext(file)[0]
                         foundApps.append({"name": name, "path": fullPath})
+                        foundNames.add(name)
 
         foundApps.sort(key = lambda x: x["name"].lower())
-
-        self.appWidgets = []
 
         for app in foundApps:
             item = LaunchpadItem(self, app["name"], app["path"])
@@ -346,22 +376,13 @@ class Launchpad(QWidget):
     def FilterApps(self, query):
         query = query.lower()
 
-        # i can delete this in future, or also make it cooler if i like this idea btw
+        # 🎵             Привет               🎵
+        # 🎵    Но ты проходишь мимо... :(    🎵
 
-        ENLayout = "qwertyuiop[]asdfghjkl;'zxcvbnm,./"
-        RULayout = "йцукенгшщзхъфывапролджэячсмитьбю."
-        UKLayout = "йцукенгшщзхїфівапролджєячсмитьбю."
+        searchVariants = {query}
 
-        toENFromRU = str.maketrans(RULayout, ENLayout)
-        toENFromUK = str.maketrans(UKLayout, ENLayout)
-        toRUFromEN = str.maketrans(ENLayout, RULayout)
-
-        searchVariants = {
-            query,
-            query.translate(toENFromRU),
-            query.translate(toENFromUK),
-            query.translate(toRUFromEN)
-        }
+        for translatedMap in LAConfig.layoutsMaps:
+            searchVariants.add(query.translate(translatedMap))
 
         for item in self.appWidgets:
             self.pinnedGrid.removeWidget(item)
@@ -370,8 +391,6 @@ class Launchpad(QWidget):
 
         pinnedPaths = self.manager.state.get("launchpad", [])
 
-        # The code is really shitty from now on. Protect your eyes.
-
         # search mode
         if query:
             self.pinnedLabel.hide()
@@ -379,6 +398,7 @@ class Launchpad(QWidget):
             row, column = 0, 0
             for item in self.appWidgets:
                 appName = item.name.lower()
+
                 if any(variant in appName for variant in searchVariants):
                     self.allAppsGrid.addWidget(item, row, column, alignment = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
                     item.show()

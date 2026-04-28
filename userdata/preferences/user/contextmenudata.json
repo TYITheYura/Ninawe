@@ -36,9 +36,9 @@
 
                 },
                 {
-                    "label_id": "ContextMenu.domagic",
-                    "label": "Do magic",
-                    "action": "create:something.docx"
+                    "label_id": "ContextMenu.ms_word",
+                    "label": "Microsoft Word file",
+                    "action": "create:Document.docx"
                 }
 
             ]

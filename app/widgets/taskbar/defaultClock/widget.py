@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QLabel, QGraphicsDropShadowEffect
 from PyQt6.QtCore import Qt, QDateTime, QTimer
 from PyQt6.QtGui import QColor
 from .config import WConfig
+from ui.taskbar import TBConfig
 
 class Widget(QLabel):
     def __init__(self, parent = None):
@@ -49,11 +50,13 @@ class Widget(QLabel):
         else:
             self.setGraphicsEffect(None)
 
-        clockX = round(WConfig.panelWidth * (WConfig.clockPosition / 100) - 
-                       (currentClockWidth * (WConfig.clockAlign / 100)) + 
-                       WConfig.clockLeftMargin - WConfig.clockRightMargin)
+        clockX = round(
+            TBConfig.panelWidth * (WConfig.clockPosition / 100) -
+            (currentClockWidth * (WConfig.clockAlign / 100)) +
+            WConfig.clockLeftMargin - WConfig.clockRightMargin
+        )
 
-        self.setGeometry(clockX, shadowPadding, currentClockWidth, WConfig.panelHeight - (shadowPadding * 2))
+        self.setGeometry(clockX, shadowPadding, currentClockWidth, TBConfig.panelHeight - (shadowPadding * 2))
 
     def UpdateTime(self):
         currentTime = QDateTime.currentDateTime()

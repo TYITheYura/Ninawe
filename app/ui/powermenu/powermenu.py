@@ -2,7 +2,8 @@ from PyQt6.QtWidgets import QWidget, QBoxLayout, QPushButton, QApplication, QFra
 from PyQt6.QtCore import Qt, QSize, QFileSystemWatcher, QRectF
 from PyQt6.QtGui import QColor, QIcon, QPainter, QBrush
 from core.config import config as configurator
-from core.utils import MakeBlur, MakeLog, InternalWindowFader
+from core.managers import shellSignals
+from core.utils import MakeBlur, MakeLog, InternalWindowFader, SetFocus
 from .config import PMConfig
 import subprocess
 import json
@@ -13,6 +14,8 @@ class PowerMenu(QWidget):
         super().__init__()
 
         PMConfig.configUpdated.connect(self.UpdateStyles)
+
+        shellSignals.togglePowerMenu.connect(self.TogglePowerMenu)
 
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint |
@@ -193,11 +196,15 @@ class PowerMenu(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
+        painter.setPen(Qt.PenStyle.NoPen)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        if PMConfig.isFullscreen:
+            painter.setBrush(QColor("#01000000"))
+            painter.drawRect(self.rect())
 
         if PMConfig.isFullscreen and (not PMConfig.blurEnabled or PMConfig.blurMode != 1):
             painter.setBrush(QColor(PMConfig.fullscreenColor))
-            painter.setPen(Qt.PenStyle.NoPen)
             painter.drawRect(self.rect())
 
         buttonLen = len(self.buttons)
@@ -261,6 +268,12 @@ class PowerMenu(QWidget):
         if type == "border":
             return PMConfig.radius * ((menuSize - PMConfig.borderWidth) / PMConfig.buttonSize)
 
+    def TogglePowerMenu(self):
+        if self.isVisible():
+            self.internalWindowFader.FadeOut(self.close)
+        else:
+            self.internalWindowFader.FadeIn()
+
     def showEvent(self, event):
         # Draw blur
         if PMConfig.blurEnabled:
@@ -270,8 +283,17 @@ class PowerMenu(QWidget):
 
         # Draw powermenu
         self.internalWindowFader.FadeIn()
+
+        SetFocus(self.winId())
+
         self.activateWindow()
         self.setFocus()
+
+    def changeEvent(self, event):
+        if event.type() == event.Type.ActivationChange:
+            if not self.isActiveWindow():
+                self.internalWindowFader.FadeOut(self.close)
+        super().changeEvent(event)
 
     # Closing with ESC
     def keyPressEvent(self, event):

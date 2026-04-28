@@ -12,6 +12,7 @@ from .recyclebincheck import IsRecycleBinEmpty
 from .setglobalanimations import SetGlobalAnimations
 from .setshellwindow import SetShellWindow
 from .setwindowstate import SetWindowState
-from .setworkarea import SetWorkArea
+from .setworkarea import WorkAreaSetter
 from .togglewindow import ToggleWindow
 from .windowsnapshot import GetWindowSnapshot, LIVE_THUMBNAIL_CACHE
+from .setfocus import SetFocus

@@ -18,10 +18,10 @@ class SystemItem(BaseDesktopItem):
             self.setAcceptDrops(True)
 
         if self.widgetData:
-            self.filename = self.widgetData.get("name", self.filename)
+            self.filename = self.widgetData.get("name", "")
 
         self.LoadCustomIcon()
-        self.SetDisplayName(self.filename)
+        self.SetDisplayName(configurator.lang.Translate("SystemItems", self.filename, fallback = "System Item"))
 
     def LoadCustomIcon(self):
         systemType = self.widgetData.get("system_type", "") if self.widgetData else ""

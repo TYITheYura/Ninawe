@@ -3,7 +3,6 @@ from core.config import ConfigWrapper, ConfigUpdateChecker
 from core.config import config as selectedThemeConfig
 from PyQt6.QtCore import QFileSystemWatcher
 from PyQt6.QtGui import QPixmap
-from ui.taskbar import TBConfig
 
 class WidgetConfig(ConfigUpdateChecker):
     def __init__(self):
@@ -20,9 +19,6 @@ class WidgetConfig(ConfigUpdateChecker):
         self.pixNormal = ""
         self.pixHover = ""
         self.pixPressed = ""
-
-        self.panelWidth = 0
-        self.panelHeight = 0
 
         self.padding = 0
 
@@ -52,9 +48,6 @@ class WidgetConfig(ConfigUpdateChecker):
         self.pixPressed = QPixmap(os.path.join(self.widgetPath, activeIcon))
 
         self.padding = self.selectedConfig.GetInt(self.section, "padding", fallback = 2)
-
-        self.panelWidth = TBConfig.panelWidth
-        self.panelHeight = TBConfig.panelHeight
 
     def BuildInConfigFileChanged(self, path):
         print(f"[Log] [{self.section}] | Local config changed: {path}.")

@@ -1,4 +1,5 @@
 import os
+import configparser
 from core.config import ConfigWrapper, BASE_DIR
 from core.utils import MakeLog
 
@@ -29,3 +30,20 @@ class LangManager(ConfigWrapper):
 
     def Translate(self, section, key, fallback = ""):
         return self.Get(section, key, fallback = fallback)
+
+    def GetLangFromCode(self, langCode, section, key, fallback = ""):
+        userLangPath = os.path.join(BASE_DIR, "userdata", "lang", f"{langCode}.ini")
+        appLangPath = os.path.join(BASE_DIR, "app", "lang", f"{langCode}.ini")
+
+        targetPath = userLangPath if os.path.exists(userLangPath) else appLangPath
+        if not os.path.exists(targetPath):
+            return fallback
+
+        tempParser = configparser.ConfigParser()
+        tempParser.read(targetPath, encoding = "utf-8")
+
+        try:
+            return tempParser.get(section, key)
+        except:
+            return fallback
+

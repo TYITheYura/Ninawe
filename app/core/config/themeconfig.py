@@ -27,7 +27,7 @@ class ThemeConfig(ConfigWrapper):
                 self.themeInitFile = os.path.join(self.currentThemePath, "themeconfig.ini")
 
         self.parser.clear()
-        self.parser.read(self.themeInitFile)
+        self.parser.read(self.themeInitFile, encoding = "utf-8")
 
         changedSections = self.SectionHashCheck(self)
 

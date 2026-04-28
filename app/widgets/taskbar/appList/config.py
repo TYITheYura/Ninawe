@@ -43,9 +43,6 @@ class WidgetConfig(ConfigUpdateChecker):
         self.paddings = self.selectedConfig.GetInt(self.section, "paddings", fallback = 5)
         self.spacing = self.selectedConfig.GetInt(self.section, "spacing", fallback = 10)
 
-        self.panelWidth = TBConfig.panelWidth
-        self.panelHeight = TBConfig.panelHeight
-
     def BuildInConfigFileChanged(self, path):
         MakeLog(f"[Log] [{self.section}]", f"Local config changed: {path}.")
 

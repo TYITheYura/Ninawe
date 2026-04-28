@@ -16,19 +16,21 @@ class ThumbnailCard(QWidget):
 
         cardWidth = 360
         cardHeight = 240
+        maxTextWidth = round(cardWidth - cardWidth / 3)
         self.setFixedSize(cardWidth, cardHeight)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(10)
+        layout.setSpacing(5)
 
         self.imageLabel = QLabel()
         self.imageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         if isMinimizedVisual:
-            scaledPixmap = pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            scaledPixmap = pixmap.scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            self.imageLabel.setFixedSize(cardWidth - 24, cardHeight - 64)
         else:
-            scaledPixmap = pixmap.scaled(cardWidth - 20, cardHeight - 50, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            scaledPixmap = pixmap.scaled(cardWidth - 24, cardHeight - 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
 
         self.imageLabel.setPixmap(scaledPixmap)
 
@@ -40,11 +42,12 @@ class ThumbnailCard(QWidget):
         self.iconLabel = QLabel()
         self.iconLabel.setFixedSize(18, 18)
         if appIconPixmap and not appIconPixmap.isNull():
-            self.iconLabel.setPixmap(appIconPixmap.scaled(18, 18, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            self.iconLabel.setPixmap(appIconPixmap.scaled(48, 48, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        self.iconLabel.setScaledContents(True)
 
         self.titleLabel = QLabel()
         metrics = QFontMetrics(self.titleLabel.font())
-        elidedTitle = metrics.elidedText(title, Qt.TextElideMode.ElideRight, cardWidth - 60)
+        elidedTitle = metrics.elidedText(title, Qt.TextElideMode.ElideRight, maxTextWidth)
         self.titleLabel.setText(elidedTitle)
 
         bottomLayout.addStretch()
@@ -52,10 +55,13 @@ class ThumbnailCard(QWidget):
         bottomLayout.addWidget(self.titleLabel)
         bottomLayout.addStretch()
 
+        layout.addStretch()
         layout.addWidget(self.imageLabel)
+        layout.addStretch()
         layout.addLayout(bottomLayout)
+        layout.addStretch()
 
-        self.closeBtn = QPushButton("×", self)
+        self.closeBtn = QPushButton("⨉", self)
         self.closeBtn.setObjectName("ExposeCloseBtn")
         self.closeBtn.setFixedSize(24, 24)
         self.closeBtn.move(cardWidth - 34, 10)
@@ -82,10 +88,10 @@ class ThumbnailCard(QWidget):
             QPushButton#ExposeCloseBtn {
                 background-color: #66000000;
                 color: white;
-                border-radius: 6px;
+                border-radius: 0px;
                 font-weight: bold;
-                font-size: 14px;
-                padding-bottom: 2px;
+                font-size: 12px;
+                padding-bottom: 0px;
             }
             QPushButton#ExposeCloseBtn:hover {
                 background-color: #FF4444;

@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#              Version: Medium Well v0.2
+#              Version: Medium Well v1.0
 # And remember guys: Ninawe is not a windows explorer
 
 import os
@@ -27,7 +27,7 @@ from ui.desktop import DesktopWindow
 from ui.taskbar import Taskbar
 from ui.powermenu import PowerMenu
 from ui.launchpad import Launchpad
-from core.utils import SetGlobalAnimations, SetWorkArea, SetShellWindow, MakeLog
+from core.utils import SetGlobalAnimations, WorkAreaSetter, SetShellWindow, MakeLog
 from core.workers import SystemWindowManager, ExplorerGlobalWatcher
 
 class NinaweShell:
@@ -54,7 +54,7 @@ class NinaweShell:
         screen = QApplication.primaryScreen().geometry()
 
         # Recalculating the available area on the screen
-        SetWorkArea(screen.width(), screen.height())
+        self.workArea = WorkAreaSetter()
 
         # Enabling minimize/maximize animations
         SetGlobalAnimations(True)

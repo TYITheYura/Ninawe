@@ -3,11 +3,53 @@ from core.config import ConfigUpdateChecker
 from easydict import EasyDict as easyDict
 from core.utils import RAWToPerOrPix
 from PyQt6.QtWidgets import QApplication
+from core.utils import MakeLog
+import itertools
+
+class LaunchpadAppConfig(ConfigUpdateChecker):
+    def __init__(self):
+        self.launchpadPaths = []
+        self.ignoredNames = []
+        self.retranslateLayouts = []
+        self.layoutsMaps = []
+
+        super().__init__(["Launchpad.Directories", "Launchpad.IgnoreNames", "Launchpad.RetranslateLayouts"])
+
+        self.Updater()
+
+    def Updater(self):
+        self.launchpadPaths = configurator.app.GetPathList("Launchpad.Directories", "dirs", fallback = [])
+        self.ignoredNames = configurator.app.GetList("Launchpad.IgnoreNames", "names", fallback = [])
+        self.retranslateLayouts = configurator.app.GetList("Launchpad.RetranslateLayouts", "layouts", fallback = [])
+
+        self.BuildLayoutMaps()
+
+    def BuildLayoutMaps(self):
+        layoutStrings = {}
+        self.layoutsMaps = []
+
+        for langCode in self.retranslateLayouts:
+            alphabet = configurator.lang.GetLangFromCode(langCode, "KeyboardLayout", "layout")
+            if alphabet:
+                layoutStrings[langCode] = alphabet
+
+        for sourceLang, targetLang in itertools.permutations(layoutStrings.keys(), 2):
+            sourceChars = layoutStrings[sourceLang]
+            targetChars = layoutStrings[targetLang]
+
+            if len(sourceChars) == len(targetChars):
+                transMap = str.maketrans(sourceChars, targetChars)
+                self.layoutsMaps.append(transMap)
+            else:
+                MakeLog("[Log] [LaunchpadConfig]", f"Layout length mismatch. Source: \"{sourceLang}\" target: \"{targetLang}\". Map skipped.")
+
 
 class LaunchpadConfig(ConfigUpdateChecker):
     def __init__(self):
         self.section = "Launchpad"
         self.launchpadInfoFile = configurator.theme.GetPath("userdata\\preferences\\user\\launchpaddata.json")
+        self.launchpadPaths = []
+        self.ignoredNames = []
 
         self.Styles = easyDict(
             {
@@ -47,7 +89,7 @@ class LaunchpadConfig(ConfigUpdateChecker):
         self.containerStyle = ""
         self.searchbarStyle = ""
 
-        super().__init__([self.section])
+        super().__init__([self.section, "Launchpad.Directories"])
 
         self.Updater()
 
@@ -253,5 +295,6 @@ class ItemConfig(ConfigUpdateChecker):
         self.iconPadding = configurator.theme.GetInt(self.section, "item_icon_padding", fallback = 15)
 
 
+LAConfig = LaunchpadAppConfig()
 LConfig = LaunchpadConfig()
 IConfig = ItemConfig()

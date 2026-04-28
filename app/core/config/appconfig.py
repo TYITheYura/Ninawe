@@ -15,7 +15,7 @@ class AppConfig(ConfigWrapper):
             MakeLog(f"[Log] [AppConfig] | Config file on directory {self.configFilePath} not found.")
             return []
 
-        self.parser.read(self.configFilePath)
+        self.parser.read(self.configFilePath, encoding = "utf-8")
         changedSections = self.SectionHashCheck(self)
         MakeLog(f"[Log] [AppConfig] | {self.configFilePath} loaded.")
         return changedSections
