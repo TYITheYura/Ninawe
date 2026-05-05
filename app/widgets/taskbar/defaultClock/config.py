@@ -3,7 +3,6 @@ from core.config import ConfigWrapper
 from core.config import config as selectedThemeConfig
 from core.config import ConfigUpdateChecker
 from core.utils import LoadFont
-from ui.taskbar import TBConfig
 from PyQt6.QtCore import QFileSystemWatcher
 from core.utils import MakeLog
 

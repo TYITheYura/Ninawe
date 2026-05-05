@@ -112,6 +112,16 @@
         },
         {
             "type": "file",
+            "name": "многотупого.txt",
+            "path": "C:\\Users\\User\\Desktop\\многотупого.txt",
+            "icon": "default",
+            "position": [
+                8,
+                5
+            ]
+        },
+        {
+            "type": "file",
             "name": "МПІ3.docx",
             "path": "C:\\Users\\User\\Desktop\\МПІ3.docx",
             "icon": "default",
@@ -147,6 +157,16 @@
             "icon": "default",
             "position": [
                 6,
+                3
+            ]
+        },
+        {
+            "type": "file",
+            "name": "фиксы.txt",
+            "path": "C:\\Users\\User\\Desktop\\фиксы.txt",
+            "icon": "default",
+            "position": [
+                15,
                 3
             ]
         },

@@ -11,8 +11,7 @@ from PyQt6.QtCore import (
 import subprocess
 from core.utils import MakeLog
 from ui.components import ContextMenu, GridHintWidget
-from ui.powermenu import PowerMenu
-from .config import DConfig, IConfig
+from .config import DConfig, IConfig, DAConfig
 from .items import SystemItem, FileItem, WidgetItem
 from core.config import config as configurator
 from core.utils import FO_COPY, FO_MOVE, FOF_NOCONFIRMATION, GetRealTargetPath
@@ -37,6 +36,7 @@ class DesktopWindow(QMainWindow):
 
         IConfig.configUpdated.connect(self.UpdateStyles)
         DConfig.configUpdated.connect(self.UpdateStyles)
+        DAConfig.configUpdated.connect(self.ScanDesktop)
 
         self.cutItems = []
         self.desktopItems = []
@@ -753,3 +753,11 @@ class DesktopWindow(QMainWindow):
             if item.itemType == "system_icon" and item.widgetData.get("system_type") == "recycle_bin":
                 item.LoadCustomIcon()
                 break
+
+    def keyPressEvent(self, event):
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_V:
+            self.PasteCommand()
+        elif event.key() == Qt.Key.Key_F5:
+            self.ScanDesktop()
+        else:
+            super().keyPressEvent(event)

@@ -28,7 +28,7 @@ def MakeLog(section = "", infoText = "", clearLogs = False):
 
 def MakeLogExtra(section = "", infoText = "", clearLogs = False):
     if clearLogs:
-        with open(f"C:\\logfile.txt", "w", encoding = "utf-8") as logFile:
+        with open("C:\\logfile.txt", "w", encoding = "utf-8") as logFile:
             return
 
     message = ""
@@ -38,6 +38,6 @@ def MakeLogExtra(section = "", infoText = "", clearLogs = False):
     else:
         message = f"{section} | {infoText}"
 
-    with open(f"C:\\logfile.txt", "a", encoding = "utf-8") as logFile:
+    with open("C:\\logfile.txt", "a", encoding = "utf-8") as logFile:
         logFile.write(message + "\n")
     print(message)

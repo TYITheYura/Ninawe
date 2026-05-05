@@ -98,7 +98,7 @@ def GetWindowsThumbnail(filepath, size = 256):
         if hbitmap:
             try:
                 gdi32.DeleteObject(hbitmap)
-            except:
+            except Exception:
                 pass
         ole32.CoUninitialize()
 

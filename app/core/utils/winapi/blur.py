@@ -50,7 +50,7 @@ def MakeBlur(hwnd: int, enable: bool = True, blurMode: int = AccentState.ACCENT_
         b = int(colorHEX[6:8], 16)
 
         gradientColor = (a << 24) | (b << 16) | (g << 8) | r
-    except:
+    except Exception:
         gradientColor = 0
 
     accent = ACCENTPOLICY()

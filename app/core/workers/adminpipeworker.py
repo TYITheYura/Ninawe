@@ -75,12 +75,12 @@ def CreatePipeServer():
             win32pipe.DisconnectNamedPipe(pipe)
             win32file.CloseHandle(pipe)
 
-        except Exception as e:
+        except Exception:
             if pipe:
                 try:
                     win32pipe.DisconnectNamedPipe(pipe)
                     win32file.CloseHandle(pipe)
-                except:
+                except Exception:
                     pass
 
 

@@ -44,6 +44,6 @@ class LangManager(ConfigWrapper):
 
         try:
             return tempParser.get(section, key)
-        except:
+        except Exception:
             return fallback
 

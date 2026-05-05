@@ -144,6 +144,68 @@ class FileItem(BaseDesktopItem):
         menu.commandClicked.connect(self.ExecuteItemCommand)
         menu.exec(event.globalPos())
 
+    def DeleteSelf(self):
+        itemsToDelete = []
+
+        if self in self.desktop.selectedItems:
+            itemsToDelete = list(self.desktop.selectedItems)
+        else:
+            itemsToDelete = [self]
+
+        filepaths = [os.path.normpath(item.filepath) for item in itemsToDelete if item.filepath]
+
+        if filepaths:
+            winHandle = int(self.desktop.winId())
+
+            for item in itemsToDelete:
+                item.Cleanup()
+
+            operationThread = FileOperationThread(winHandle, FO_DELETE, filepaths, None, FOF_ALLOWUNDO, self.desktop)
+            operationThread.finishedSignal.connect(self.desktop.UpdateRecycleBinIcon)
+            operationThread.finished.connect(operationThread.deleteLater)
+
+            operationThread.start()
+
+            MakeLog("[Log] [DesktopItem]", f"Started async delete for {len(filepaths)} items")
+
+        self.desktop.ClearSelection()
+
+    def MakeFileOperation(self, command):
+        clipboard = QApplication.clipboard()
+        mimeData = QMimeData()
+
+        urls = []
+
+        for item in self.desktop.cutItems:
+            try:
+                item.SetCutState(False)
+            except RuntimeError:
+                pass
+
+        self.desktop.cutItems.clear()
+
+        if self in self.desktop.selectedItems:
+            for item in self.desktop.selectedItems:
+                urls.append(QUrl.fromLocalFile(item.filepath))
+
+                if command == "cut":
+                    item.SetCutState(True)
+                    self.desktop.cutItems.append(item)
+        else:
+            urls.append(QUrl.fromLocalFile(self.filepath))
+            if command == "cut":
+                self.SetCutState(True)
+                self.desktop.cutItems.append(self)
+
+        mimeData.setUrls(urls)
+
+        # x02 (0x2) - cut, x05 (0x5) - copy
+        dropEffect = b'\x02\x00\x00\x00' if command == "cut" else b'\x05\x00\x00\x00'
+        mimeData.setData("Preferred DropEffect", dropEffect)
+
+        clipboard.setMimeData(mimeData)
+        MakeLog("[Log] [DesktopItem]", f"Items {command}ed to clipboard")
+
     def ExecuteItemCommand(self, command):
         if not command or command == "none":
             return
@@ -153,67 +215,11 @@ class FileItem(BaseDesktopItem):
         if command == "open":
             self.ExecuteDoubleClick()
         elif command == "delete":
-            itemsToDelete = []
-
-            if self in self.desktop.selectedItems:
-                itemsToDelete = list(self.desktop.selectedItems)
-            else:
-                itemsToDelete = [self]
-
-            filepaths = [os.path.normpath(item.filepath) for item in itemsToDelete if item.filepath]
-
-            if filepaths:
-                winHandle = int(self.desktop.winId())
-
-                for item in itemsToDelete:
-                    item.Cleanup()
-
-                operationThread = FileOperationThread(winHandle, FO_DELETE, filepaths, None, FOF_ALLOWUNDO, self.desktop)
-                operationThread.finishedSignal.connect(self.desktop.UpdateRecycleBinIcon)
-                operationThread.finished.connect(operationThread.deleteLater)
-
-                operationThread.start()
-
-                MakeLog("[Log] [DesktopItem]", f"Started async delete for {len(filepaths)} items")
-
-            self.desktop.ClearSelection()
+            self.DeleteSelf()
         elif command == "properties":
             self.ShowWindowsProperties()
         elif command in ["copy", "cut"]:
-            clipboard = QApplication.clipboard()
-            mimeData = QMimeData()
-
-            urls = []
-
-            for item in self.desktop.cutItems:
-                try:
-                    item.SetCutState(False)
-                except RuntimeError:
-                    pass
-
-            self.desktop.cutItems.clear()
-
-            if self in self.desktop.selectedItems:
-                for item in self.desktop.selectedItems:
-                    urls.append(QUrl.fromLocalFile(item.filepath))
-
-                    if command == "cut":
-                        item.SetCutState(True)
-                        self.desktop.cutItems.append(item)
-            else:
-                urls.append(QUrl.fromLocalFile(self.filepath))
-                if command == "cut":
-                    self.SetCutState(True)
-                    self.desktop.cutItems.append(self)
-
-            mimeData.setUrls(urls)
-
-            # x02 (0x2) - cut, x05 (0x5) - copy
-            dropEffect = b'\x02\x00\x00\x00' if command == "cut" else b'\x05\x00\x00\x00'
-            mimeData.setData("Preferred DropEffect", dropEffect)
-
-            clipboard.setMimeData(mimeData)
-            MakeLog("[Log] [DesktopItem]", f"Items {command}ed to clipboard")
+            self.MakeFileOperation(command)
         elif command == "rename":
             self.StartRename()
 
@@ -224,3 +230,17 @@ class FileItem(BaseDesktopItem):
                 self.desktop.globalFolderUpdated.disconnect(self.ContentChanged)
             except TypeError:
                 pass
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_F2:
+            self.StartRename()
+        elif event.key() == Qt.Key.Key_Delete:
+            self.DeleteSelf()
+        elif event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_X:
+            self.MakeFileOperation("cut")
+        elif event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_C:
+            self.MakeFileOperation("copy")
+        elif event.key() in [Qt.Key.Key_Return, Qt.Key.Key_Enter]:
+            self.ExecuteDoubleClick()
+        else:
+            super().keyPressEvent(event)

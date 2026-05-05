@@ -32,7 +32,7 @@ class ConfigWrapper:
             rawData = self.parser.get(section, option)
             numData = rawData.replace("px", "").replace("%", "").strip()
             return int(numData)
-        except:
+        except Exception:
             return fallback
 
     def GetFloat(self, section, option, fallback = 0.00):
@@ -43,21 +43,21 @@ class ConfigWrapper:
             rawData = self.parser.get(section, option)
             numData = rawData.replace("px", "").replace("%", "").strip()
             return int(numData)
-        except:
+        except Exception:
             return fallback
 
     def GetList(self, section, option, fallback = []):
         try:
             rawData = self.parser.get(section, option)
             return [line.strip() for line in rawData.split('\n') if line.strip()]
-        except:
+        except Exception:
             return fallback
 
     def GetPathList(self, section, option, fallback = []):
         try:
             lines = self.GetList(section, option, fallback = fallback)
             return [os.path.expandvars(line) for line in lines]
-        except:
+        except Exception:
             return fallback
 
     def GetSectionStatus(self, section):

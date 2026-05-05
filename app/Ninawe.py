@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#              Version: Medium Well v1.0
+#              Version: Medium Well v2.0
 # And remember guys: Ninawe is not a windows explorer
 
 import os
@@ -50,8 +50,6 @@ class NinaweShell:
         # Admin pipe for commands, that working only with admin previlegies
         adminPipeWorkerPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "core", "workers", "adminpipeworker.py"))
         subprocess.Popen([sys.executable, adminPipeWorkerPath])
-
-        screen = QApplication.primaryScreen().geometry()
 
         # Recalculating the available area on the screen
         self.workArea = WorkAreaSetter()

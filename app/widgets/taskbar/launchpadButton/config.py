@@ -1,6 +1,8 @@
 import os
 from core.config import ConfigWrapper, ConfigUpdateChecker
 from core.config import config as selectedThemeConfig
+from core.utils import RAWToPerOrPix
+from ui.taskbar import TBConfig
 from PyQt6.QtCore import QFileSystemWatcher
 from PyQt6.QtGui import QPixmap
 
@@ -21,6 +23,7 @@ class WidgetConfig(ConfigUpdateChecker):
         self.pixPressed = ""
 
         self.padding = 0
+        self.align = 0
 
         self.buildInWidgetConfigWatcher = QFileSystemWatcher()
         if os.path.exists(self.configPath):
@@ -37,7 +40,9 @@ class WidgetConfig(ConfigUpdateChecker):
             self.selectedConfig = self.buildInConfig
 
         self.visibility = self.selectedConfig.GetBool(self.section, "visible", fallback = True)
-        self.position = self.selectedConfig.GetInt(self.section, "position", fallback = 10)
+
+        positionRAW = self.selectedConfig.Get(self.section, "position", fallback = 10)
+        self.position = RAWToPerOrPix(positionRAW, TBConfig.panelWidth, fallback = 0)
 
         defaultIcon = self.selectedConfig.Get(self.section, "default", fallback = "")
         hoverIcon = self.selectedConfig.Get(self.section, "hover", fallback = "")
@@ -48,6 +53,7 @@ class WidgetConfig(ConfigUpdateChecker):
         self.pixPressed = QPixmap(os.path.join(self.widgetPath, activeIcon))
 
         self.padding = self.selectedConfig.GetInt(self.section, "padding", fallback = 2)
+        self.align = self.selectedConfig.GetInt(self.section, "align", fallback = 0)
 
     def BuildInConfigFileChanged(self, path):
         print(f"[Log] [{self.section}] | Local config changed: {path}.")

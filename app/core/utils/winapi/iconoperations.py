@@ -76,25 +76,25 @@ def HiconToPixmap(hicon):
         if hbmp:
             try:
                 win32gui.DeleteObject(hbmp.GetHandle())
-            except:
+            except Exception:
                 pass
 
         if hdcMemory:
             try:
                 hdcMemory.DeleteDC()
-            except:
+            except Exception:
                 pass
 
         if hdc:
             try:
                 hdc.DeleteDC()
-            except:
+            except Exception:
                 pass
 
         if hdcScreen:
             try:
                 win32gui.ReleaseDC(0, hdcScreen)
-            except:
+            except Exception:
                 pass
 
 def GetWindowIcon(hwnd):
@@ -117,7 +117,7 @@ def GetWindowIcon(hwnd):
 
             if realHWND[0]:
                 hwnd = realHWND[0]
-    except:
+    except Exception:
         pass
 
     # Icon from window
@@ -128,7 +128,7 @@ def GetWindowIcon(hwnd):
             hicon = win32gui.SendMessageTimeout(hwnd, win32con.WM_GETICON, win32con.ICON_SMALL2, 0, win32con.SMTO_ABORTIFHUNG, 50)[1]
         if not hicon:
             hicon = win32gui.GetClassLong(hwnd, win32con.GCL_HICONSM)
-    except:
+    except Exception:
         pass
 
     if hicon:
@@ -156,13 +156,13 @@ def GetWindowIcon(hwnd):
                         return pixmap
 
             ctypes.windll.kernel32.CloseHandle(handle)
-    except:
+    except Exception:
         pass
 
     try:
         hiconDefault = win32gui.LoadIcon(0, win32con.IDI_APPLICATION)
         return HiconToPixmap(hiconDefault)
-    except:
+    except Exception:
         pixmap = QPixmap(32, 32)
         pixmap.fill(Qt.GlobalColor.transparent)
         return pixmap
@@ -179,7 +179,7 @@ def GetIconFromFile(filepath):
             shortcut = WSHELL.CreateShortCut(filepath)
             if shortcut.Targetpath and os.path.exists(shortcut.Targetpath):
                 targetPath = shortcut.Targetpath
-        except:
+        except Exception:
             pass
 
     try:

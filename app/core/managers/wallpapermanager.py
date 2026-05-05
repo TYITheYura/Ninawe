@@ -28,7 +28,7 @@ class WallpaperManager:
         self.fadeAnimation.setEndValue(1.0)
 
     def LoadWallpaper(self):
-        MakeLog(f"[Log] [WallpaperManager]", f"Loading wallpaper: {self.DConfig.backgroundPath} (Mode: {self.DConfig.wallpaperMode})")
+        MakeLog("[Log] [WallpaperManager]", f"Loading wallpaper: {self.DConfig.backgroundPath} (Mode: {self.DConfig.wallpaperMode})")
 
         if os.path.isdir(self.DConfig.backgroundPath):
             self.DConfig.wallpaperList = [
@@ -46,7 +46,7 @@ class WallpaperManager:
             self.DConfig.wallpaperList = [self.DConfig.backgroundPath]
 
         if not self.DConfig.wallpaperList:
-            MakeLog(f"[Log] [WallpaperManager]", f"No valid images found at {self.DConfig.backgroundPath}")
+            MakeLog("[Log] [WallpaperManager]", f"No valid images found at {self.DConfig.backgroundPath}")
             self.backgroundBitmap = QPixmap(1, 1)
             self.backgroundBitmap.fill(QColor("#2E2E2E"))
             self.desktop.update()

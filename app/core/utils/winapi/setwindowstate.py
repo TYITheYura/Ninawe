@@ -1,6 +1,7 @@
 import win32gui
 import win32con
 from .. import MakeLogExtra
+from . import PickWindowOpacity
 
 def SetWindowState(hwnd, targetX, targetY, action = "MINIMIZE"):
     #
@@ -26,18 +27,20 @@ def SetWindowState(hwnd, targetX, targetY, action = "MINIMIZE"):
             flags, showCMD, ptMin, ptMax, rcNormal = win32gui.GetWindowPlacement(hwnd)
 
             cleanFlags = (flags & win32con.WPF_RESTORETOMAXIMIZED) | win32con.WPF_SETMINPOSITION
-            newPlacement = (cleanFlags, showCMD, (int(targetX - 80), int(targetY - 12)), ptMax, rcNormal)
+            newPlacement = (cleanFlags, showCMD, (int(targetX), int(targetY)), ptMax, rcNormal)
 
             win32gui.SetWindowPlacement(hwnd, newPlacement)
+            PickWindowOpacity(hwnd, True)
             win32gui.ShowWindow(hwnd, win32con.SW_MINIMIZE)
 
         elif action == "RESTORE":
             flags, showCMD, ptMin, ptMax, rcNormal = win32gui.GetWindowPlacement(hwnd)
 
             cleanFlags = (flags & win32con.WPF_RESTORETOMAXIMIZED) | win32con.WPF_SETMINPOSITION
-            newPlacement = (cleanFlags, showCMD, (int(targetX - 320), int(targetY - 12)), ptMax, rcNormal)
+            newPlacement = (cleanFlags, showCMD, (int(targetX), int(targetY)), ptMax, rcNormal)
 
             win32gui.SetWindowPlacement(hwnd, newPlacement)
+            PickWindowOpacity(hwnd, False)
             win32gui.PostMessage(hwnd, win32con.WM_SYSCOMMAND, win32con.SC_RESTORE, 0)
 
     except Exception as e:

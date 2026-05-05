@@ -103,7 +103,7 @@ class FolderWatcher(QThread):
                 for h in self.handles.keys():
                     try:
                         win32file.FindCloseChangeNotification(h)
-                    except:
+                    except Exception:
                         pass
 
                 self.handles.clear()
@@ -142,7 +142,7 @@ class FolderWatcher(QThread):
         for h in self.handles.keys():
             try:
                 win32file.FindCloseChangeNotification(h)
-            except:
+            except Exception:
                 pass
 
         self.handles.clear()
@@ -203,7 +203,7 @@ class ExplorerGlobalWatcher(QObject):
         timer = QTimer()
         timer.setSingleShot(True)
         timer.timeout.connect(lambda p = changedPath: self.TriggerCOMRefresh(p))
-        timer.start(200)
+        timer.start(25)
         self.refreshTimers[changedPath] = timer
 
     def TriggerCOMRefresh(self, changedPath):

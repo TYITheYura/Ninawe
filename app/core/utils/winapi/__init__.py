@@ -16,3 +16,5 @@ from .setworkarea import WorkAreaSetter
 from .togglewindow import ToggleWindow
 from .windowsnapshot import GetWindowSnapshot, LIVE_THUMBNAIL_CACHE
 from .setfocus import SetFocus
+from .rundialog import RunDialog
+from .desktoptoggle import DesktopToggler

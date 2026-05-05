@@ -1,6 +1,6 @@
 [Log] [Config] | Default path: C:\Users\User\Desktop\Ninawe\Ninawe
 [Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
-[Log] [LangManager] | Loading system language: ua
+[Log] [LangManager] | Loading system language: ru
 [Log] [ThemeConfig] | Caching theme global properties...
 [Log] [ThemeConfig] | Theme loaded: default
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
@@ -8,9 +8,10 @@
 [Log] [ConfigUpdateChecker] | Connected: ['PowerMenu']
 [Log] [ConfigUpdateChecker] | Connected: ['Taskbar']
 [Log] [ConfigUpdateChecker] | Connected: ['Desktop.System']
+[Log] [ConfigUpdateChecker] | Connected: ['App']
 [Log] [ConfigUpdateChecker] | Connected: ['Desktop']
 [Log] [ConfigUpdateChecker] | Connected: ['Desktop.Icon']
-[Log] [ConfigUpdateChecker] | Connected: ['Launchpad.Directories', 'Launchpad.IgnoreNames', 'Launchpad.RetranslateLayouts']
+[Log] [ConfigUpdateChecker] | Connected: ['Launchpad.Directories', 'Launchpad.IgnoreNames', 'Launchpad.RetranslateLayouts', 'App']
 [Log] [ConfigUpdateChecker] | Connected: ['Launchpad', 'Launchpad.Directories']
 [Log] [ConfigUpdateChecker] | Connected: ['Launchpad.Item']
 
@@ -24,13 +25,19 @@
                 ### ## #  ###    #### ########### ###    #### ###     ###   ###   ###   ##########
     ---:::+++#####+++:::---
 
-[Log] [SetWorkArea] | A new working area of 3790x2068 pixels has been set
+[Log] [SetWorkArea] | A new working area of 1870x988 pixels has been set
 [Log] [WinAPI.SetWindowAnimations] | Minimizing animations is turned on
-[Log] [Hotkeys] | Initializing hotkeys...
-[Log] [Hotkeys] | Registered Solo key: ['windows', 'left windows', 'right windows']
+[Log] [ConfigUpdateChecker] | Connected: ['Hotkeys.Custom', 'Hotkeys.Ninawe']
 [Log] [AdminPipe] | Starting admin daemon...
 [Log] [AdminPipe] | Daemon is already running.
-[Log] [Hotkeys] | Registered Combo: win+q
+[Log] [Hotkeys] | Cleared all hotkeys.
+[Log] [Hotkeys] | Loading hotkeys from config...
+[Log] [Hotkeys] | Registered Solo key: ['windows', 'left windows', 'right windows']
+[Log] [Hotkeys] | Registered native combo: win+q (ID: 1)
+[Log] [Hotkeys] | Registered native combo: win+d (ID: 2)
+[Log] [Hotkeys] | Registered native combo: win+r (ID: 3)
+[Log] [Hotkeys] | Registered native combo: win+e (ID: 4)
+[Log] [Hotkeys] | Registered native combo: win+x (ID: 5)
 [Log] [WallpaperManager] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers (Mode: cover)
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
@@ -44,8 +51,9 @@
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: appList
 [Log] [SetShellWindow] | Ninawe Desktop is registered in the system as a shell
 [Log] [Starter] | We are moving into space...
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\uhhhhhhh
 [Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Ninawe
 [Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Poweramp Equalizer Mixer
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\uhhhhhhh is over
 [Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\Poweramp Equalizer Mixer is over
 [Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\Ninawe is over
-[Log] [Taskbar] | Starting pinned app: c:\program files\mozilla firefox\firefox.exe

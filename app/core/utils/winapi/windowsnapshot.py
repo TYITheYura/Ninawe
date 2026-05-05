@@ -56,21 +56,21 @@ def GetWindowSnapshot(hwnd):
 
             return pixmap
         return None
-    except:
+    except Exception:
         pass
     finally:
         if hbmp:
             try:
                 win32gui.DeleteObject(hbmp.GetHandle())
-            except:
+            except Exception:
                 pass
         if hdcMemory:
             try:
                 hdcMemory.DeleteDC()
-            except:
+            except Exception:
                 pass
         if hdcWindow:
             try:
                 win32gui.ReleaseDC(hwnd, hdcWindow)
-            except:
+            except Exception:
                 pass

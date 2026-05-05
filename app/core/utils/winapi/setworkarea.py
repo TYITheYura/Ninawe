@@ -32,7 +32,7 @@ class WorkAreaSetter:
             )
 
             if result:
-                MakeLog("[Log] [SetWorkArea]", f"A new working area of {WAConfig.sw - rect.left + rect.right}x{WAConfig.sh - rect.top + rect.bottom} pixels has been set")
+                MakeLog("[Log] [SetWorkArea]", f"A new working area of {rect.right - rect.left}x{rect.bottom - rect.top} pixels has been set")
                 self.KickMaximizedWindows()
             else:
                 MakeLog("[Log] [SetWorkArea]", "Unable to resize working area")

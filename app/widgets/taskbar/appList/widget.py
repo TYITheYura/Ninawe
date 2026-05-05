@@ -68,7 +68,7 @@ class Widget(QWidget):
 
     def UpdateGeometry(self):
         self.adjustSize()
-        positionX = round(TBConfig.panelWidth * (WConfig.position / 100) - (self.width() / 2))
+        positionX = round(WConfig.position - (self.width() * (WConfig.align / 100)))
         self.setGeometry(positionX, 0, self.width(), TBConfig.panelHeight)
 
     def SyncDataModel(self):
@@ -259,7 +259,7 @@ class Widget(QWidget):
             targetY = globalPosition.y()
 
         if len(windowsList) == 1:
-            ToggleWindow(windowsList[0]["hwnd"], targetX, targetY)
+            ToggleWindow(windowsList[0]["hwnd"], targetX, targetY, True)
         else:
             self.exposeWindow = AppExposeWidget()
             self.exposeWindow.ShowGroup(windowsList)
@@ -400,5 +400,5 @@ class Widget(QWidget):
             for w in windowsList:
                 try:
                     win32gui.PostMessage(w["hwnd"], win32con.WM_CLOSE, 0, 0)
-                except:
+                except Exception:
                     CallInPipe("win32gui", "PostMessage", w["hwnd"], win32con.WM_CLOSE, 0, 0)

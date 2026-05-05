@@ -35,7 +35,7 @@ class WidgetManager:
         configSection = "Taskbar" if self.widgetType == "taskbar" else "Desktop"
 
         # Reading active widgets
-        from core.config import config as themeConfig  # lazy loading btw (hate ImportError: cannot import name 'config' from partially initialized module 'core.config')
+        from core.config import config as themeConfig
         rawList = themeConfig.theme.Get(configSection, "active_widgets", fallback = "")
 
         if not rawList:

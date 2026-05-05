@@ -54,8 +54,14 @@ class SystemWindowManager(QThread):
         ole32.CoUninitialize()
 
     def EventCallback(self, hWinEventHook, event, hwnd, idObject, idChild, dwEventThread, dwmsEventTime):
+        if hwnd == 0:
+            return
+
         if idObject == win32con.OBJID_WINDOW and idChild == win32con.CHILDID_SELF:
-            if event in [win32con.EVENT_OBJECT_CREATE, win32con.EVENT_OBJECT_DESTROY]:
+            if event in [
+                win32con.EVENT_OBJECT_CREATE,
+                win32con.EVENT_OBJECT_DESTROY
+            ]:
                 self.structureEventCount += 1
 
                 if self.structureEventCount > 25:
@@ -64,7 +70,12 @@ class SystemWindowManager(QThread):
                 else:
                     self.structureTimer.start(15)
 
-            elif event in [win32con.EVENT_SYSTEM_FOREGROUND, win32con.EVENT_SYSTEM_MINIMIZESTART, win32con.EVENT_SYSTEM_MINIMIZEEND, win32con.EVENT_OBJECT_NAMECHANGE]:
+            elif event in [
+                win32con.EVENT_SYSTEM_FOREGROUND,
+                win32con.EVENT_SYSTEM_MINIMIZESTART,
+                win32con.EVENT_SYSTEM_MINIMIZEEND,
+                win32con.EVENT_OBJECT_NAMECHANGE
+            ]:
                 self.stateTimer.start(10)
 
     def OnStructureTimeout(self):

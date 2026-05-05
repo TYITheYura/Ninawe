@@ -6,6 +6,10 @@ from ui.taskbar import TBConfig
 from easydict import EasyDict as easyDict
 from PyQt6.QtWidgets import QApplication
 
+class DesktopAppConfig(ConfigUpdateChecker):
+    def __init__(self):
+        super().__init__(["App"])
+
 class IconConfig(ConfigUpdateChecker):
     def __init__(self):
         self.section = "Desktop.Icon"
@@ -189,5 +193,6 @@ class WorkAreaConfig(ConfigUpdateChecker):
 
 
 WAConfig = WorkAreaConfig()
+DAConfig = DesktopAppConfig()
 DConfig = DesktopConfig()
 IConfig = IconConfig()

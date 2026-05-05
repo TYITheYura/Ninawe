@@ -13,7 +13,7 @@ class LaunchpadAppConfig(ConfigUpdateChecker):
         self.retranslateLayouts = []
         self.layoutsMaps = []
 
-        super().__init__(["Launchpad.Directories", "Launchpad.IgnoreNames", "Launchpad.RetranslateLayouts"])
+        super().__init__(["Launchpad.Directories", "Launchpad.IgnoreNames", "Launchpad.RetranslateLayouts", "App"])
 
         self.Updater()
 
@@ -48,8 +48,6 @@ class LaunchpadConfig(ConfigUpdateChecker):
     def __init__(self):
         self.section = "Launchpad"
         self.launchpadInfoFile = configurator.theme.GetPath("userdata\\preferences\\user\\launchpaddata.json")
-        self.launchpadPaths = []
-        self.ignoredNames = []
 
         self.Styles = easyDict(
             {

@@ -1,7 +1,6 @@
 import ctypes
 import win32gui
 import win32con
-from .. import MakeLogExtra
 
 def PickWindowOpacityMain(hwnd, setZeroAlpha):
     #

@@ -29,7 +29,7 @@ class Widget(QLabel):
 		size = TBConfig.panelHeight - (WConfig.padding * 2)
 		self.setFixedSize(size, size)
 
-		positionX = round(TBConfig.panelWidth * (WConfig.position / 100) - (size / 2))
+		positionX = round(WConfig.position - (self.width() * (WConfig.align / 100)))
 
 		self.setGeometry(positionX, WConfig.padding, size, size)
 
