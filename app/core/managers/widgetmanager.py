@@ -32,7 +32,7 @@ class WidgetManager:
     def LoadWidgets(self):
         self.UnloadWidgets()
 
-        configSection = "Taskbar" if self.widgetType == "taskbar" else "Desktop"
+        configSection = "Taskbar.ActiveWidgets" if self.widgetType == "taskbar" else "Desktop"
 
         # Reading active widgets
         from core.config import config as themeConfig
@@ -148,10 +148,11 @@ class WidgetManager:
             if hasattr(widget, "UpdateStyles"):
                 widget.UpdateStyles(changedSections)
 
-    def InitLayout(self):
-        # Reinitializating widget (all)
-        for widget in self.widgets:
-            if hasattr(widget, "Init"):
-                widget.Init()
-            else:
-                MakeLog(f"[Log] [WidgetManager] [WidgetType: {self.widgetType.upper()}] | Failed to init widget")
+    # Will be used in future
+    # def InitLayout(self):
+    #     # Reinitializating widget (all)
+    #     for widget in self.widgets:
+    #         if hasattr(widget, "Init"):
+    #             widget.Init()
+    #         else:
+    #             MakeLog(f"[Log] [WidgetManager] [WidgetType: {self.widgetType.upper()}] | Failed to init widget")

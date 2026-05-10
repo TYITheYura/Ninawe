@@ -6,7 +6,8 @@
             "action": "refresh"
         },
         {
-            "type": "separator" 
+            "label": "Separator",
+            "type": "separator"
         },
         {
             "label_id": "ContextMenu.paste",
@@ -14,7 +15,8 @@
             "action": "paste"
         },
         {
-            "type": "separator" 
+            "label": "Separator",
+            "type": "separator"
         },
         {
             "label_id": "ContextMenu.create",
@@ -32,37 +34,26 @@
                     "action": "create_text"
                 },
                 {
+                    "label": "Separator",
                     "type": "separator"
-
                 },
                 {
                     "label_id": "ContextMenu.ms_word",
                     "label": "Microsoft Word file",
                     "action": "create:Document.docx"
                 }
-
             ]
         },
         {
+            "label": "Separator",
             "type": "separator"
-        },
-        {
-            "label_id": "ContextMenu.display_settings",
-            "label": "Display Settings",
-            "action": "cmd:ms-settings:display"
         },
         {
             "label_id": "ContextMenu.personalization",
             "label": "Personalization",
-            "action": "cmd:ms-settings:personalization"
-        },
-        {
-            "label_id": "",
-            "label": "Open Notepad",
-            "action": "run:notepad.exe"
+            "action": "show_ninawe_settings"
         }
     ],
-    
     "item": [
         {
             "label_id": "ContextMenu.open",
@@ -70,6 +61,7 @@
             "action": "open"
         },
         {
+            "label": "Separator",
             "type": "separator"
         },
         {
@@ -83,7 +75,8 @@
             "action": "copy"
         },
         {
-            "type": "separator" 
+            "label": "Separator",
+            "type": "separator"
         },
         {
             "label_id": "ContextMenu.delete",
@@ -96,9 +89,10 @@
             "action": "rename"
         },
         {
+            "label": "Separator",
             "type": "separator"
         },
-        {   
+        {
             "label_id": "ContextMenu.properties",
             "label": "Properties",
             "action": "properties"
@@ -123,6 +117,7 @@
             "action": "empty_bin"
         },
         {
+            "label": "Separator",
             "type": "separator"
         },
         {
@@ -138,12 +133,13 @@
             "action": "open"
         },
         {
+            "label": "Separator",
             "type": "separator"
         },
         {
             "label_id": "ContextMenu.properties",
             "label": "Properties",
-            "action": "properties"
+            "action": "cmd:explorer.exe shell:::{BB06C0E4-D293-4f75-8A90-CB05B6477EEE}"
         }
     ],
     "launchpad.pinned": [
@@ -154,7 +150,7 @@
         }
     ],
     "launchpad.unpinned": [
-            {
+        {
             "label_id": "ContextMenu.pin",
             "label": "Pin",
             "action": "pin"

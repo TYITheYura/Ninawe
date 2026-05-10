@@ -167,11 +167,14 @@ class Launchpad(QWidget):
             self.internalWindowFader.FadeIn()
 
     def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setPen(Qt.PenStyle.NoPen)
         if LConfig.isFullscreen:
-            painter = QPainter(self)
             painter.setBrush(QColor(LConfig.fullscreenColor))
-            painter.setPen(Qt.PenStyle.NoPen)
-            painter.drawRect(self.rect())
+        else:
+            painter.setBrush(QColor("#01000000"))
+
+        painter.drawRect(self.rect())
 
     def BuildVisualGrid(self):
         self.visualGrid = []

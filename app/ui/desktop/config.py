@@ -157,7 +157,7 @@ class WorkAreaConfig(ConfigUpdateChecker):
     def __init__(self):
         self.section = "Desktop.System"
 
-        super().__init__([self.section])
+        super().__init__([self.section, "Taskbar.Position", "Taskbar.Geometry"])
 
         self.workArea = easyDict(
             {
@@ -168,8 +168,9 @@ class WorkAreaConfig(ConfigUpdateChecker):
             }
         )
 
-        self.taskbarMarginX = 0
-        self.taskbarMarginY = 0
+        self.taskbarMarginTop = 0
+        self.taskbarMarginBottom = 0
+        self.minimizeVerticalPosition = 0
 
         self.sw = 0
         self.sh = 0
@@ -186,11 +187,16 @@ class WorkAreaConfig(ConfigUpdateChecker):
         self.workArea.left = configurator.theme.GetInt(self.section, "work_area_padding_left", fallback = 0)
 
         # Horizontal
-        self.taskbarMarginY = TBConfig.panelY + TBConfig.panelHeight
+        taskbarYMarginDetail = TBConfig.panelY + TBConfig.panelHeight
 
-        # Vertical
-        self.taskbarMarginX = TBConfig.panelX + TBConfig.panelWidth
-
+        if self.workArea.top + taskbarYMarginDetail < self.sh / 2:
+            self.taskbarMarginTop = self.workArea.top + taskbarYMarginDetail
+            self.taskbarMarginBottom = self.sh - self.workArea.bottom
+            self.minimizeVerticalPosition = -TBConfig.panelHeight / 2 + 28
+        else:
+            self.taskbarMarginTop = self.workArea.top
+            self.taskbarMarginBottom = TBConfig.panelY - self.workArea.bottom
+            self.minimizeVerticalPosition = TBConfig.panelHeight / 2 + 28
 
 WAConfig = WorkAreaConfig()
 DAConfig = DesktopAppConfig()

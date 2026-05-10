@@ -2,7 +2,7 @@
     "widget": [
         {
             "label_id": "ContextMenu.empty",
-            "label": "Test custom menu sections",
+            "label": "Clock widget",
             "action": ""
         }
     ]

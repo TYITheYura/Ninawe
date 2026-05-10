@@ -18,30 +18,55 @@ class ExplorerCOMWorker(QObject):
     #
     pathsDiscovered = pyqtSignal(set)
 
-    def SyncFoldersTask(self):
+    def SyncFoldersTask(self, target_hwnd=0):
         pythoncom.CoInitializeEx(0)
         try:
             shell = win32com.client.DispatchEx("Shell.Application")
-            currentOpenPaths = set()
+            windows = None
 
-            windows = shell.Windows()
+            if target_hwnd != 0:
+                for _ in range(20):
+                    windows = shell.Windows()
+                    found = False
+
+                    for window in windows:
+                        try:
+                            if getattr(window, "HWND", 0) == target_hwnd and window.LocationURL:
+                                found = True
+                                break
+                        except Exception:
+                            continue
+
+                    if found:
+                        break
+
+                    QThread.msleep(100)
+            else:
+                windows = shell.Windows()
+
+            currentOpenPaths = set()
 
             for window in windows:
                 try:
                     url = window.LocationURL
-
                     if not url or not url.startswith("file:///"):
                         continue
-
                     rawPath = urllib.parse.unquote(url[8:])
                     folderPath = urllib.request.url2pathname(rawPath)
-
                     if folderPath and os.path.isabs(folderPath):
                         currentOpenPaths.add(folderPath)
                 except Exception:
                     continue
 
             self.pathsDiscovered.emit(currentOpenPaths)
+
+            if "window" in locals():
+                del window
+            if "windows" in locals():
+                del windows
+            if "shell" in locals():
+                del shell
+
         except Exception as e:
             MakeLog("[Log] [COMWorker]", f"Sync error: {e}")
         finally:
@@ -72,7 +97,8 @@ class ExplorerCOMWorker(QObject):
 
 class FolderWatcher(QThread):
     #
-    #   The main worker (watcher). It runs in the background, reading changes in open folders and, if any, sending a signal requesting a window refresh.
+    #   The main worker (watcher). It runs in the background, reading changes in open folders
+    #   and, if any, sending a signal requesting a window refresh.
     #
     folderChanged = pyqtSignal(str)
 
@@ -157,7 +183,7 @@ class ExplorerGlobalWatcher(QObject):
     #
     #   Controller object-router between workers. Synchronizes the work of both workers.
     #
-    requestSync = pyqtSignal()
+    requestSync = pyqtSignal(int)
     requestRefresh = pyqtSignal(str)
 
     def __init__(self, parent=None):
@@ -179,8 +205,9 @@ class ExplorerGlobalWatcher(QObject):
 
         self.thread.start()
 
-        QApplication.instance().windowManager.windowsStructureChanged.connect(self.requestSync.emit)
-        self.requestSync.emit()
+        QApplication.instance().windowManager.explorerSyncRequested.connect(self.requestSync.emit)
+
+        self.requestSync.emit(0)
 
     def UpdateWatcherPaths(self, currentOpenPaths):
         added = currentOpenPaths - self.trackedPaths

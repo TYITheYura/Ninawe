@@ -3,7 +3,7 @@ import win32api
 import win32process
 from .. import MakeLogExtra
 
-def ToggleWindow(hwnd, targetX = -1, targetY = -1, normalize = False):
+def ToggleWindow(hwnd, targetX = 0, targetY = 0, normalize = False, alignYTo = 0):
     #
     #   If the window is minimized, it expands; if it is maximized, it collapses (fascinating)
     #   "normalize" subtracts the error that is created when minimizing/maximizing a window to/from a point
@@ -15,13 +15,13 @@ def ToggleWindow(hwnd, targetX = -1, targetY = -1, normalize = False):
         if win32gui.IsIconic(hwnd):
             if normalize:
                 targetX -= 292
-                targetY -= 14
+                targetY -= alignYTo
             CallInPipe("winapi", "SetWindowState", hwnd, targetX, targetY, "RESTORE")
             CallInPipe("win32gui", "SetForegroundWindow", hwnd)
         else:
             if normalize:
                 targetX -= 73
-                targetY -= 14
+                targetY -= alignYTo
             fgHWND = win32gui.GetForegroundWindow()
             if fgHWND == hwnd:
                 CallInPipe("winapi", "SetWindowState", hwnd, targetX, targetY, "MINIMIZE")

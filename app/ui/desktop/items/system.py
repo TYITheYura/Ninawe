@@ -91,3 +91,6 @@ class SystemItem(BaseDesktopItem):
 
         elif command == "properties":
             self.ShowWindowsProperties()
+
+        elif "cmd:" in command:
+            os.system(f"start {command.split('cmd:')[1]}")

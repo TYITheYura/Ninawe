@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#              Version: Medium Well v2.0
+#               Version: Well Done v0.1
 # And remember guys: Ninawe is not a windows explorer
 
 import os
@@ -14,8 +14,7 @@ system32Path = "C:\\Windows\\System32"
 if system32Path.lower() not in os.environ.get("PATH", "").lower():
     os.environ["PATH"] = system32Path + os.pathsep + os.environ.get("PATH", "")
 
-os.system("mode con cols=128 lines=30")
-ctypes.windll.kernel32.SetConsoleTitleW("Ninawe Is Not A Windows Explorer - Shell")
+ctypes.windll.kernel32.SetConsoleTitleW("Ninawe Is Not A Windows Explorer - Shell Debugger")
 
 from PyQt6.QtWidgets import QApplication
 
@@ -27,7 +26,8 @@ from ui.desktop import DesktopWindow
 from ui.taskbar import Taskbar
 from ui.powermenu import PowerMenu
 from ui.launchpad import Launchpad
-from core.utils import SetGlobalAnimations, WorkAreaSetter, SetShellWindow, MakeLog
+from ui.settings import SettingsWindow
+from core.utils import WorkAreaSetter, SetShellWindow, MakeLog
 from core.workers import SystemWindowManager, ExplorerGlobalWatcher
 
 class NinaweShell:
@@ -54,9 +54,6 @@ class NinaweShell:
         # Recalculating the available area on the screen
         self.workArea = WorkAreaSetter()
 
-        # Enabling minimize/maximize animations
-        SetGlobalAnimations(True)
-
         # Window hook
         app.windowManager = SystemWindowManager()
         app.windowManager.start()
@@ -72,13 +69,14 @@ class NinaweShell:
         self.taskbar = Taskbar()
         self.powerMenu = PowerMenu()
         self.launchpad = Launchpad()
+        self.settings = SettingsWindow()
 
         # Set desktop as a shell window
         SetShellWindow(self.desktop.winId())
 
     def Start(self):
 
-        MakeLog("[Log] [Starter]", "We are moving into space...")
+        MakeLog("[Log] [Starter] [0xCAFEBABE]", "We are moving into space...")
 
         self.desktop.show()
         self.taskbar.show()

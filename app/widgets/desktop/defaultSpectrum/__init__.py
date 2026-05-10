@@ -89,7 +89,7 @@ class AudioThread(QThread):
                 mics = sc.all_microphones(include_loopback = True)
                 mic = next((m for m in mics if defaultSpeaker.name in m.name), mics[0])
 
-                MakeLog(f"[SpectrumAudioThread] | Connected: {mic.name}")
+                MakeLog(f"[Log] [SpectrumAudioThread] | Connected: {mic.name}")
 
                 if self.needsReinit:
                     self.BuildMatrices()
@@ -149,39 +149,56 @@ class Widget(QWidget):
             }
         """)
 
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+        self.mainLayout = QVBoxLayout(self)
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        
+        self.isGL = WConfig.HARDWARE_ACCELERATION
+        self.renderer = None
 
-        if WConfig.HARDWARE_ACCELERATION:
-            from .rendererGL import SpectrumRendererGLEngine
-            self.renderer = SpectrumRendererGLEngine(self)
-            MakeLog("[SpectrumWidget] Started with GPU (OpenGL) Engine")
-        else:
-            from .rendererDefault import SpectrumRendererEngine
-            self.renderer = SpectrumRendererEngine(self)
-            MakeLog("[SpectrumWidget] Started with CPU (QPainter) Engine")
+        self.audioThreadObj = AudioThread(self)
+        self.audioThreadObj.start()
 
-        layout.addWidget(self.renderer)
+        self.SetupEngine()
 
         selectedThemeConfig.configUpdated.connect(self.OnGlobalConfigChanged)
 
         self.localWatcher = QFileSystemWatcher()
-
         if os.path.exists(WConfig.configPath):
             self.localWatcher.addPath(WConfig.configPath)
-
         self.localWatcher.fileChanged.connect(self.OnLocalConfigChanged)
 
-        self.audioThreadObj = AudioThread(self)
+
+    def SetupEngine(self):
+        if self.renderer:
+            self.audioThreadObj.dataReadySignal.disconnect(self.renderer.UpdateData)
+            self.renderer.renderTimer.stop()
+            self.mainLayout.removeWidget(self.renderer)
+            self.renderer.setParent(None)
+            self.renderer.deleteLater()
+
+        if self.isGL:
+            from .rendererGL import SpectrumRendererGLEngine
+            self.renderer = SpectrumRendererGLEngine(self)
+            MakeLog("[Log] [SpectrumWidget]", "Started with GPU (OpenGL) Engine")
+        else:
+            from .rendererDefault import SpectrumRendererEngine
+            self.renderer = SpectrumRendererEngine(self)
+            MakeLog("[Log] [SpectrumWidget]", "Started with CPU (QPainter) Engine")
+
+        self.mainLayout.addWidget(self.renderer)
         self.audioThreadObj.dataReadySignal.connect(self.renderer.UpdateData)
-        self.audioThreadObj.start()
+
 
     def OnGlobalConfigChanged(self, source, changedSections):
-        if "ALL" not in changedSections and WConfig.propsSection not in changedSections and WConfig.styleSection not in changedSections:
+        isThemeUpdate = (source == "theme" and ("ALL" in changedSections or WConfig.propsSection in changedSections or WConfig.styleSection in changedSections))
+        isAppUpdate = (source == "app" and ("ALL" in changedSections or "Performance" in changedSections))
+
+        if not (isThemeUpdate or isAppUpdate):
             return
 
         MakeLog("[Log] [Desktop.Spectrum] | Global config changed. Applying.")
         self.ApplyNewConfig()
+
 
     def OnLocalConfigChanged(self, path):
         if path not in self.localWatcher.files() and os.path.exists(path):
@@ -190,8 +207,15 @@ class Widget(QWidget):
         MakeLog(f"[Log] [Desktop.Spectrum] | LC changed: {path}")
         self.ApplyNewConfig()
 
+
     def ApplyNewConfig(self):
         WConfig.Updater()
+        
+        if self.isGL != WConfig.HARDWARE_ACCELERATION:
+            MakeLog("[Log] [Desktop.Spectrum]", "Swapping rendering engine...")
+            self.isGL = WConfig.HARDWARE_ACCELERATION
+            self.SetupEngine()
+
         self.renderer.renderTimer.stop()
         self.renderer.ReinitArrays()
         self.audioThreadObj.TriggerReinit()

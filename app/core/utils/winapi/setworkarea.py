@@ -19,9 +19,9 @@ class WorkAreaSetter:
         from ui.desktop import WAConfig
         try:
             rect = RECT()
-            rect.top = WAConfig.workArea.top + WAConfig.taskbarMarginY
+            rect.top = WAConfig.taskbarMarginTop
+            rect.bottom = WAConfig.taskbarMarginBottom
             rect.right = WAConfig.sw - WAConfig.workArea.right
-            rect.bottom = WAConfig.sh - WAConfig.workArea.bottom
             rect.left = WAConfig.workArea.left
 
             result = ctypes.windll.user32.SystemParametersInfoW(

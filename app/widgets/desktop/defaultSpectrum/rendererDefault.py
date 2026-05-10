@@ -43,7 +43,7 @@ class SpectrumRendererEngine(QWidget):
             return
 
         painter = QPainter(self)
-        # painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         deltaTime = self.timeTracker.restart()
         timeScale = min(deltaTime / WConfig.physicsRefreshRateTimer, 3.0)

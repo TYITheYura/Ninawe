@@ -34,22 +34,28 @@ def MakeBlur(hwnd: int, enable: bool = True, blurMode: int = AccentState.ACCENT_
     #   enable - on/off blur (config file param)
     #   colorHEX - background color
     #
+    from core.config import config
+    globalBlurSettingIsEnabled = config.app.GetBool("Performance", "global_blur_enabled", fallback = False)
+
     user32 = ctypes.windll.user32
     SetWCA = user32.SetWindowCompositionAttribute
     SetWCA.argtypes = [ctypes.c_void_p, ctypes.POINTER(WINDOWCOMPOSITIONATTRIBDATA)]
     SetWCA.restype = ctypes.c_int
 
     try:
-        colorHEX = colorHEX.replace("#", "")
-        if len(colorHEX) == 6:
-            colorHEX = "FF" + colorHEX
+        if blurMode == 0:
+            gradientColor = 0
+        else:
+            colorHEX = colorHEX.replace("#", "")
+            if len(colorHEX) == 6:
+                colorHEX = "FF" + colorHEX
 
-        a = int(colorHEX[0:2], 16)
-        r = int(colorHEX[2:4], 16)
-        g = int(colorHEX[4:6], 16)
-        b = int(colorHEX[6:8], 16)
+            a = int(colorHEX[0:2], 16)
+            r = int(colorHEX[2:4], 16)
+            g = int(colorHEX[4:6], 16)
+            b = int(colorHEX[6:8], 16)
 
-        gradientColor = (a << 24) | (b << 16) | (g << 8) | r
+            gradientColor = (a << 24) | (b << 16) | (g << 8) | r
     except Exception:
         gradientColor = 0
 
@@ -67,9 +73,12 @@ def MakeBlur(hwnd: int, enable: bool = True, blurMode: int = AccentState.ACCENT_
     SetWCA(int(hwnd), ctypes.pointer(data))
 
     if enable:
-        blurMode = AccentState.ACCENT_ENABLE_ACRYLICBLURBEHIND.value if blurMode == 1 else AccentState.ACCENT_ENABLE_BLURBEHIND.value
-        accent.AccentState = blurMode
+        if globalBlurSettingIsEnabled:
+            accent.AccentState = AccentState.ACCENT_ENABLE_ACRYLICBLURBEHIND.value if blurMode == 1 else AccentState.ACCENT_ENABLE_BLURBEHIND.value
+        else:
+            accent.AccentState = AccentState.ACCENT_ENABLE_TRANSPARENTGRADIENT.value
+
         accent.GradientColor = gradientColor
-        accent.AccentFlags = 1
+        accent.AccentFlags = 2
 
         SetWCA(int(hwnd), ctypes.pointer(data))

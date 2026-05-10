@@ -1,6 +1,52 @@
 {
     "desktop": [
         {
+            "type": "widget",
+            "name": "defaultClock",
+            "position": [
+                10,
+                5
+            ],
+            "id": "2374f042-3147-4156-84cd-dbe2e194e3fb",
+            "minWidth": 300,
+            "minHeight": 100,
+            "spanX": 4,
+            "spanY": 2
+        },
+        {
+            "type": "system_icon",
+            "name": "recycle_bin",
+            "path": "shell:::{645FF040-5081-101B-9F08-00AA002F954E}",
+            "system_type": "recycle_bin",
+            "position": [
+                1,
+                2
+            ],
+            "id": "c38dd047-518a-4de2-a9b1-2d3fb19e1514",
+            "spanX": 1,
+            "spanY": 1
+        },
+        {
+            "type": "file",
+            "name": "123.py",
+            "path": "C:\\Users\\User\\Desktop\\123.py",
+            "icon": "default",
+            "position": [
+                6,
+                6
+            ]
+        },
+        {
+            "type": "file",
+            "name": "123123.py",
+            "path": "C:\\Users\\User\\Desktop\\123123.py",
+            "icon": "default",
+            "position": [
+                9,
+                3
+            ]
+        },
+        {
             "type": "folder",
             "name": "anything but work",
             "path": "C:\\Users\\User\\Desktop\\anything but work",
@@ -66,7 +112,7 @@
             "path": "C:\\Users\\User\\Desktop\\uhhhhhhh",
             "icon": "default",
             "position": [
-                16,
+                15,
                 3
             ]
         },
@@ -86,7 +132,7 @@
             "path": "C:\\Users\\User\\Desktop\\Видео.lnk",
             "icon": "default",
             "position": [
-                21,
+                19,
                 2
             ]
         },
@@ -96,7 +142,7 @@
             "path": "C:\\Users\\User\\Desktop\\Документы.lnk",
             "icon": "default",
             "position": [
-                22,
+                20,
                 3
             ]
         },
@@ -106,7 +152,7 @@
             "path": "C:\\Users\\User\\Desktop\\Изображения.lnk",
             "icon": "default",
             "position": [
-                20,
+                18,
                 1
             ]
         },
@@ -136,8 +182,18 @@
             "path": "C:\\Users\\User\\Desktop\\Музыка.lnk",
             "icon": "default",
             "position": [
-                22,
+                20,
                 1
+            ]
+        },
+        {
+            "type": "file",
+            "name": "Новый текстовый документ (2).txt",
+            "path": "C:\\Users\\User\\Desktop\\Новый текстовый документ (2).txt",
+            "icon": "default",
+            "position": [
+                6,
+                3
             ]
         },
         {
@@ -156,17 +212,7 @@
             "path": "C:\\Users\\User\\Desktop\\теми",
             "icon": "default",
             "position": [
-                6,
-                3
-            ]
-        },
-        {
-            "type": "file",
-            "name": "фиксы.txt",
-            "path": "C:\\Users\\User\\Desktop\\фиксы.txt",
-            "icon": "default",
-            "position": [
-                15,
+                16,
                 3
             ]
         },
@@ -178,30 +224,10 @@
             "position": [
                 1,
                 1
-            ]
-        },
-        {
-            "type": "system_icon",
-            "name": "recycle_bin",
-            "path": "shell:::{645FF040-5081-101B-9F08-00AA002F954E}",
-            "system_type": "recycle_bin",
-            "position": [
-                1,
-                2
-            ]
-        },
-        {
-            "type": "widget",
-            "name": "defaultClock",
-            "position": [
-                10,
-                5
             ],
-            "spanX": 4,
-            "spanY": 2,
-            "id": "1365d1b6-f983-4c01-a892-65895b286488",
-            "minWidth": 300,
-            "minHeight": 100
+            "id": "cf4a465f-5bf0-4148-99a5-52d89c0a7a7b",
+            "spanX": 1,
+            "spanY": 1
         },
         {
             "type": "widget",
@@ -210,7 +236,7 @@
                 0,
                 8
             ],
-            "id": "5970183f-b67f-4a42-873b-5680d9433cbe",
+            "id": "1dbd5cf0-7f2b-4165-a4e9-fb34179787dd",
             "minWidth": 1920,
             "minHeight": 350,
             "spanX": 24,

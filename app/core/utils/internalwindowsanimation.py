@@ -15,23 +15,34 @@ class InternalWindowFader(QObject):
         self.target.setWindowOpacity(0.0)
 
     def FadeIn(self):
+        from core.config import config
+
         self.target.show()
 
-        self.animationIn = QPropertyAnimation(self.target, b"windowOpacity")
-        self.animationIn.setDuration(self.durationIn)
-        self.animationIn.setStartValue(self.target.windowOpacity())
-        self.animationIn.setEndValue(1.0)
-        self.animationIn.setEasingCurve(QEasingCurve.Type.OutCirc)
-        self.animationIn.start()
+        if config.app.GetBool("Performance", "animations_enabled", fallback = False):
+            self.animationIn = QPropertyAnimation(self.target, b"windowOpacity")
+            self.animationIn.setDuration(self.durationIn)
+            self.animationIn.setStartValue(self.target.windowOpacity())
+            self.animationIn.setEndValue(1.0)
+            self.animationIn.setEasingCurve(QEasingCurve.Type.OutCirc)
+            self.animationIn.start()
+        else:
+            self.target.setWindowOpacity(1.0)
 
     def FadeOut(self, onFinished = None):
-        self.animationOut = QPropertyAnimation(self.target, b"windowOpacity")
-        self.animationOut.setDuration(self.durationOut)
-        self.animationOut.setStartValue(self.target.windowOpacity())
-        self.animationOut.setEndValue(0.0)
-        self.animationOut.setEasingCurve(QEasingCurve.Type.OutCirc)
+        from core.config import config
 
-        if onFinished:
-            self.animationOut.finished.connect(onFinished)
+        if config.app.GetBool("Performance", "animations_enabled", fallback = False):
+            self.animationOut = QPropertyAnimation(self.target, b"windowOpacity")
+            self.animationOut.setDuration(self.durationOut)
+            self.animationOut.setStartValue(self.target.windowOpacity())
+            self.animationOut.setEndValue(0.0)
+            self.animationOut.setEasingCurve(QEasingCurve.Type.OutCirc)
 
-        self.animationOut.start()
+            if onFinished:
+                self.animationOut.finished.connect(onFinished)
+
+            self.animationOut.start()
+        else:
+            self.target.setWindowOpacity(0.0)
+            onFinished()

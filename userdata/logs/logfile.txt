@@ -1,17 +1,21 @@
 [Log] [Config] | Default path: C:\Users\User\Desktop\Ninawe\Ninawe
 [Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
-[Log] [LangManager] | Loading system language: ru
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Loaded translation from 2 files (System + Widgets).
 [Log] [ThemeConfig] | Caching theme global properties...
 [Log] [ThemeConfig] | Theme loaded: default
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
 [Log] [ConfigWatcher] [UpdateWatchList] | Added: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\themeconfig.ini
 [Log] [ConfigUpdateChecker] | Connected: ['PowerMenu']
-[Log] [ConfigUpdateChecker] | Connected: ['Taskbar']
-[Log] [ConfigUpdateChecker] | Connected: ['Desktop.System']
+[Log] [ConfigUpdateChecker] | Connected: ['Taskbar', 'Taskbar.Geometry', 'Taskbar.ActiveWidgets', 'Taskbar.Position']
+[Log] [ConfigUpdateChecker] | Connected: ['Desktop.System', 'Taskbar.Position', 'Taskbar.Geometry']
 [Log] [ConfigUpdateChecker] | Connected: ['App']
 [Log] [ConfigUpdateChecker] | Connected: ['Desktop']
 [Log] [ConfigUpdateChecker] | Connected: ['Desktop.Icon']
 [Log] [ConfigUpdateChecker] | Connected: ['Launchpad.Directories', 'Launchpad.IgnoreNames', 'Launchpad.RetranslateLayouts', 'App']
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
 [Log] [ConfigUpdateChecker] | Connected: ['Launchpad', 'Launchpad.Directories']
 [Log] [ConfigUpdateChecker] | Connected: ['Launchpad.Item']
 
@@ -25,35 +29,137 @@
                 ### ## #  ###    #### ########### ###    #### ###     ###   ###   ###   ##########
     ---:::+++#####+++:::---
 
-[Log] [SetWorkArea] | A new working area of 1870x988 pixels has been set
-[Log] [WinAPI.SetWindowAnimations] | Minimizing animations is turned on
+[Log] [SetWorkArea] | A new working area of 1900x1020 pixels has been set
 [Log] [ConfigUpdateChecker] | Connected: ['Hotkeys.Custom', 'Hotkeys.Ninawe']
-[Log] [AdminPipe] | Starting admin daemon...
-[Log] [AdminPipe] | Daemon is already running.
 [Log] [Hotkeys] | Cleared all hotkeys.
 [Log] [Hotkeys] | Loading hotkeys from config...
 [Log] [Hotkeys] | Registered Solo key: ['windows', 'left windows', 'right windows']
 [Log] [Hotkeys] | Registered native combo: win+q (ID: 1)
 [Log] [Hotkeys] | Registered native combo: win+d (ID: 2)
 [Log] [Hotkeys] | Registered native combo: win+r (ID: 3)
-[Log] [Hotkeys] | Registered native combo: win+e (ID: 4)
-[Log] [Hotkeys] | Registered native combo: win+x (ID: 5)
+[Log] [Hotkeys] | Registered native combo: win+n (ID: 4)
+[Log] [Hotkeys] | Registered native combo: win+e (ID: 5)
+[Log] [Hotkeys] | Registered native combo: win+x (ID: 6)
 [Log] [WallpaperManager] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\app\themes\default\resources\wallpapers (Mode: cover)
+[Log] [AdminPipe] | Starting admin daemon...
+[Log] [AdminPipe] | Daemon is already running.
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
 [Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
-[SpectrumWidget] Started with GPU (OpenGL) Engine
-[Log] [ConfigUpdateChecker] | Connected: ['Taskbar.Clock']
+[Log] [SpectrumAudioThread] | Connected: Динамики / головные телефоны (Realtek Audio)
+[Log] [SpectrumWidget] | Started with GPU (OpenGL) Engine
+[Log] [ConfigUpdateChecker] | Connected: ['Taskbar.Clock', 'Taskbar.Geometry']
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: defaultClock
-[Log] [ConfigUpdateChecker] | Connected: ['Taskbar.LaunchpadButton']
+[Log] [ConfigUpdateChecker] | Connected: ['Taskbar.LaunchpadButton', 'Taskbar.Geometry']
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: launchpadButton
-[Log] [ConfigUpdateChecker] | Connected: ['Taskbar.AppList']
-[SpectrumAudioThread] | Connected: Динамики / головные телефоны (Realtek Audio)
+[Log] [ConfigUpdateChecker] | Connected: ['Taskbar.AppList', 'Taskbar.Geometry']
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: appList
 [Log] [SetShellWindow] | Ninawe Desktop is registered in the system as a shell
-[Log] [Starter] | We are moving into space...
-[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\uhhhhhhh
+[Log] [Starter] [0xCAFEBABE] | We are moving into space...
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [LangManager] | Found primary system language: ua
+[Log] [LangManager] | Loaded translation from 1 files (System + Widgets).
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Loaded translation from 2 files (System + Widgets).
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [LangManager] | Found primary system language: ua
+[Log] [LangManager] | Loaded translation from 1 files (System + Widgets).
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Loaded translation from 2 files (System + Widgets).
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [LangManager] | Found primary system language: ua
+[Log] [LangManager] | Loaded translation from 2 files (System + Widgets).
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Loaded translation from 3 files (System + Widgets).
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [LangManager] | Found primary system language: ua
+[Log] [LangManager] | Loaded translation from 5 files (System + Widgets).
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Loaded translation from 5 files (System + Widgets).
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Loaded translation from 5 files (System + Widgets).
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Loaded translation from 5 files (System + Widgets).
+[Log] [LangManager] | Found primary system language: uk
+[Log] [LangManager] | Found primary system language: ru
+[Log] [LangManager] | Found primary system language: ua
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
 [Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Ninawe
-[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Poweramp Equalizer Mixer
-[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\uhhhhhhh is over
-[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\Poweramp Equalizer Mixer is over
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Ninawe\Ninawe
 [Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\Ninawe is over
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Ninawe\Ninawe\app
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\Ninawe\Ninawe is over
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Ninawe\Ninawe
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\Ninawe\Ninawe\app is over

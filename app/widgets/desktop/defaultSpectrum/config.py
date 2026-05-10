@@ -50,7 +50,9 @@ class WidgetConfig:
         else:
             self.selectedConfig = self.WConfig
 
-        self.widgetWidth = self.selectedConfig.GetInt("Layout", "min_width", fallback = 200)
+        self.HARDWARE_ACCELERATION = selectedThemeConfig.app.GetBool("Performance", "hardware_acceleration", fallback = True)
+
+        self.widgetWidth = self.WConfig.GetInt("Layout", "min_width", fallback = 200)
 
         self.SAMPLE_RATE = self.selectedConfig.GetInt(self.propsSection, "sample_rate", fallback = 44100)
         self.CHUNK_SIZE = self.selectedConfig.GetInt(self.propsSection, "chunk_size", fallback = 2048)

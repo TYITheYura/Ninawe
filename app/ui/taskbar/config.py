@@ -7,8 +7,11 @@ from core.utils import RAWToPerOrPix
 class TaskbarConfig(ConfigUpdateChecker):
     def __init__(self):
         self.section = "Taskbar"
+        self.geometrySection = "Taskbar.Geometry"
+        self.activeWidgetsSection = "Taskbar.ActiveWidgets"
+        self.positionSection = "Taskbar.Position"
 
-        super().__init__([self.section])
+        super().__init__([self.section, self.geometrySection, self.activeWidgetsSection, self.positionSection])
 
         self.enableBlur = False
         self.radius = 0
@@ -37,21 +40,21 @@ class TaskbarConfig(ConfigUpdateChecker):
 
         # Panel width/height
 
-        rawPanelWidthData = themeConfig.theme.Get(self.section, "width", fallback = 90)
-        rawPanelHeightData = themeConfig.theme.Get(self.section, "height", fallback = 30)
+        rawPanelWidthData = themeConfig.theme.Get(self.geometrySection, "width", fallback = 90)
+        rawPanelHeightData = themeConfig.theme.Get(self.geometrySection, "height", fallback = 30)
 
-        self.panelWidth = RAWToPerOrPix(rawPanelWidthData, self.sw, fallback = self.sw)
-        self.panelHeight = RAWToPerOrPix(rawPanelHeightData, self.sh, fallback = self.sh * (2 / 100))
+        self.panelWidth = round(RAWToPerOrPix(rawPanelWidthData, self.sw, fallback = self.sw))
+        self.panelHeight = round(RAWToPerOrPix(rawPanelHeightData, self.sh, fallback = self.sh * (2 / 100)))
 
-        anchorX = themeConfig.theme.Get(self.section, "anchor_x", fallback = 50)
-        anchorY = themeConfig.theme.Get(self.section, "anchor_y", fallback = 100)
+        anchorX = themeConfig.theme.Get(self.positionSection, "anchor_x", fallback = 50)
+        anchorY = themeConfig.theme.Get(self.positionSection, "anchor_y", fallback = 100)
 
         # End.
 
         # Panel position
 
-        rawPanelXPositionData = themeConfig.theme.Get(self.section, "position_x", fallback = 98)
-        rawPanelYPositionData = themeConfig.theme.Get(self.section, "position_y", fallback = 2)
+        rawPanelXPositionData = themeConfig.theme.Get(self.positionSection, "position_x", fallback = 98)
+        rawPanelYPositionData = themeConfig.theme.Get(self.positionSection, "position_y", fallback = 2)
 
         panelXPosition = RAWToPerOrPix(rawPanelXPositionData, self.sw)
         panelYPosition = RAWToPerOrPix(rawPanelYPositionData, self.sh)
@@ -59,8 +62,8 @@ class TaskbarConfig(ConfigUpdateChecker):
         offsetX = RAWToPerOrPix(anchorX, self.panelWidth)
         offsetY = RAWToPerOrPix(anchorY, self.panelHeight)
 
-        self.panelX = panelXPosition - offsetX
-        self.panelY = panelYPosition - offsetY
+        self.panelX = round(panelXPosition - offsetX)
+        self.panelY = round(panelYPosition - offsetY)
 
         # End.
 

@@ -30,8 +30,8 @@ class GridManager:
         return QRect(posX, posY, int(pixelWidth), int(pixelHeight))
 
     @staticmethod
-    def IsPositionFree(startX, startY, spanX, spanY, occupiedPositions, maxRows):
-        if startY + spanY > maxRows:
+    def IsPositionFree(startX, startY, spanX, spanY, occupiedPositions, maxCols, maxRows):
+        if startY + spanY > maxRows or startX + spanX > maxCols:
             return False
 
         for x in range(startX, startX + spanX):
@@ -41,13 +41,15 @@ class GridManager:
         return True
 
     @staticmethod
-    def GetFirstFreePosition(occupiedPositions, maxRows, spanX = 1, spanY = 1):
+    def GetFirstFreePosition(occupiedPositions, maxCols, maxRows, spanX = 1, spanY = 1):
         col = 0
-        while True:
+        while col + spanX <= maxCols:
             for row in range(maxRows - spanY + 1):
-                if GridManager.IsPositionFree(col, row, spanX, spanY, occupiedPositions, maxRows):
+                if GridManager.IsPositionFree(col, row, spanX, spanY, occupiedPositions, maxCols, maxRows):
                     return [col, row]
             col += 1
+
+        return None
 
     @staticmethod
     def IsPositionValid(targetGridX, targetGridY, itemSpanX, itemSpanY, ignoreItems, desktopItems, windowWidth, windowHeight, DConfig, IConfig):

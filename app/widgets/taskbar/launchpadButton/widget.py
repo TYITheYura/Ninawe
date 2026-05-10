@@ -8,7 +8,6 @@ class Widget(QLabel):
 	def __init__(self, parent = None):
 		super().__init__(parent)
 		self.setObjectName("launchpadButtonWidget")
-		self.defaultSection = "Taskbar.LaunchpadButton"
 
 		WConfig.configUpdated.connect(self.UpdateStyles)
 

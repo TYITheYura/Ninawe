@@ -9,6 +9,7 @@ from core.config import config as configurator
 from ui.components import ContextMenu
 from .config import WConfig
 from ui.taskbar import TBConfig
+from ui.desktop import WAConfig
 from core.workers import CallInPipe
 from .manager import Manager
 from .expose import AppExposeWidget
@@ -259,7 +260,7 @@ class Widget(QWidget):
             targetY = globalPosition.y()
 
         if len(windowsList) == 1:
-            ToggleWindow(windowsList[0]["hwnd"], targetX, targetY, True)
+            ToggleWindow(windowsList[0]["hwnd"], targetX, targetY, True, WAConfig.minimizeVerticalPosition)
         else:
             self.exposeWindow = AppExposeWidget()
             self.exposeWindow.ShowGroup(windowsList)

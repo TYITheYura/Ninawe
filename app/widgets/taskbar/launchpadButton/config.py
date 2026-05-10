@@ -10,7 +10,7 @@ class WidgetConfig(ConfigUpdateChecker):
     def __init__(self):
         self.section = "Taskbar.LaunchpadButton"
 
-        super().__init__([self.section])
+        super().__init__([self.section, "Taskbar.Geometry"])
 
         self.buildInConfig = ConfigWrapper()
         self.selectedConfig = ""

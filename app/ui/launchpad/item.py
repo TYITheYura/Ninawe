@@ -1,7 +1,10 @@
 import os
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QApplication)
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QLabel,
+    QApplication, QGraphicsDropShadowEffect
+)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QCursor
+from PyQt6.QtGui import QCursor, QColor
 import win32com.client
 from core.workers import ThumbnailLoaderThread
 from ui.components import ContextMenu
@@ -45,6 +48,13 @@ class LaunchpadItem(QWidget):
         self.textLabel.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.textLabel.setWordWrap(True)
         self.textLabel.setStyleSheet("color: white; font-size: 12px; background: transparent;")
+
+        shadow = QGraphicsDropShadowEffect(self.textLabel)
+        shadow.setBlurRadius(5)
+        shadow.setXOffset(0)
+        shadow.setYOffset(0)
+        shadow.setColor(QColor(0, 0, 0, 200))
+        self.textLabel.setGraphicsEffect(shadow)
 
         layout.addStretch()
         layout.addWidget(self.iconLabel, alignment = Qt.AlignmentFlag.AlignCenter)

@@ -64,7 +64,6 @@ class PowerMenu(QWidget):
                 widget.deleteLater()
 
         self.LayoutPicker()
-        self.ColorPicker(True)
 
         # Button maker
         for buttonPreference in self.userPreferencesData.get("buttons"):
@@ -162,28 +161,6 @@ class PowerMenu(QWidget):
             self.layout.setDirection(direction)
             self.containerLayoutForButtons.setDirection(direction)
 
-    def ColorPicker(self, updateToBG = False):
-        if updateToBG:  # what the fuck.
-            if PMConfig.isFullscreen:
-                if PMConfig.useBGColor:
-                    PMConfig.fullscreenColor = PMConfig.bgColor
-                    PMConfig.doubleContainerColor = "#00000000"
-                elif not PMConfig.useBGColor:
-                    PMConfig.fullscreenColor = "#01000000"
-                    PMConfig.doubleContainerColor = PMConfig.bgColor
-            elif not PMConfig.isFullscreen:
-                PMConfig.doubleContainerColor = self.ColorPicker()
-                PMConfig.fullscreenColor = PMConfig.bgColor
-            return
-
-        if PMConfig.doubleContainerBackground is True:
-            if PMConfig.doubleContainerBackgroundAccent == "container":
-                return PMConfig.containerColor
-            else:
-                return PMConfig.bgColor
-        else:
-            return PMConfig.containerColor
-
     def LoadUserPreferences(self):
         # Deleting buttons (legacy actually)
         self.buttons.clear()
@@ -204,7 +181,7 @@ class PowerMenu(QWidget):
             painter.drawRect(self.rect())
 
         if PMConfig.isFullscreen and (not PMConfig.blurEnabled or PMConfig.blurMode != 1):
-            painter.setBrush(QColor(PMConfig.fullscreenColor))
+            painter.setBrush(QColor(PMConfig.bgColor))
             painter.drawRect(self.rect())
 
         buttonLen = len(self.buttons)
@@ -228,7 +205,14 @@ class PowerMenu(QWidget):
         outerH = innerH + PMConfig.containerMargins * 2
 
         # border & background maker 3000
-        outerColor = PMConfig.doubleContainerColor if (not PMConfig.blurEnabled or PMConfig.blurMode == 0) else "#01000000"
+        if PMConfig.doubleContainerBackground:
+            outerColor = PMConfig.doubleContainerColor if (
+                PMConfig.blurMode == 0 or (
+                    PMConfig.blurEnabled and PMConfig.isFullscreen and PMConfig.blurMode == 1
+                )
+            ) else "#01000000"
+        else:
+            outerColor = "#01000000"
         painter.setBrush(QBrush(QColor(outerColor)))
 
         borderRect = QRectF(
@@ -277,7 +261,7 @@ class PowerMenu(QWidget):
     def showEvent(self, event):
         # Draw blur
         if PMConfig.blurEnabled:
-            MakeBlur(self.winId(), True, PMConfig.blurMode, PMConfig.fullscreenColor)
+            MakeBlur(self.winId(), True, PMConfig.blurMode, PMConfig.bgColor)
         else:
             MakeBlur(self.winId(), False)
 
@@ -301,7 +285,6 @@ class PowerMenu(QWidget):
             self.internalWindowFader.FadeOut(self.close)
 
     def mousePressEvent(self, event):
-        # Working only when background not transperent sadly.
         if self.childAt(event.pos()) is None:
             self.internalWindowFader.FadeOut(self.close)
 

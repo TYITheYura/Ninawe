@@ -60,7 +60,8 @@ class HotkeyManager:
             "launcher_toggle": shellSignals.toggleLaunchpad.emit,
             "powermenu_toggle": shellSignals.togglePowerMenu.emit,
             "toggle_desktop": self.desktopToggler.ToggleDesktop,
-            "run": RunDialog
+            "run": RunDialog,
+            "show_ninawe_settings": shellSignals.toggleSettingsWindow.emit
         }
 
         self.Reload()
@@ -213,7 +214,7 @@ class HotkeyManager:
 class UISignalManager(QObject):
     toggleLaunchpad = pyqtSignal()
     togglePowerMenu = pyqtSignal()
-    toggleRunDialog = pyqtSignal()
+    toggleSettingsWindow = pyqtSignal()
 
 
 shellSignals = UISignalManager()

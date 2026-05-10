@@ -36,12 +36,15 @@ class Taskbar(QWidget):
         # Flag for blur redrawing
         TBConfig.themeUpdatedState = True
 
-        if "ALL" in changedSections:
+        if changedSections and ("ALL" in changedSections or "Taskbar.ActiveWidgets" in changedSections):
             self.widgetsManager.LoadWidgets()
+            # self.widgetsManager.InitLayout() # Will be used in future
 
         # Updating widget styles
         if self.widgetsManager.widgets:
             self.widgetsManager.ReloadStyles(changedSections)
+
+        self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)

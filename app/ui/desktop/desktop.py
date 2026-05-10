@@ -1,9 +1,9 @@
 import os
 from PyQt6.QtWidgets import (
-    QMainWindow, QWidget, QApplication,
+    QMainWindow, QWidget, QApplication, QMessageBox
 )
 from PyQt6.QtGui import (
-    QPainter, QColor, QCursor,
+    QPainter, QColor, QCursor
 )
 from PyQt6.QtCore import (
     Qt, QRect, QFileSystemWatcher, pyqtSignal, QTimer
@@ -15,7 +15,7 @@ from .config import DConfig, IConfig, DAConfig
 from .items import SystemItem, FileItem, WidgetItem
 from core.config import config as configurator
 from core.utils import FO_COPY, FO_MOVE, FOF_NOCONFIRMATION, GetRealTargetPath
-from core.managers import GridManager, DesktopStateManager, WallpaperManager, WidgetManager
+from core.managers import GridManager, DesktopStateManager, WallpaperManager, WidgetManager, shellSignals
 from core.workers import FileOperationThread, DesktopWatcher
 import math
 import uuid
@@ -101,90 +101,133 @@ class DesktopWindow(QMainWindow):
 
     def ScanDesktop(self, softUpdate = False):
         self.stateManager.Load()
-
-        savedItems = {os.path.normpath(item["path"]): item for item in self.stateManager.state.get("desktop", []) if item.get("type") not in self.VIRTUAL_TYPES}
-        virtualItems = [item for item in self.stateManager.state.get("desktop", []) if item.get("type") in self.VIRTUAL_TYPES]
+        rawDesktopState = self.stateManager.state.get("desktop", [])
 
         if not os.path.exists(DConfig.desktopPath):
             MakeLog("[Log] [Desktop]", "Desktop folder not found")
             return
 
-        maxRows = max(1, (self.height() - DConfig.windowMarginY * 2) // (IConfig.itemHeight + IConfig.spacingY))
+        try:
+            maxRows = max(1, (self.height() - DConfig.windowMarginY * 2) // (IConfig.itemHeight + IConfig.spacingY))
+            maxCols = max(1, (self.width() - DConfig.windowMarginX * 2) // (IConfig.itemWidth + IConfig.spacingX))
+        except Exception:
+            maxRows = maxCols = 0
 
         occupiedPositions = set()
+        updatedDesktopData = []
+        processedPaths = set()
 
-        for item in savedItems.values():
-            pos = item.get("position", [0, 0])
-            occupiedPositions.add((pos[0], pos[1]))
+        homelessItems = []
 
-        for widget in virtualItems:
-            if widget.get("type") != "widget":
-                pos = widget.get("position", [0, 0])
-                occupiedPositions.add((pos[0], pos[1]))
-                continue
+        for itemData in rawDesktopState:
+            itemType = itemData.get("type", "file")
+            pos = itemData.get("position", [0, 0])
+            itemName = itemData.get("name", os.path.basename(itemData.get("path", "Unknown Item")))
 
-            if "id" not in widget or not widget["id"]:
-                widget["id"] = str(uuid.uuid4())
-                MakeLog("[Log] [Desktop]", f"Generated new ID for widget '{widget.get('name')}': {widget['id']}")
+            if itemType in self.VIRTUAL_TYPES:
+                spanX = spanY = 1
+                if itemType == "widget":
+                    if "id" not in itemData or not itemData["id"]:
+                        itemData["id"] = str(uuid.uuid4())
 
-            pos = widget.get("position", [0, 0])
-            widgetName = widget.get("name", "")
+                    if "minWidth" not in itemData or "minHeight" not in itemData:
+                        BIWidgetConfig = WidgetManager.GetWidgetConfig("desktop", itemName)
+                        itemData["minWidth"] = BIWidgetConfig["minWidth"]
+                        itemData["minHeight"] = BIWidgetConfig["minHeight"]
 
-            if "minWidth" not in widget or "minHeight" not in widget:
-                BIWidgetConfig = WidgetManager.GetWidgetConfig("desktop", widgetName)
-                widget["minWidth"] = BIWidgetConfig["minWidth"]
-                widget["minHeight"] = BIWidgetConfig["minHeight"]
+                    try:
+                        spanX = math.ceil(itemData.get("minWidth", 200) / (IConfig.itemWidth + IConfig.spacingX))
+                        spanY = math.ceil(itemData.get("minHeight", 200) / (IConfig.itemHeight + IConfig.spacingY))
+                    except Exception:
+                        pass
 
-            minWidth = widget.get("minWidth", 200)
-            minHeight = widget.get("minHeight", 200)
+                itemData["spanX"] = spanX
+                itemData["spanY"] = spanY
 
-            spanX = math.ceil(minWidth / (IConfig.itemWidth + IConfig.spacingX))
-            spanY = math.ceil(minHeight / (IConfig.itemHeight + IConfig.spacingY))
+                if not GridManager.IsPositionFree(pos[0], pos[1], spanX, spanY, occupiedPositions, maxCols, maxRows):
+                    newPos = GridManager.GetFirstFreePosition(occupiedPositions, maxCols, maxRows, spanX, spanY)
 
-            widget["spanX"] = spanX
-            widget["spanY"] = spanY
+                    if newPos is None:
+                        MakeLog("[Log] [Desktop]", f"No space for widget: {itemName}. Removing.")
+                        homelessItems.append(itemName)
+                        continue
 
-            for x in range(spanX):
-                for y in range(spanY):
-                    occupiedPositions.add((pos[0] + x, pos[1] + y))
+                    MakeLog("[Log] [Desktop]", f"Collision resolved for virtual item '{itemName}': {pos} -> {newPos}")
+                    itemData["position"] = newPos
+                    pos = newPos
+
+                for x in range(spanX):
+                    for y in range(spanY):
+                        occupiedPositions.add((pos[0] + x, pos[1] + y))
+
+                updatedDesktopData.append(itemData)
+            else:
+                filepath = os.path.normpath(itemData.get("path", ""))
+                if not os.path.exists(filepath):
+                    continue
+
+                processedPaths.add(filepath)
+
+                if self.pendingDropPositions and filepath in self.pendingDropPositions:
+                    desiredPos = self.pendingDropPositions.pop(filepath)
+
+                    if desiredPos[0] < maxCols and desiredPos[1] < maxRows and tuple(desiredPos) not in occupiedPositions:
+                        pos = desiredPos
+                    else:
+                        pos = GridManager.GetFirstFreePosition(occupiedPositions, maxCols, maxRows)
+
+                    if pos is not None:
+                        itemData["position"] = pos
+
+                if pos is None or not GridManager.IsPositionFree(pos[0], pos[1], 1, 1, occupiedPositions, maxCols, maxRows):
+                    newPos = GridManager.GetFirstFreePosition(occupiedPositions, maxCols, maxRows, 1, 1)
+
+                    if newPos is None:
+                        MakeLog("[Log] [Desktop]", f"No space for file: {itemName}. It remains in the folder but won't be shown.")
+                        homelessItems.append(itemName)
+                        continue
+
+                    MakeLog("[Log] [Desktop]", f"Collision resolved for file '{itemName}': {pos} -> {newPos}")
+                    itemData["position"] = newPos
+                    pos = newPos
+
+                occupiedPositions.add(tuple(pos))
+                updatedDesktopData.append(itemData)
 
         validFilepaths = []
 
         for filename in os.listdir(DConfig.desktopPath):
             if filename.startswith('.') or filename.lower() == 'desktop.ini':
                 continue
-
             validFilepaths.append(os.path.normpath(os.path.join(DConfig.desktopPath, filename)))
 
-        updatedDesktopData = []
-
         for filepath in validFilepaths:
-            if filepath in savedItems:
-                itemData = savedItems[filepath]
-
-                if self.pendingDropPositions and filepath in self.pendingDropPositions:
-                    desiredPos = self.pendingDropPositions.pop(filepath)
-
-                    if tuple(desiredPos) not in occupiedPositions and desiredPos[1] < maxRows:
-                        itemData["position"] = desiredPos
-                    else:
-                        itemData["position"] = GridManager.GetFirstFreePosition(occupiedPositions, maxRows)
-
-                    occupiedPositions.add(tuple(itemData["position"]))
-
-                updatedDesktopData.append(itemData)
-            else:
-                newItemData = self.AddNewItemToGrid(filepath, occupiedPositions, maxRows, renderInstantly=False)
-                updatedDesktopData.append(newItemData)
-
-        for vItem in virtualItems:
-            updatedDesktopData.append(vItem)
+            if filepath not in processedPaths:
+                newItemData = self.AddNewItemToGrid(filepath, occupiedPositions, maxCols, maxRows, renderInstantly=False)
+                if newItemData:
+                    updatedDesktopData.append(newItemData)
+                else:
+                    homelessItems.append(os.path.basename(filepath))
 
         self.stateManager.UpdateEntireDesktop(updatedDesktopData)
-
         os.makedirs(os.path.dirname(DConfig.desktopInfoFile), exist_ok = True)
-
         self.RenderGrid(updatedDesktopData, softUpdate)
+
+        if homelessItems:
+            msg = configurator.lang.Translate(
+                "Desktop.Errors", "not_enough_space",
+                fallback = "Not enough space on the desktop to place the following items:"
+            ) + "\n\n" + "\n".join(homelessItems[:10])
+            if len(homelessItems) > 10:
+                msg += f"\n... and {len(homelessItems) - 10} more."
+
+            self.errorMsg = QMessageBox(self)
+            self.errorMsg.setWindowTitle("Desktop Full")
+            self.errorMsg.setText(msg)
+            self.errorMsg.setIcon(QMessageBox.Icon.Warning)
+            self.errorMsg.setWindowFlags(self.errorMsg.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
+            self.errorMsg.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+            self.errorMsg.show()
 
     def OnDirectoryChanged(self, path):
         actualFiles = set()
@@ -223,24 +266,32 @@ class DesktopWindow(QMainWindow):
                             occupiedPositions.add((item.gridX + x, item.gridY + y))
 
                 maxRows = max(1, (self.height() - DConfig.windowMarginY * 2) // (IConfig.itemHeight + IConfig.spacingY))
+                maxCols = max(1, (self.width() - DConfig.windowMarginX * 2) // (IConfig.itemWidth + IConfig.spacingX))
 
-                newItemData, _ = self.AddNewItemToGrid(filepath, occupiedPositions, maxRows, renderInstantly = True)
+                result = self.AddNewItemToGrid(filepath, occupiedPositions, maxCols, maxRows, renderInstantly = True)
 
-                desktopData.setdefault("desktop", []).append(newItemData)
-                newItemsAdded = True
+                if result:
+                    newItemData, itemNode = result
+                    desktopData.setdefault("desktop", []).append(newItemData)
+                    newItemsAdded = True
+                else:
+                    MakeLog("[Log] [Desktop]", f"No space for new file dynamically: {filepath}")
 
         if newItemsAdded:
             self.stateManager.Save()
 
-    def AddNewItemToGrid(self, filepath, occupiedPositions, maxRows, renderInstantly = False):
+    def AddNewItemToGrid(self, filepath, occupiedPositions, maxCols, maxRows, renderInstantly = False):
         if self.pendingDropPositions and filepath in self.pendingDropPositions:
-            desiredPosition = self.pendingDropPositions.pop(filepath)
-            if tuple(desiredPosition) not in occupiedPositions and desiredPosition[1] < maxRows:
-                newPosition = desiredPosition
+            desiredPos = self.pendingDropPositions.pop(filepath)
+            if desiredPos[0] < maxCols and desiredPos[1] < maxRows and tuple(desiredPos) not in occupiedPositions:
+                newPosition = desiredPos
             else:
-                newPosition = GridManager.GetFirstFreePosition(occupiedPositions, maxRows)
+                newPosition = GridManager.GetFirstFreePosition(occupiedPositions, maxCols, maxRows)
         else:
-            newPosition = GridManager.GetFirstFreePosition(occupiedPositions, maxRows)
+            newPosition = GridManager.GetFirstFreePosition(occupiedPositions, maxCols, maxRows)
+
+        if newPosition is None:
+            return None
 
         occupiedPositions.add(tuple(newPosition))
         itemType = self.ResolveItemType(filepath)
@@ -444,6 +495,7 @@ class DesktopWindow(QMainWindow):
 
             self.selectionBox.setGeometry(QRect(self.selectionStart, self.selectionStart))
             self.selectionBox.show()
+            self.selectionBox.raise_()
 
     def mouseMoveEvent(self, event):
         if self.isSelectingStatus:
@@ -485,6 +537,8 @@ class DesktopWindow(QMainWindow):
             self.CreateDesktopItem(configurator.lang.Translate("DefaultItems", "new_folder", fallback = "New folder"), isFolder = True)
         elif command == "create_text":
             self.CreateDesktopItem(configurator.lang.Translate("DefaultItems", "new_text_document", fallback = "New text document") + ".txt")
+        elif command == "show_ninawe_settings":
+            shellSignals.toggleSettingsWindow.emit()
         elif command == "paste":
             self.PasteCommand()
         elif command.startswith("create:"):

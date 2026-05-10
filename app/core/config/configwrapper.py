@@ -12,6 +12,10 @@ class ConfigWrapper:
     def __init__(self):
         self.parser = configparser.ConfigParser(interpolation = None)
 
+    #
+    #   Getters
+    #
+
     def Get(self, section, option, fallback = None):
         try:
             return self.parser.get(section, option, fallback = fallback)
@@ -29,9 +33,12 @@ class ConfigWrapper:
             return self.parser.getint(section, option)
         except ValueError:
             # Attempt to read only numeric data if it exists
-            rawData = self.parser.get(section, option)
-            numData = rawData.replace("px", "").replace("%", "").strip()
-            return int(numData)
+            try:
+                rawData = self.parser.get(section, option)
+                numData = rawData.replace("px", "").replace("%", "").strip()
+                return int(numData)
+            except ValueError:
+                return fallback
         except Exception:
             return fallback
 
@@ -66,7 +73,36 @@ class ConfigWrapper:
     def GetPath(self, path = ""):
         return os.path.join(BASE_DIR, path)
 
-    # I'm too dumb to do this properly, so the hash variable must be called "hashes" in any case
+    #
+    #   Setters
+    #
+
+    def Set(self, section, option, value):
+        if not self.parser.has_section(section):
+            self.parser.add_section(section)
+        self.parser.set(section, str(option), str(value.replace("|", "\n")))
+
+    def Save(self, filePath = None):
+        if filePath == "theme":
+            filePath = getattr(self, "themeInitFile", None)
+        elif filePath == "app":
+            filePath = getattr(self, "configFilePath", None)
+
+        if filePath:
+            try:
+                with open(filePath, "w", encoding = "utf-8") as configfile:
+                    self.parser.write(configfile)
+                MakeLog("[Log] [Config]", f"Saved to: {filePath}")
+                return True
+            except Exception as e:
+                MakeLog("[Log] [Config]", f"Failed to save {filePath}: {e}")
+        return False
+
+    #
+    #   Checkers
+    #   I'm too dumb to do this properly, so the hash variable must be called "hashes" in any case
+    #
+
     def SectionHashCheck(self, dataClaimer = None):
         if dataClaimer is None:
             MakeLog("[Log] [ConfigWrapper] [SectionHashCheck] | Data not set")
