@@ -241,6 +241,26 @@
             "minHeight": 350,
             "spanX": 24,
             "spanY": 4
+        },
+        {
+            "type": "file",
+            "name": "Новый текстовый документ (3).txt",
+            "path": "C:\\Users\\User\\Desktop\\Новый текстовый документ (3).txt",
+            "icon": "default",
+            "position": [
+                0,
+                0
+            ]
+        },
+        {
+            "type": "file",
+            "name": "123123123.txt",
+            "path": "C:\\Users\\User\\Desktop\\123123123.txt",
+            "icon": "default",
+            "position": [
+                0,
+                1
+            ]
         }
     ]
 }

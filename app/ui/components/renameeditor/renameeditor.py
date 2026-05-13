@@ -10,7 +10,9 @@ class RenameEditor(QLineEdit):
     def focusOutEvent(self, event):
         super().focusOutEvent(event)
         if self.finishCallback:
-            QTimer.singleShot(0, self.finishCallback)
+            callback = self.finishCallback
+            self.finishCallback = None
+            QTimer.singleShot(0, callback)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:

@@ -26,6 +26,7 @@ class Widget(QWidget):
         super().__init__(parent)
         self.setObjectName("appListWidget")
 
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowDoesNotAcceptFocus)
 
@@ -64,6 +65,9 @@ class Widget(QWidget):
         for iconButton in self.buttons.values():
             iconButton.setFixedSize(WConfig.iconSize + WConfig.paddings, WConfig.iconSize + WConfig.paddings)
             iconButton.setIconSize(QSize(WConfig.iconSize, WConfig.iconSize))
+            iconButton.setStyleSheet(WConfig.buttonStyleSheet)
+
+        self.setStyleSheet(WConfig.mainStyleSheet)
 
         self.RefreshWindows()
 
@@ -71,6 +75,31 @@ class Widget(QWidget):
         self.adjustSize()
         positionX = round(WConfig.position - (self.width() * (WConfig.align / 100)))
         self.setGeometry(positionX, 0, self.width(), TBConfig.panelHeight)
+
+    def ApplyEdgeStyles(self):
+        count = self.layout.count()
+        if count == 0:
+            return
+
+        for i in range(count):
+            item = self.layout.itemAt(i)
+            if not item:
+                continue
+
+            button = item.widget()
+            if not button:
+                continue
+
+            targetStyle = WConfig.buttonStyleSheet
+
+            if i == 0:
+                targetStyle += WConfig.styleOnFirstButton
+
+            if i == count - 1:
+                targetStyle += WConfig.styleOnLastButton
+
+            if button.styleSheet() != targetStyle:
+                button.setStyleSheet(targetStyle)
 
     def SyncDataModel(self):
         self.currentGroups = GetOpenWindows()
@@ -138,35 +167,7 @@ class Widget(QWidget):
 
             if groupKey not in self.buttons:
                 button = TaskbarButton(groupKey)
-                button.setStyleSheet("""
-                    TaskbarButton {
-                        background-color: transparent;
-                        border-radius: 4px;
-                    }
-
-                    /* Base hover */
-                    TaskbarButton[isHovered="true"] { background-color: #33FFFFFF; }
-
-                    /* Opened (on background) (one window) */
-                    TaskbarButton[isOpen="true"][isGroup="false"] { padding-bottom: -1px; border-bottom: 1px solid #888888; }
-                    TaskbarButton[isOpen="true"][isGroup="false"][isHovered="true"] { background-color: #33FFFFFF; }
-
-                    /* Opened (on background) (group) */
-                    TaskbarButton[isOpen="true"][isGroup="true"] { padding-bottom: -3px; border-bottom: 3px double #888888; }
-                    TaskbarButton[isOpen="true"][isGroup="true"][isHovered="true"] { background-color: #33FFFFFF; }
-
-                    /* In focus (one window) */
-                    TaskbarButton[isActive="true"][isGroup="false"] { padding-bottom: -1px; border-bottom: 1px solid #0078D7; background-color: #11FFFFFF; }
-                    TaskbarButton[isActive="true"][isGroup="false"][isHovered="true"] { background-color: #33FFFFFF; }
-
-                    /* In focus (group) */
-                    TaskbarButton[isActive="true"][isGroup="true"] { padding-bottom: -3px; border-bottom: 3px double #0078D7; background-color: #11FFFFFF; }
-                    TaskbarButton[isActive="true"][isGroup="true"][isHovered="true"] { background-color: #33FFFFFF; }
-
-                    /* Minimized */
-                    TaskbarButton[isMinimized="true"] { padding-bottom: -3px; background-color: transparent; border-bottom: 3px solid transparent; }
-                    TaskbarButton[isMinimized="true"][isHovered="true"] { background-color: #33FFFFFF; }
-                """)
+                button.setStyleSheet(WConfig.buttonStyleSheet)
                 button.clicked.connect(lambda checked, gk = groupKey: self.OnGroupClicked(gk))
 
                 self.buttons[groupKey] = button
@@ -203,6 +204,7 @@ class Widget(QWidget):
 
             self.layout.insertWidget(index, button)
 
+        self.ApplyEdgeStyles()
         QTimer.singleShot(0, self.UpdateGeometry)
 
     def GetPixmapHash(self, pixmap):
@@ -276,6 +278,8 @@ class Widget(QWidget):
             newIndex = self.layout.indexOf(targetWidget)
             self.layout.insertWidget(newIndex, draggedButton)
 
+            self.ApplyEdgeStyles()
+
     def HandleDragFinished(self, draggedButton):
         newSessionOrder = []
         newPinnedList = []
@@ -295,6 +299,8 @@ class Widget(QWidget):
         self.sessionOrder = newSessionOrder
 
         self.appListManager.UpdatePinnedOrder(newPinnedList)
+
+        self.ApplyEdgeStyles()
 
     def UpdateOnlyStates(self):
         if not WConfig.visibility:

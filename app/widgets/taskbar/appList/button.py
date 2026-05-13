@@ -10,6 +10,7 @@ class TaskbarButton(QPushButton):
         self.isDragging = False
 
         self.setProperty("isHovered", "false")
+        self.setProperty("isPressed", "false")
         self.setProperty("isOpen", "false")
         self.setProperty("isActive", "false")
         self.setProperty("isMinimized", "false")
@@ -57,6 +58,10 @@ class TaskbarButton(QPushButton):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
+            self.setProperty("isPressed", "true")
+            self.style().unpolish(self)
+            self.style().polish(self)
+
             self.dragStartPosition = event.pos()
             self.isDragging = False
         super().mousePressEvent(event)
@@ -72,6 +77,11 @@ class TaskbarButton(QPushButton):
                 taskbar.HandleButtonDrag(self, event.globalPosition().toPoint())
 
     def mouseReleaseEvent(self, event):
+        if self.property("isPressed") == "true":
+            self.setProperty("isPressed", "false")
+            self.style().unpolish(self)
+            self.style().polish(self)
+
         if event.button() == Qt.MouseButton.RightButton:
             taskbar = self.parentWidget()
             if hasattr(taskbar, 'ShowContextMenu'):

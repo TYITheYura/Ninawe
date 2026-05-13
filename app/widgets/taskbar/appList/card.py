@@ -1,5 +1,5 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton
-from PyQt6.QtGui import QFontMetrics
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QGraphicsDropShadowEffect
+from PyQt6.QtGui import QFontMetrics, QColor
 from PyQt6.QtCore import Qt
 from core.utils import ToggleWindow
 import win32gui
@@ -34,6 +34,13 @@ class ThumbnailCard(QWidget):
 
         self.imageLabel.setPixmap(scaledPixmap)
 
+        imageShadow = QGraphicsDropShadowEffect(self.imageLabel)
+        imageShadow.setBlurRadius(20)
+        imageShadow.setXOffset(0)
+        imageShadow.setYOffset(3)
+        imageShadow.setColor(QColor(0, 0, 0, 128))
+        self.imageLabel.setGraphicsEffect(imageShadow)
+
         bottomLayout = QHBoxLayout()
         bottomLayout.setContentsMargins(0, 0, 0, 0)
         bottomLayout.setSpacing(8)
@@ -49,6 +56,13 @@ class ThumbnailCard(QWidget):
         metrics = QFontMetrics(self.titleLabel.font())
         elidedTitle = metrics.elidedText(title, Qt.TextElideMode.ElideRight, maxTextWidth)
         self.titleLabel.setText(elidedTitle)
+
+        shadow = QGraphicsDropShadowEffect(self.titleLabel)
+        shadow.setBlurRadius(5)
+        shadow.setXOffset(0)
+        shadow.setYOffset(0)
+        shadow.setColor(QColor(0, 0, 0, 200))
+        self.titleLabel.setGraphicsEffect(shadow)
 
         bottomLayout.addStretch()
         bottomLayout.addWidget(self.iconLabel)

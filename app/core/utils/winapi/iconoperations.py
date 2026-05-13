@@ -97,7 +97,7 @@ def HiconToPixmap(hicon):
             except Exception:
                 pass
 
-def GetWindowIcon(hwnd):
+def GetWindowIcon(hwnd, iconType = None):
     #
     #   Tries to get an icon from a window
     #   Returns window icon
@@ -123,9 +123,11 @@ def GetWindowIcon(hwnd):
     # Icon from window
     hicon = 0
     try:
-        hicon = win32gui.SendMessageTimeout(hwnd, win32con.WM_GETICON, win32con.ICON_SMALL, 0, win32con.SMTO_ABORTIFHUNG, 50)[1]
-        if not hicon:
+        if iconType == "SMALL":
+            hicon = win32gui.SendMessageTimeout(hwnd, win32con.WM_GETICON, win32con.ICON_SMALL, 0, win32con.SMTO_ABORTIFHUNG, 50)[1]
+        else:
             hicon = win32gui.SendMessageTimeout(hwnd, win32con.WM_GETICON, win32con.ICON_SMALL2, 0, win32con.SMTO_ABORTIFHUNG, 50)[1]
+
         if not hicon:
             hicon = win32gui.GetClassLong(hwnd, win32con.GCL_HICONSM)
     except Exception:

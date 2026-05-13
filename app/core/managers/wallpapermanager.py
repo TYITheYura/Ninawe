@@ -57,6 +57,7 @@ class WallpaperManager:
 
         if self.DConfig.isCarousel and len(self.DConfig.wallpaperList) > 1:
             self.carouselTimer.start(round(self.DConfig.intervalInMin * 60 * 1000))
+            self.fadeAnimation.setDuration(self.DConfig.transitionMs)
         else:
             self.carouselTimer.stop()
 

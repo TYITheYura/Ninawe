@@ -170,17 +170,19 @@ class BaseDesktopItem(QWidget):
         self.nameEditor.returnPressed.connect(self.FinishRename)
 
     def FinishRename(self):
-        if not self.nameEditor:
+        if getattr(self, 'nameEditor', None) is None:
             return
 
         newName = self.nameEditor.text().strip()
 
+        self.nameEditor.hide()
+        self.nameEditor.setParent(None)
         self.nameEditor.deleteLater()
-        del self.nameEditor
-        if self.textLabel:
-            self.textLabel.show()
+        self.nameEditor = None
 
         if not newName or newName == self.filename:
+            if self.textLabel:
+                self.textLabel.show()
             return
 
         originalExtension = os.path.splitext(self.filepath)[1]
@@ -191,6 +193,8 @@ class BaseDesktopItem(QWidget):
 
         if os.path.exists(newPath):
             MakeLog("[Log] [DesktopItem]", f"File with this name already exists! {newPath}")
+            if self.textLabel:
+                self.textLabel.show()
             return
 
         self.desktop.pendingDropPositions[newPath] = [self.gridX, self.gridY]
@@ -200,6 +204,9 @@ class BaseDesktopItem(QWidget):
             MakeLog("[Log] [DesktopItem]", f"Renamed: {self.filepath} -> {newPath}")
         except Exception as e:
             MakeLog("[Log] [DesktopItem]", f"Rename error: {e}")
+
+        if self.textLabel:
+            self.textLabel.show()
 
     def mousePressEvent(self, event):
         self.setFocus()

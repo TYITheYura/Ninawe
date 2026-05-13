@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#               Version: Well Done v0.1
+#               Version: Well Done v1.0
 # And remember guys: Ninawe is not a windows explorer
 
 import os
@@ -29,6 +29,13 @@ from ui.launchpad import Launchpad
 from ui.settings import SettingsWindow
 from core.utils import WorkAreaSetter, SetShellWindow, MakeLog
 from core.workers import SystemWindowManager, ExplorerGlobalWatcher
+
+#
+#   Take me back, back home
+#   Đường về cũng chẳng có xa
+#   Đêm khuya rồi sao không có ai
+#   Đưa em đi về nhà?
+#
 
 class NinaweShell:
     def __init__(self):

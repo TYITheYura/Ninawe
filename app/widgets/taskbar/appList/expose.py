@@ -31,7 +31,7 @@ class AppExposeWidget(QWidget):
         self.layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.layout.setSpacing(40)
 
-        MakeBlur(self.winId(), True, 1, "#22FFFFFF")
+        MakeBlur(self.winId(), True, 1, "#01000000")
 
     def ShowGroup(self, windowsList):
         cols = math.ceil(math.sqrt(len(windowsList)))
@@ -66,7 +66,7 @@ class AppExposeWidget(QWidget):
                 pixmap.fill(QColor("#333333"))
                 isMinimizedVisual = True
 
-            appIconPixmap = GetWindowIcon(hwnd)
+            appIconPixmap = GetWindowIcon(hwnd, "SMALL")
 
             card = ThumbnailCard(hwnd, title, pixmap, isMinimizedVisual, appIconPixmap, self)
             self.layout.addWidget(card, row, col)
