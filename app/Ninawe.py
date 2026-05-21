@@ -2,7 +2,7 @@
 #                  N N  E
 #                  N  A E i n a w e
 #                  N   WE ---------
-#               Version: Well Done v1.0
+#               Version: Well Done v1.1
 # And remember guys: Ninawe is not a windows explorer
 
 import os

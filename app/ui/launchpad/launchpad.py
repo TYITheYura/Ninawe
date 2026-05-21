@@ -38,6 +38,8 @@ class Launchpad(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAcceptDrops(True)
 
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
         self.mainLayout = QVBoxLayout(self)
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.mainLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)

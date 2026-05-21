@@ -1,59 +1,13 @@
 {
     "desktop": [
         {
-            "type": "widget",
-            "name": "defaultClock",
-            "position": [
-                10,
-                5
-            ],
-            "id": "2374f042-3147-4156-84cd-dbe2e194e3fb",
-            "minWidth": 300,
-            "minHeight": 100,
-            "spanX": 4,
-            "spanY": 2
-        },
-        {
-            "type": "system_icon",
-            "name": "recycle_bin",
-            "path": "shell:::{645FF040-5081-101B-9F08-00AA002F954E}",
-            "system_type": "recycle_bin",
-            "position": [
-                1,
-                2
-            ],
-            "id": "c38dd047-518a-4de2-a9b1-2d3fb19e1514",
-            "spanX": 1,
-            "spanY": 1
-        },
-        {
-            "type": "file",
-            "name": "123.py",
-            "path": "C:\\Users\\User\\Desktop\\123.py",
-            "icon": "default",
-            "position": [
-                6,
-                6
-            ]
-        },
-        {
-            "type": "file",
-            "name": "123123.py",
-            "path": "C:\\Users\\User\\Desktop\\123123.py",
-            "icon": "default",
-            "position": [
-                9,
-                3
-            ]
-        },
-        {
             "type": "folder",
             "name": "anything but work",
             "path": "C:\\Users\\User\\Desktop\\anything but work",
             "icon": "default",
             "position": [
-                6,
-                5
+                3,
+                9
             ]
         },
         {
@@ -62,18 +16,8 @@
             "path": "C:\\Users\\User\\Desktop\\bin",
             "icon": "default",
             "position": [
-                17,
-                5
-            ]
-        },
-        {
-            "type": "file",
-            "name": "New text document.txt",
-            "path": "C:\\Users\\User\\Desktop\\New text document.txt",
-            "icon": "default",
-            "position": [
-                6,
-                4
+                2,
+                9
             ]
         },
         {
@@ -82,8 +26,8 @@
             "path": "C:\\Users\\User\\Desktop\\Ninawe",
             "icon": "default",
             "position": [
-                17,
-                3
+                0,
+                9
             ]
         },
         {
@@ -92,8 +36,8 @@
             "path": "C:\\Users\\User\\Desktop\\Poweramp Equalizer Mixer",
             "icon": "default",
             "position": [
-                17,
-                4
+                1,
+                9
             ]
         },
         {
@@ -102,8 +46,8 @@
             "path": "C:\\Users\\User\\Desktop\\Process Hacker 2.lnk",
             "icon": "default",
             "position": [
-                2,
-                1
+                1,
+                0
             ]
         },
         {
@@ -112,18 +56,8 @@
             "path": "C:\\Users\\User\\Desktop\\uhhhhhhh",
             "icon": "default",
             "position": [
-                15,
-                3
-            ]
-        },
-        {
-            "type": "file",
-            "name": "Unit 2 text.docx",
-            "path": "C:\\Users\\User\\Desktop\\Unit 2 text.docx",
-            "icon": "default",
-            "position": [
-                8,
-                3
+                0,
+                8
             ]
         },
         {
@@ -132,8 +66,8 @@
             "path": "C:\\Users\\User\\Desktop\\Видео.lnk",
             "icon": "default",
             "position": [
-                19,
-                2
+                23,
+                7
             ]
         },
         {
@@ -142,8 +76,8 @@
             "path": "C:\\Users\\User\\Desktop\\Документы.lnk",
             "icon": "default",
             "position": [
-                20,
-                3
+                21,
+                9
             ]
         },
         {
@@ -152,28 +86,8 @@
             "path": "C:\\Users\\User\\Desktop\\Изображения.lnk",
             "icon": "default",
             "position": [
-                18,
-                1
-            ]
-        },
-        {
-            "type": "file",
-            "name": "многотупого.txt",
-            "path": "C:\\Users\\User\\Desktop\\многотупого.txt",
-            "icon": "default",
-            "position": [
-                8,
-                5
-            ]
-        },
-        {
-            "type": "file",
-            "name": "МПІ3.docx",
-            "path": "C:\\Users\\User\\Desktop\\МПІ3.docx",
-            "icon": "default",
-            "position": [
-                7,
-                3
+                22,
+                8
             ]
         },
         {
@@ -182,28 +96,8 @@
             "path": "C:\\Users\\User\\Desktop\\Музыка.lnk",
             "icon": "default",
             "position": [
-                20,
-                1
-            ]
-        },
-        {
-            "type": "file",
-            "name": "Новый текстовый документ (2).txt",
-            "path": "C:\\Users\\User\\Desktop\\Новый текстовый документ (2).txt",
-            "icon": "default",
-            "position": [
-                6,
-                3
-            ]
-        },
-        {
-            "type": "file",
-            "name": "Новый текстовый документ.txt",
-            "path": "C:\\Users\\User\\Desktop\\Новый текстовый документ.txt",
-            "icon": "default",
-            "position": [
-                7,
-                4
+                23,
+                9
             ]
         },
         {
@@ -212,8 +106,38 @@
             "path": "C:\\Users\\User\\Desktop\\теми",
             "icon": "default",
             "position": [
-                16,
-                3
+                0,
+                7
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "text",
+            "path": "C:\\Users\\User\\Desktop\\text",
+            "icon": "default",
+            "position": [
+                0,
+                6
+            ]
+        },
+        {
+            "type": "file",
+            "name": "Fun fact - The sentence !The quick brown fox jumps over the lazy dog! uses every letter in the alphabet.zip",
+            "path": "C:\\Users\\User\\Desktop\\Fun fact - The sentence !The quick brown fox jumps over the lazy dog! uses every letter in the alphabet.zip",
+            "icon": "default",
+            "position": [
+                1,
+                8
+            ]
+        },
+        {
+            "type": "file",
+            "name": "program.py",
+            "path": "C:\\Users\\User\\Desktop\\program.py",
+            "icon": "default",
+            "position": [
+                0,
+                4
             ]
         },
         {
@@ -222,44 +146,74 @@
             "path": "shell:::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
             "system_type": "computer",
             "position": [
-                1,
-                1
+                0,
+                0
             ],
-            "id": "cf4a465f-5bf0-4148-99a5-52d89c0a7a7b",
+            "id": "3219cbae-f89c-4824-ba70-ca4f5f4c1286",
             "spanX": 1,
             "spanY": 1
         },
         {
-            "type": "widget",
-            "name": "defaultSpectrum",
+            "type": "system_icon",
+            "name": "recycle_bin",
+            "path": "shell:::{645FF040-5081-101B-9F08-00AA002F954E}",
+            "system_type": "recycle_bin",
             "position": [
                 0,
-                8
+                1
             ],
-            "id": "1dbd5cf0-7f2b-4165-a4e9-fb34179787dd",
-            "minWidth": 1920,
-            "minHeight": 350,
-            "spanX": 24,
-            "spanY": 4
+            "id": "35709309-267c-4ce0-b9e7-45d40ab50914",
+            "spanX": 1,
+            "spanY": 1
         },
         {
             "type": "file",
-            "name": "Новый текстовый документ (3).txt",
-            "path": "C:\\Users\\User\\Desktop\\Новый текстовый документ (3).txt",
+            "name": "cal.py",
+            "path": "C:\\Users\\User\\Desktop\\cal.py",
             "icon": "default",
             "position": [
                 0,
-                0
+                2
             ]
         },
         {
             "type": "file",
-            "name": "123123123.txt",
-            "path": "C:\\Users\\User\\Desktop\\123123123.txt",
+            "name": "2nd.py",
+            "path": "C:\\Users\\User\\Desktop\\2nd.py",
             "icon": "default",
             "position": [
                 0,
-                1
+                3
+            ]
+        },
+        {
+            "type": "file",
+            "name": "nab.txt",
+            "path": "C:\\Users\\User\\Desktop\\nab.txt",
+            "icon": "default",
+            "position": [
+                0,
+                5
+            ]
+        },
+        {
+            "type": "file",
+            "name": "text.txt",
+            "path": "C:\\Users\\User\\Desktop\\text.txt",
+            "icon": "default",
+            "position": [
+                0,
+                10
+            ]
+        },
+        {
+            "type": "file",
+            "name": "Новый текстовый документ.txt",
+            "path": "C:\\Users\\User\\Desktop\\Новый текстовый документ.txt",
+            "icon": "default",
+            "position": [
+                0,
+                11
             ]
         }
     ]

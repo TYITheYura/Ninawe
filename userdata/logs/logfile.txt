@@ -43,18 +43,27 @@
 [Log] [Hotkeys] | Registered native combo: win+e (ID: 5)
 [Log] [Hotkeys] | Registered native combo: win+x (ID: 6)
 [Log] [WallpaperManager] | Loading wallpaper: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\themes\Glass\resources\wallpapers (Mode: cover)
-[Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultClock
-[Log] [WidgetManager] [WidgetType: DESKTOP] | Loaded: defaultSpectrum
-[Log] [SpectrumAudioThread] | Connected: Динамики / головные телефоны (Realtek Audio)
-[Log] [SpectrumWidget] | Started with GPU (OpenGL) Engine
 [Log] [ConfigUpdateChecker] | Connected: ['Taskbar.AppList', 'Taskbar.AppList.Button', 'Taskbar.Geometry']
 [Log] [WidgetManager] [WidgetType: TASKBAR] | Loaded: appList
 [Log] [SetShellWindow] | Ninawe Desktop is registered in the system as a shell
 [Log] [Starter] [0xCAFEBABE] | We are moving into space...
-[Log] [Hotkeys] | Executed custom: cmd.exe
+[Log] [Config] | Saved to: C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [ConfigManager] [Config] | App config changes detected.
+[Log] [AppConfig] | C:\Users\User\Desktop\Ninawe\Ninawe\userdata\preferences\program\config.ini loaded.
+[Log] [SettingsGUI] | Rebuilding UI due to theme/config change...
 [Log] [Taskbar] | Intercepted explorer.exe. Forcing File Browser mode.
-[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop
-[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Ninawe
-[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop is over
-[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Desktop\Ninawe\Ninawe
-[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Desktop\Ninawe is over
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Documents
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Documents\Bandicam
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Documents is over
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Documents\Bandicam is over
+[Log] [Hotkeys] | Executed custom: explorer.exe /e
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Documents
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Videos
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Documents is over
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Documents
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Videos is over
+[Log] [ExplorerGlobalWatcher] | Spying at C:\Users\User\Videos
+[Log] [ExplorerGlobalWatcher] | Spying on C:\Users\User\Documents is over
+[Log] [Taskbar] | Starting pinned app: c:\users\user\appdata\local\discord\app-1.0.9237\discord.exe

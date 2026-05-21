@@ -12,6 +12,7 @@ from ui.components import TitleBar
 from .settingbuilder import SettingsUIBuilder
 from .jsoneditor import JSONEditor
 from .stylesheet import black, white
+from .about import AboutTab
 import configparser
 import os
 import json
@@ -118,7 +119,8 @@ class SettingsWindow(QWidget):
             ("Taskbar", ["Taskbar.Geometry$", "Taskbar.Position$", "Taskbar$"], config.theme, "nav_taskbar"),
             ("PowerMenu", "PowerMenu", config.theme, "nav_powermenu"),
             ("ContextMenu", "ContextMenu", config.theme, "nav_contextmenu"),
-            ("Widgets", None, None, "nav_widgets")
+            ("Widgets", None, None, "nav_widgets"),
+            ("About", "About", None, "nav_about")
         ]
 
         for rawName, prefixes, targetCfg, key in categories:
@@ -176,6 +178,11 @@ class SettingsWindow(QWidget):
             elif rawName == "Widgets":
                 self.SetupWidgetsPage(pageLayout)
                 self.pagesStack.addWidget(pageWidget)
+                continue
+
+            elif rawName == "About":
+                aboutWidget = AboutTab()
+                self.pagesStack.addWidget(aboutWidget)
                 continue
 
             if isinstance(targetCfg, list):

@@ -8,7 +8,17 @@ if getattr(sys, "frozen", False):
 else:
     # Non-compiled
     # from config.py to default directory (.. x 4 lol)
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    BASE_DIR = (
+        os.path.dirname(                            # BASE_DIR (Ninawe)
+            os.path.dirname(                        # app\
+                os.path.dirname(                    # core\
+                    os.path.dirname(                # config\
+                        os.path.abspath(__file__)   # File
+                    )
+                )
+            )
+        )
+    )
 
 from .configwrapper import ConfigWrapper
 from .globalthemeconfig import GlobalThemeConfigData

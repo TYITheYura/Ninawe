@@ -1,6 +1,6 @@
 import os
 from PyQt6.QtWidgets import (
-    QMainWindow, QWidget, QApplication, QMessageBox
+    QWidget, QApplication, QMessageBox
 )
 from PyQt6.QtGui import (
     QPainter, QColor, QCursor
@@ -20,7 +20,7 @@ from core.workers import FileOperationThread, DesktopWatcher
 import math
 import uuid
 
-class DesktopWindow(QMainWindow):
+class DesktopWindow(QWidget):
     globalFolderUpdated = pyqtSignal()
 
     def __init__(self):
