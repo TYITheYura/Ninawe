@@ -109,12 +109,18 @@ class Launchpad(QWidget):
     def ApplyGeometry(self):
         screen = QApplication.primaryScreen().geometry()
 
+        self.setMinimumSize(0, 0)
+        self.setMaximumSize(16777215, 16777215)
+
         if LConfig.isFullscreen:
             self.setGeometry(screen)
         else:
             x = (screen.width() - LConfig.containerWidth) // 2
             y = (screen.height() - LConfig.containerHeight) // 2
+
+            self.resize(LConfig.containerWidth, LConfig.containerHeight)
             self.setGeometry(x, y, LConfig.containerWidth, LConfig.containerHeight)
+            self.setFixedSize(LConfig.containerWidth, LConfig.containerHeight)
 
         self.RefreshGrids()
 

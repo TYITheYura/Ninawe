@@ -134,7 +134,7 @@ class AboutTab(QWidget):
             self.logoLabel.setText("Ninawe")
 
         self.subtitle = QLabel(
-            "Ninawe Is Not A Windows Shell\nVersion: Well Done 1.1"
+            "Ninawe Is Not A Windows Shell\nVersion: Well Done 1.2"
         )
         self.subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.subtitle.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)

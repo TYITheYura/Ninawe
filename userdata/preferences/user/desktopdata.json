@@ -6,8 +6,8 @@
             "path": "C:\\Users\\User\\Desktop\\anything but work",
             "icon": "default",
             "position": [
-                3,
-                9
+                0,
+                0
             ]
         },
         {
@@ -16,8 +16,8 @@
             "path": "C:\\Users\\User\\Desktop\\bin",
             "icon": "default",
             "position": [
-                2,
-                9
+                0,
+                1
             ]
         },
         {
@@ -27,7 +27,7 @@
             "icon": "default",
             "position": [
                 0,
-                9
+                2
             ]
         },
         {
@@ -36,8 +36,8 @@
             "path": "C:\\Users\\User\\Desktop\\Poweramp Equalizer Mixer",
             "icon": "default",
             "position": [
-                1,
-                9
+                0,
+                3
             ]
         },
         {
@@ -46,8 +46,8 @@
             "path": "C:\\Users\\User\\Desktop\\Process Hacker 2.lnk",
             "icon": "default",
             "position": [
-                1,
-                0
+                0,
+                4
             ]
         },
         {
@@ -57,7 +57,7 @@
             "icon": "default",
             "position": [
                 0,
-                8
+                5
             ]
         },
         {
@@ -67,7 +67,7 @@
             "icon": "default",
             "position": [
                 23,
-                7
+                9
             ]
         },
         {
@@ -76,8 +76,8 @@
             "path": "C:\\Users\\User\\Desktop\\Документы.lnk",
             "icon": "default",
             "position": [
-                21,
-                9
+                0,
+                6
             ]
         },
         {
@@ -86,8 +86,8 @@
             "path": "C:\\Users\\User\\Desktop\\Изображения.lnk",
             "icon": "default",
             "position": [
-                22,
-                8
+                0,
+                7
             ]
         },
         {
@@ -96,8 +96,8 @@
             "path": "C:\\Users\\User\\Desktop\\Музыка.lnk",
             "icon": "default",
             "position": [
-                23,
-                9
+                0,
+                8
             ]
         },
         {
@@ -107,7 +107,7 @@
             "icon": "default",
             "position": [
                 0,
-                7
+                9
             ]
         },
         {
@@ -116,8 +116,8 @@
             "path": "C:\\Users\\User\\Desktop\\text",
             "icon": "default",
             "position": [
-                0,
-                6
+                1,
+                0
             ]
         },
         {
@@ -127,17 +127,7 @@
             "icon": "default",
             "position": [
                 1,
-                8
-            ]
-        },
-        {
-            "type": "file",
-            "name": "program.py",
-            "path": "C:\\Users\\User\\Desktop\\program.py",
-            "icon": "default",
-            "position": [
-                0,
-                4
+                1
             ]
         },
         {
@@ -146,8 +136,8 @@
             "path": "shell:::{20D04FE0-3AEA-1069-A2D8-08002B30309D}",
             "system_type": "computer",
             "position": [
-                0,
-                0
+                1,
+                2
             ],
             "id": "3219cbae-f89c-4824-ba70-ca4f5f4c1286",
             "spanX": 1,
@@ -159,61 +149,144 @@
             "path": "shell:::{645FF040-5081-101B-9F08-00AA002F954E}",
             "system_type": "recycle_bin",
             "position": [
-                0,
-                1
+                1,
+                3
             ],
             "id": "35709309-267c-4ce0-b9e7-45d40ab50914",
             "spanX": 1,
             "spanY": 1
         },
         {
-            "type": "file",
-            "name": "cal.py",
-            "path": "C:\\Users\\User\\Desktop\\cal.py",
+            "type": "folder",
+            "name": "Програмки",
+            "path": "C:\\Users\\User\\Desktop\\Програмки",
             "icon": "default",
             "position": [
-                0,
+                2,
+                9
+            ]
+        },
+        {
+            "type": "folder",
+            "name": "папка",
+            "path": "C:\\Users\\User\\Desktop\\папка",
+            "icon": "default",
+            "position": [
+                1,
+                4
+            ]
+        },
+        {
+            "type": "file",
+            "name": "зображення.png",
+            "path": "C:\\Users\\User\\Desktop\\зображення.png",
+            "icon": "default",
+            "position": [
+                3,
+                4
+            ]
+        },
+        {
+            "type": "widget",
+            "name": "defaultClock",
+            "position": [
+                1,
+                5
+            ],
+            "id": "4ff09f24-ebcb-4b84-b6a7-04ee1452279c",
+            "minWidth": 300,
+            "minHeight": 100,
+            "spanX": 4,
+            "spanY": 1
+        },
+        {
+            "type": "file",
+            "name": "21321321312321321.png",
+            "path": "C:\\Users\\User\\Desktop\\21321321312321321.png",
+            "icon": "default",
+            "position": [
+                1,
+                6
+            ]
+        },
+        {
+            "type": "file",
+            "name": "Курсова.pdf",
+            "path": "C:\\Users\\User\\Desktop\\Курсова.pdf",
+            "icon": "default",
+            "position": [
+                1,
+                7
+            ]
+        },
+        {
+            "type": "file",
+            "name": "1.png",
+            "path": "C:\\Users\\User\\Desktop\\1.png",
+            "icon": "default",
+            "position": [
+                1,
+                8
+            ]
+        },
+        {
+            "type": "file",
+            "name": "2.png",
+            "path": "C:\\Users\\User\\Desktop\\2.png",
+            "icon": "default",
+            "position": [
+                1,
+                9
+            ]
+        },
+        {
+            "type": "file",
+            "name": "do a barrel roll.png",
+            "path": "C:\\Users\\User\\Desktop\\do a barrel roll.png",
+            "icon": "default",
+            "position": [
+                2,
+                0
+            ]
+        },
+        {
+            "type": "file",
+            "name": "1 - за модуль, 2 - загальна.opus",
+            "path": "C:\\Users\\User\\Desktop\\1 - за модуль, 2 - загальна.opus",
+            "icon": "default",
+            "position": [
+                2,
+                1
+            ]
+        },
+        {
+            "type": "file",
+            "name": "оціночки.opus",
+            "path": "C:\\Users\\User\\Desktop\\оціночки.opus",
+            "icon": "default",
+            "position": [
+                2,
                 2
             ]
         },
         {
             "type": "file",
-            "name": "2nd.py",
-            "path": "C:\\Users\\User\\Desktop\\2nd.py",
+            "name": "питання.txt",
+            "path": "C:\\Users\\User\\Desktop\\питання.txt",
             "icon": "default",
             "position": [
-                0,
+                2,
                 3
             ]
         },
         {
             "type": "file",
-            "name": "nab.txt",
-            "path": "C:\\Users\\User\\Desktop\\nab.txt",
+            "name": "ТЙіМС_Перелік питань для підсумкового контролю.pdf",
+            "path": "C:\\Users\\User\\Desktop\\ТЙіМС_Перелік питань для підсумкового контролю.pdf",
             "icon": "default",
             "position": [
-                0,
-                5
-            ]
-        },
-        {
-            "type": "file",
-            "name": "text.txt",
-            "path": "C:\\Users\\User\\Desktop\\text.txt",
-            "icon": "default",
-            "position": [
-                0,
-                10
-            ]
-        },
-        {
-            "type": "file",
-            "name": "Новый текстовый документ.txt",
-            "path": "C:\\Users\\User\\Desktop\\Новый текстовый документ.txt",
-            "icon": "default",
-            "position": [
-                0,
-                11
+                2,
+                4
             ]
         }
     ]
