@@ -207,9 +207,12 @@ class PowerMenu(QWidget):
         # border & background maker 3000
         if PMConfig.doubleContainerBackground:
             outerColor = PMConfig.doubleContainerColor if (
-                PMConfig.blurMode == 0 or (
-                    PMConfig.blurEnabled and PMConfig.isFullscreen and PMConfig.blurMode == 1
+                PMConfig.isFullscreen or
+                not PMConfig.isFullscreen and (
+                    PMConfig.blurEnabled and PMConfig.blurMode == 0 or
+                    not PMConfig.blurEnabled
                 )
+
             ) else "#01000000"
         else:
             outerColor = "#01000000"
