@@ -3,6 +3,7 @@ import pythoncom
 import win32file
 import win32event
 import win32con
+import win32gui
 import urllib.parse
 import urllib.request
 import win32api
@@ -14,45 +15,65 @@ from core.utils import MakeLog
 class ExplorerCOMWorker(QObject):
     #
     #   A worker that is subsequently moved to a separate thread.
-    #   Its main purpose is to add the path of the open folder to the list and update its contents without stopping the entire shell.
+    #   Its main purpose is to add the path of the open folder to the list and update its contents.
     #
     pathsDiscovered = pyqtSignal(set)
 
-    def SyncFoldersTask(self, target_hwnd=0):
+    def SyncFoldersTask(self, targetHWND = 0):
         pythoncom.CoInitializeEx(0)
         try:
             shell = win32com.client.DispatchEx("Shell.Application")
             windows = None
 
-            if target_hwnd != 0:
-                for _ in range(20):
+            if targetHWND != 0:
+                for _ in range(10):
+                    if not win32gui.IsWindow(targetHWND):
+                        break
+
                     windows = shell.Windows()
                     found = False
 
                     for window in windows:
                         try:
-                            if getattr(window, "HWND", 0) == target_hwnd and window.LocationURL:
-                                found = True
-                                break
+                            if getattr(window, "HWND", 0) == targetHWND:
+                                isBusy = getattr(window, "Busy", True)
+                                readyState = getattr(window, "ReadyState", 0)
+
+                                if not isBusy and readyState == 4:
+                                    url = getattr(window, "LocationURL", "")
+                                    if url:
+                                        found = True
+                                        break
                         except Exception:
                             continue
 
                     if found:
                         break
 
-                    QThread.msleep(100)
+                    QThread.msleep(250)
             else:
+                windows = shell.Windows()
+
+            if windows is None:
                 windows = shell.Windows()
 
             currentOpenPaths = set()
 
             for window in windows:
                 try:
-                    url = window.LocationURL
+                    isBusy = getattr(window, "Busy", True)
+                    readyState = getattr(window, "ReadyState", 0)
+
+                    if isBusy or readyState != 4:
+                        continue
+
+                    url = getattr(window, "LocationURL", "")
                     if not url or not url.startswith("file:///"):
                         continue
+
                     rawPath = urllib.parse.unquote(url[8:])
                     folderPath = urllib.request.url2pathname(rawPath)
+
                     if folderPath and os.path.isabs(folderPath):
                         currentOpenPaths.add(folderPath)
                 except Exception:
@@ -60,16 +81,15 @@ class ExplorerCOMWorker(QObject):
 
             self.pathsDiscovered.emit(currentOpenPaths)
 
+        except Exception as e:
+            MakeLog("[Log] [COMWorker]", f"Sync error: {e}")
+        finally:
             if "window" in locals():
                 del window
             if "windows" in locals():
                 del windows
             if "shell" in locals():
                 del shell
-
-        except Exception as e:
-            MakeLog("[Log] [COMWorker]", f"Sync error: {e}")
-        finally:
             pythoncom.CoUninitialize()
 
     def RefreshFolderTask(self, changedPath):
@@ -79,7 +99,13 @@ class ExplorerCOMWorker(QObject):
 
             for window in shell.Windows():
                 try:
-                    url = window.LocationURL
+                    isBusy = getattr(window, "Busy", True)
+                    readyState = getattr(window, "ReadyState", 0)
+
+                    if isBusy or readyState != 4:
+                        continue
+
+                    url = getattr(window, "LocationURL", "")
                     if not url or not url.startswith("file:///"):
                         continue
 
@@ -88,11 +114,16 @@ class ExplorerCOMWorker(QObject):
 
                     if folderPath and folderPath.lower() == changedPath.lower():
                         window.Refresh()
+
                 except Exception:
                     continue
         except Exception:
             pass
         finally:
+            if "window" in locals():
+                del window
+            if "shell" in locals():
+                del shell
             pythoncom.CoUninitialize()
 
 class FolderWatcher(QThread):
@@ -230,7 +261,7 @@ class ExplorerGlobalWatcher(QObject):
         timer = QTimer()
         timer.setSingleShot(True)
         timer.timeout.connect(lambda p = changedPath: self.TriggerCOMRefresh(p))
-        timer.start(25)
+        timer.start(250)
         self.refreshTimers[changedPath] = timer
 
     def TriggerCOMRefresh(self, changedPath):

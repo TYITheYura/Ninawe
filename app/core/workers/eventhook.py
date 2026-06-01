@@ -94,19 +94,19 @@ class SystemWindowManager(QThread):
             self.structureTimer.start(50)
             if isExplorer:
                 self.lastExplorerHwnd = hwnd
-                self.explorerTimer.start(50)
+                self.explorerTimer.start(400)
 
         elif event in (win32con.EVENT_SYSTEM_FOREGROUND, win32con.EVENT_SYSTEM_MINIMIZESTART, win32con.EVENT_SYSTEM_MINIMIZEEND):
             self.stateTimer.start(20)
             if isExplorer and event == win32con.EVENT_SYSTEM_FOREGROUND:
                 self.lastExplorerHwnd = hwnd
-                self.explorerTimer.start(50)
+                self.explorerTimer.start(400)
 
         elif event == win32con.EVENT_OBJECT_NAMECHANGE:
             self.structureTimer.start(50)
             if isExplorer:
                 self.lastExplorerHwnd = hwnd
-                self.explorerTimer.start(50)
+                self.explorerTimer.start(400)
 
     def stop(self):
         self.quit()
